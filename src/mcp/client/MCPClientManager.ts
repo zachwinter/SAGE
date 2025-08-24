@@ -70,7 +70,8 @@ class MCPClientManager {
           args: config.args || [],
           env: { 
             ...process.env, 
-            NODE_PATH: process.env.NODE_PATH || "./node_modules"
+            NODE_PATH: process.env.NODE_PATH || "./node_modules",
+            ...config.env
           } as Record<string, any>
         });
         Logger.info(
@@ -254,7 +255,8 @@ class MCPClientManager {
         args: config.args || [],
         env: { 
           ...process.env, 
-          NODE_PATH: process.env.NODE_PATH || "./node_modules"
+          NODE_PATH: process.env.NODE_PATH || "./node_modules",
+          ...config.env
         } as Record<string, any>
       });
 

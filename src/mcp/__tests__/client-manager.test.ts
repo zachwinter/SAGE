@@ -351,13 +351,13 @@ describe("MCPClientManager", () => {
 
       await expect(
         clientManager.callTool(mockStdioConfig.id, "test-tool", {})
-      ).rejects.toThrow(`Server ${mockStdioConfig.id} is not connected`);
+      ).rejects.toThrow(`Server ${mockStdioConfig.id} is not in connected state`);
     });
 
     it("should throw error when calling tool on non-existent server", async () => {
       await expect(
         clientManager.callTool("non-existent", "test-tool", {})
-      ).rejects.toThrow("Server non-existent is not connected");
+      ).rejects.toThrow("Server non-existent configuration not found");
     });
   });
 
@@ -458,7 +458,9 @@ describe("MCPClientManager", () => {
       expect(MockedStdioTransport).toHaveBeenCalledWith({
         command: mockStdioConfig.command,
         args: mockStdioConfig.args,
-        env: expect.objectContaining(mockStdioConfig.env)
+        env: expect.objectContaining({
+          TEST_ENV: "true"
+        })
       });
     });
 
