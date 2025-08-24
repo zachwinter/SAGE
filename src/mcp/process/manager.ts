@@ -1,0 +1,444 @@
+import fs from "fs";
+import path from "path";
+import { spawn, ChildProcess } from "child_process";
+import { sage } from "@/utils/directories.js";
+import Logger from "../../logger/logger.js";
+
+const PIDS_DIR = path.join(sage, "pids");
+
+export interface ServerProcess {
+  serverId: string;
+  pid: number;
+  startTime: Date;
+  command: string;
+  args: string[];
+  process?: ChildProcess;
+}
+
+/**
+ * Ensure the PIDs directory exists
+ */
+function ensurePidsDirectory(): void {
+  if (!fs.existsSync(PIDS_DIR)) {
+    fs.mkdirSync(PIDS_DIR, { recursive: true });
+  }
+}
+
+/**
+ * Get the PID file path for a server
+ */
+function getPidFilePath(serverId: string): string {
+  return path.join(PIDS_DIR, `${serverId}.pid`);
+}
+
+/**
+ * Write PID file for a server
+ */
+function writePidFile(
+  serverId: string,
+  pid: number,
+  command: string,
+  args: string[]
+): void {
+  ensurePidsDirectory();
+
+  const pidData = {
+    pid,
+    startTime: new Date().toISOString(),
+    command,
+    args
+  };
+
+  const pidFilePath = getPidFilePath(serverId);
+  fs.writeFileSync(pidFilePath, JSON.stringify(pidData, null, 2));
+}
+
+/**
+ * Read PID file for a server
+ */
+function readPidFile(
+  serverId: string
+): { pid: number; startTime: string; command: string; args: string[] } | null {
+  const pidFilePath = getPidFilePath(serverId);
+
+  if (!fs.existsSync(pidFilePath)) {
+    return null;
+  }
+
+  try {
+    const data = fs.readFileSync(pidFilePath, "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    Logger.warn(`Failed to read PID file for ${serverId}:`, error as Error);
+    return null;
+  }
+}
+
+/**
+ * Remove PID file for a server
+ */
+function removePidFile(serverId: string): void {
+  const pidFilePath = getPidFilePath(serverId);
+
+  if (fs.existsSync(pidFilePath)) {
+    fs.unlinkSync(pidFilePath);
+  }
+}
+
+/**
+ * Check if a process is actually running
+ */
+function isProcessRunning(pid: number): boolean {
+  try {
+    // On Unix-like systems, sending signal 0 checks if process exists
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Get all running server processes from PID files
+ */
+export function getRunningServers(): ServerProcess[] {
+  ensurePidsDirectory();
+
+  const processes: ServerProcess[] = [];
+
+  if (!fs.existsSync(PIDS_DIR)) {
+    return processes;
+  }
+
+  const pidFiles = fs.readdirSync(PIDS_DIR).filter(file => file.endsWith(".pid"));
+
+  for (const pidFile of pidFiles) {
+    const serverId = pidFile.replace(".pid", "");
+    const pidData = readPidFile(serverId);
+
+    if (!pidData) continue;
+
+    // Check if process is actually running
+    if (isProcessRunning(pidData.pid)) {
+      processes.push({
+        serverId,
+        pid: pidData.pid,
+        startTime: new Date(pidData.startTime),
+        command: pidData.command,
+        args: pidData.args
+      });
+    } else {
+      // Clean up stale PID file
+      removePidFile(serverId);
+    }
+  }
+
+  return processes;
+}
+
+/**
+ * Check if a specific server is running
+ */
+export function isServerRunning(serverId: string): boolean {
+  const pidData = readPidFile(serverId);
+
+  if (!pidData) {
+    return false;
+  }
+
+  if (isProcessRunning(pidData.pid)) {
+    return true;
+  } else {
+    // Clean up stale PID file
+    removePidFile(serverId);
+    return false;
+  }
+}
+
+const processes: Record<string, ChildProcess> = {};
+
+export async function startServerProcess(
+  id: string,
+  command: string,
+  args: string[],
+  cwd: string
+): Promise<ChildProcess> {
+  Logger.debug("startServerProcess called", {
+    id,
+    command,
+    args,
+    cwd,
+    processExecPath: process.execPath
+  });
+
+  // Check if server is already running
+  if (isServerRunning(id)) {
+    throw new Error(`Server ${id} is already running`);
+  }
+
+  // Normalize the command: always use the current node runtime
+  const cmd =
+    command === "node" || command.endsWith("/node") ? process.execPath : command;
+
+  Logger.debug("Command normalized", { originalCommand: command, normalizedCmd: cmd });
+
+  // Grab script path (args[0]) safely
+  const [rawScriptPath, ...restArgs] = args ?? [];
+  if (!rawScriptPath) {
+    throw new Error("startServerProcess: no script path provided in args[0]");
+  }
+
+  Logger.debug("Script path extraction", { rawScriptPath, restArgs });
+
+  // Make sure it's absolute
+  const scriptPath = path.isAbsolute(rawScriptPath)
+    ? rawScriptPath
+    : path.resolve(cwd, rawScriptPath);
+
+  Logger.debug("Script path resolution", { 
+    rawScriptPath, 
+    isAbsolute: path.isAbsolute(rawScriptPath),
+    resolvedScriptPath: scriptPath,
+    cwd 
+  });
+
+  // Verify it exists
+  if (!fs.existsSync(scriptPath)) {
+    Logger.error(`MCP server script not found: ${scriptPath}`, undefined, {
+      scriptPath,
+      exists: fs.existsSync(scriptPath)
+    });
+    throw new Error(`MCP server script not found: ${scriptPath}`);
+  }
+
+  Logger.debug("Script file exists", { scriptPath });
+
+  // Spawn the process
+  const spawnArgs =
+    cmd === process.execPath
+      ? [scriptPath, ...restArgs]
+      : [scriptPath, ...restArgs];
+
+  Logger.debug("About to spawn process", {
+    cmd,
+    spawnArgs,
+    cwd,
+    isNodeExecPath: cmd === process.execPath
+  });
+
+  const child = spawn(cmd, spawnArgs, {
+    cwd,
+    stdio: "pipe",
+    env: { ...process.env }
+  });
+
+  Logger.debug("Process spawned", { pid: child.pid, id });
+
+  if (!child.pid) {
+    Logger.error(`Failed to start process - no PID`, undefined, {
+      id,
+      cmd,
+      spawnArgs,
+      cwd
+    });
+    throw new Error(`Failed to start process - no PID`);
+  }
+
+  // Return a promise that handles error conditions properly
+  return new Promise((resolve, reject) => {
+    // Setup error handling and PID file cleanup
+    const cleanup = () => {
+      removePidFile(id);
+      delete processes[id];
+    };
+
+    child.once("error", err => {
+      Logger.error(`[MCP] Failed to start server '${id}'`, err, {
+        id,
+        cmd,
+        spawnArgs,
+        cwd
+      });
+      cleanup();
+      reject(err);
+    });
+
+    // Clean up PID file when process exits
+    child.once("exit", (code, signal) => {
+      Logger.debug(`Process ${id} exited`, { code, signal, pid: child.pid });
+      cleanup();
+    });
+
+    // Write PID file after successful spawn
+    try {
+      writePidFile(id, child.pid!, cmd, spawnArgs);
+    } catch (err) {
+      Logger.error(`Failed to write PID file for ${id}`, err as Error);
+      child.kill();
+      reject(err);
+      return;
+    }
+
+    // Keep track of it so we can stop it later
+    processes[id] = child;
+
+    // KEEP the stderr listeners, as they are safe and useful for debugging.
+    // REMOVE the stdout listeners, as they interfere with the MCP protocol.
+
+    child.stderr?.on("data", chunk => {
+      const output = chunk.toString().trim();
+      if (output) {
+        Logger.error(`[${id}] stderr`, output, { id });
+      }
+    });
+
+    // Console logging for immediate debugging (can be removed later)
+    child.stderr?.on("data", chunk => {
+      console.error(`[MCP:${id}:stderr] ${chunk.toString().trim()}`);
+    });
+
+    // Wait a moment for the process to fully initialize before returning
+    setTimeout(() => {
+      resolve(child);
+    }, 100);
+  });
+}
+
+export async function stopServerProcess(id: string): Promise<void> {
+  // First check if there's a PID file
+  const pidData = readPidFile(id);
+  if (!pidData) {
+    // Clean up in-memory process if it exists
+    delete processes[id];
+    return;
+  }
+
+  const pid = pidData.pid;
+
+  // Check if process is still running
+  if (!isProcessRunning(pid)) {
+    // Process already dead, just cleanup
+    removePidFile(id);
+    delete processes[id];
+    return;
+  }
+
+  Logger.debug(`Stopping server ${id} with PID ${pid}`);
+
+  try {
+    // Send SIGTERM for graceful shutdown
+    process.kill(pid, 'SIGTERM');
+
+    // Wait up to 5 seconds for graceful shutdown
+    const timeout = 5000;
+    const checkInterval = 100;
+    let elapsed = 0;
+
+    while (elapsed < timeout) {
+      await new Promise(resolve => setTimeout(resolve, checkInterval));
+      elapsed += checkInterval;
+
+      if (!isProcessRunning(pid)) {
+        // Process terminated gracefully
+        Logger.debug(`Server ${id} terminated gracefully`);
+        break;
+      }
+    }
+
+    // If still running, force kill with SIGKILL
+    if (isProcessRunning(pid)) {
+      Logger.debug(`Server ${id} did not terminate gracefully, sending SIGKILL`);
+      process.kill(pid, 'SIGKILL');
+    }
+
+  } catch (err) {
+    // Process might already be dead, that's ok
+    if ((err as NodeJS.ErrnoException).code !== 'ESRCH') {
+      Logger.error(`Error stopping server ${id}:`, err as Error);
+    }
+  }
+
+  // Clean up
+  removePidFile(id);
+  delete processes[id];
+}
+
+/**
+ * Restart a server process
+ */
+export async function restartServerProcess(
+  serverId: string,
+  command: string,
+  args: string[] = [],
+  cwd?: string
+): Promise<ChildProcess> {
+  await stopServerProcess(serverId);
+
+  // Wait a bit before restarting
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  return startServerProcess(serverId, command, args, cwd || process.cwd());
+}
+
+/**
+ * Stop all running servers
+ */
+export async function stopAllServers(): Promise<void> {
+  const runningServers = getRunningServers();
+
+  const stopPromises = runningServers.map(server =>
+    stopServerProcess(server.serverId)
+  );
+
+  await Promise.all(stopPromises);
+}
+
+/**
+ * Clean up stale PID files (for servers that aren't actually running)
+ */
+export function cleanupStalePidFiles(): number {
+  ensurePidsDirectory();
+
+  if (!fs.existsSync(PIDS_DIR)) {
+    return 0;
+  }
+
+  const pidFiles = fs.readdirSync(PIDS_DIR).filter(file => file.endsWith(".pid"));
+  let cleaned = 0;
+
+  for (const pidFile of pidFiles) {
+    const serverId = pidFile.replace(".pid", "");
+    const pidData = readPidFile(serverId);
+
+    if (pidData && !isProcessRunning(pidData.pid)) {
+      removePidFile(serverId);
+      cleaned++;
+    }
+  }
+
+  return cleaned;
+}
+
+/**
+ * Get process information for a specific server
+ */
+export function getServerProcess(serverId: string): ServerProcess | null {
+  const pidData = readPidFile(serverId);
+
+  if (!pidData) {
+    return null;
+  }
+
+  if (isProcessRunning(pidData.pid)) {
+    return {
+      serverId,
+      pid: pidData.pid,
+      startTime: new Date(pidData.startTime),
+      command: pidData.command,
+      args: pidData.args
+    };
+  } else {
+    removePidFile(serverId);
+    return null;
+  }
+}

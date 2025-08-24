@@ -1,0 +1,67 @@
+{
+  "name": "sage",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "sage": "./dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.tsx",
+    "tag": "tsx src/mcp/tag.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run",
+    "test:unit": "vitest run --testNamePattern='unit|Unit' || vitest run src/**/*.test.ts",
+    "test:integration": "vitest run src/__tests__/integration/",
+    "test:e2e": "npm run build && vitest run src/__tests__/e2e/",
+    "test:property": "vitest run --testNamePattern='property-based|Property-based'",
+    "test:fixtures": "vitest run --testNamePattern='fixtures|Fixtures'",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "lint": "prettier --check .",
+    "lint:fix": "prettier --write .",
+    "prepublishOnly": "npm run build"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@inkjs/ui": "^2.0.0",
+    "@lmstudio/sdk": "^1.5.0",
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "@testing-library/react": "^16.3.0",
+    "cli-highlight": "^2.1.11",
+    "date-fns": "^4.1.0",
+    "ink": "^6.2.0",
+    "ink-big-text": "^2.0.0",
+    "ink-divider": "^4.1.1",
+    "ink-gradient": "^3.0.0",
+    "ink-markdown": "^1.0.4",
+    "ink-table": "^3.1.0",
+    "ink-text-input": "^6.0.0",
+    "kuzu": "^0.11.2",
+    "marked-terminal": "^7.3.0",
+    "proxy-memoize": "^3.0.1",
+    "react": "^19.1.1",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "valtio": "^2.1.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "@vitest/ui": "^3.2.4",
+    "execa": "^8.0.0",
+    "fast-check": "^4.2.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.4",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  },
+  "files": [
+    "dist/"
+  ]
+}
