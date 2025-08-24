@@ -13,6 +13,7 @@ import {
 } from "../process/index.js";
 import * as processModule from "../process/index.js";
 import { PassThrough } from "stream";
+import Logger from "../../logger/logger.js";
 
 // Mock dependencies
 vi.mock("fs");
@@ -430,7 +431,7 @@ describe("Process Management", () => {
   });
 
   describe("restartServerProcess", () => {
-    it("should stop and start a server", async () => {
+    it("should restart a server successfully", async () => {
       const serverId = "test-server";
       const command = "node";
       const args = ["server.js"];
@@ -438,65 +439,53 @@ describe("Process Management", () => {
       const scriptPath = `${cwd}/${args[0]}`; // /tmp/server.js
 
       // --- MOCK SETUP ---
-
-      // 1. Mock the functions from the same module that are being called internally.
-      const isServerRunningSpy = vi.spyOn(processModule, "isServerRunning");
-      const stopServerProcessSpy = vi.spyOn(processModule, "stopServerProcess");
-      const startServerProcessSpy = vi.spyOn(processModule, "startServerProcess");
-
-      // 2. Orchestrate the mock return values to simulate the sequence of events.
-      //    - First, the server is "running".
-      //    - stopServerProcess will be called, and after it runs, the server is "stopped".
-      isServerRunningSpy.mockReturnValueOnce(true);
-      stopServerProcessSpy.mockImplementation(async () => {
-        isServerRunningSpy.mockReturnValueOnce(false); // The server is now "stopped" for the next check.
-      });
-
-      // 3. Mock the dependencies for startServerProcess.
-      //    - The script file must exist for startServerProcess to not throw an error.
+      
+      // Mock file system calls
       mockFs.existsSync.mockImplementation(path => {
-        return path.toString() === scriptPath;
+        const pathStr = path.toString();
+        if (pathStr.includes(`${serverId}.pid`)) return false;  // No PID file exists initially
+        if (pathStr === scriptPath) return true;  // Script exists
+        return false;
       });
 
-      //    - Create a mock child process to be returned by spawn().
+      // Create a mock child process that will emit the ready signal
       const mockStderr = new PassThrough();
       const mockChildProcess = {
         pid: 54321,
         once: vi.fn(),
         stderr: mockStderr,
-        kill: vi.fn()
+        kill: vi.fn(),
+        removeAllListeners: vi.fn()
       };
       mockSpawn.mockReturnValue(mockChildProcess as any);
 
-      //    - Mock the implementation of startServerProcess to handle the readiness signal.
-      startServerProcessSpy.mockImplementation(async () => {
-        // Return a promise that resolves when the mock stderr receives "MCP server ready"
-        return new Promise((resolve) => {
-          process.nextTick(() => {
-            mockStderr.write("MCP server ready");
-            resolve(mockChildProcess as any);
-          });
-        });
+      // --- ACTION ---
+      const restartPromise = restartServerProcess(serverId, command, args, cwd);
+      
+      // Simulate the server becoming ready (this is what the real server.js would do)
+      process.nextTick(() => {
+        mockStderr.write("MCP server ready");
       });
 
-      // --- ACTION ---
-      await restartServerProcess(serverId, command, args, cwd);
+      const result = await restartPromise;
 
       // --- ASSERTIONS ---
 
-      // Verify that stopServerProcess was called first.
-      expect(stopServerProcessSpy).toHaveBeenCalledWith(serverId);
-
-      // Verify that startServerProcess was called after.
-      expect(startServerProcessSpy).toHaveBeenCalledWith(
-        serverId,
-        command,
-        args,
-        cwd
+      // Verify that a child process was returned
+      expect(result).toBe(mockChildProcess);
+      
+      // Verify that spawn was called with the right parameters
+      expect(mockSpawn).toHaveBeenCalledWith(
+        expect.stringMatching(/node$/), // Command is normalized to an absolute path
+        [scriptPath],
+        expect.any(Object)
       );
 
-      // Verify that the check for the server running was performed.
-      expect(isServerRunningSpy).toHaveBeenCalled();
+      // Verify that a PID file was written (indicating the process was started successfully)
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        expect.stringContaining(`${serverId}.pid`),
+        expect.stringContaining('54321')
+      );
     });
   });
 

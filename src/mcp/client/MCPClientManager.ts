@@ -84,19 +84,18 @@ class MCPClientManager {
       
       // ----------- START TEMPORARY DEBUG CODE -----------
       if (transport instanceof StdioClientTransport) {
-        // We need to wait for the transport to start the process.
-        // The `start` method is called inside `client.connect`.
-        // We can listen on the transport's events.
         transport.onmessage = (msg) => {
-           console.log(`[E2E DEBUG ONMESSAGE]:`, JSON.stringify(msg));
+           Logger.info(`[E2E DEBUG ONMESSAGE]:`, { msg: JSON.stringify(msg) });
         };
         transport.onerror = (err) => {
-           console.error(`[E2E DEBUG ONERROR]:`, err);
+           Logger.error(`[E2E DEBUG ONERROR]:`, err);
         };
       }
       // ----------- END TEMPORARY DEBUG CODE -----------
 
+      Logger.info(`🔌 About to call client.connect() for ${config.name}`);
       await client.connect(transport);
+      Logger.info(`🔌 client.connect() completed for ${config.name}`);
       Logger.info(`✅ Connection established with ${config.name}!`);
       mcpState.servers[serverId].client = client;
       updateServerStatus(serverId, "connected");
@@ -104,11 +103,29 @@ class MCPClientManager {
       Logger.info(`🔍 Fetching capabilities from ${config.name}...`);
 
       try {
+        Logger.info(`🔧 About to fetch capabilities from ${config.name}`);
+        
+        // Fetch capabilities with individual timeouts - bind methods to avoid "Illegal invocation"
         const results = await Promise.allSettled([
-          client.listTools(),
-          client.listResources(),
-          client.listPrompts()
+          Promise.race([
+            client.listTools.bind(client)(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("listTools timeout")), 3000))
+          ]),
+          Promise.race([
+            client.listResources.bind(client)(), 
+            new Promise((_, reject) => setTimeout(() => reject(new Error("listResources timeout")), 3000))
+          ]),
+          Promise.race([
+            client.listPrompts.bind(client)(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("listPrompts timeout")), 3000))
+          ])
         ]);
+        
+        Logger.info(`🔧 Got capability results for ${config.name}:`, { 
+          resultsCount: results.length,
+          statuses: results.map(r => r.status),
+          errors: results.filter(r => r.status === 'rejected').map(r => (r as any).reason?.message)
+        });
 
         const toolsResult =
           results[0].status === "fulfilled" ? results[0].value : { tools: [] };

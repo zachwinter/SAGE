@@ -86,6 +86,15 @@ describe("MCP E2E Workflow", () => {
     console.log("🚨 Server connection initiated successfully!");
     Logger.info("🚨 Server connection initiated successfully!");
 
+    // Check the state immediately after connectServer completes
+    const serverAfterConnect = mcpState.servers?.[serverId];
+    Logger.info("🚨 Server state immediately after connectServer:", {
+      serverExists: !!serverAfterConnect,
+      status: serverAfterConnect?.status,
+      serverId,
+      allServerIds: Object.keys(mcpState.servers || {})
+    });
+
     // wait for actual connected state
     Logger.debug("Waiting for server status to be 'connected'");
     Logger.debug("Current server state", {
@@ -95,7 +104,12 @@ describe("MCP E2E Workflow", () => {
     await waitFor(
       () => {
         const server = mcpState.servers?.[serverId];
-        Logger.debug("Checking server status", { status: server?.status, serverId });
+        Logger.info("🔄 Checking server status in waitFor", { 
+          status: server?.status, 
+          serverId, 
+          serverExists: !!server,
+          allServers: Object.keys(mcpState.servers || {})
+        });
         return server?.status === "connected";
       },
       {
