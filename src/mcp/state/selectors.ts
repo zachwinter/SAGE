@@ -1,5 +1,11 @@
 import { state as mcpState } from "./state.js";
-import { McpServerConfig, McpServerConnection, McpTool, McpResource, McpPrompt } from "../types.js";
+import {
+  McpServerConfig,
+  McpServerConnection,
+  McpTool,
+  McpResource,
+  McpPrompt
+} from "../types.js";
 
 export function getServerConfigs(): Record<string, McpServerConfig> {
   return mcpState.serverConfigs;
@@ -44,7 +50,9 @@ export function getAvailableMcpResources(): McpResource[] {
 }
 
 export function getMcpResourceByUri(uri: string): McpResource | undefined {
-  return mcpState.availableResources.find((resource: McpResource) => resource.uri === uri);
+  return mcpState.availableResources.find(
+    (resource: McpResource) => resource.uri === uri
+  );
 }
 
 export function getAvailableMcpPrompts(): McpPrompt[] {

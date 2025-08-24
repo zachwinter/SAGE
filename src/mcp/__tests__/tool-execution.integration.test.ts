@@ -43,7 +43,7 @@ describe("MCP Tool Execution Integration", () => {
     state.availableTools = [];
     state.availableResources = [];
     state.availablePrompts = [];
-    
+
     vi.clearAllMocks();
   });
 
@@ -134,7 +134,7 @@ describe("MCP Tool Execution Integration", () => {
       ] as McpTool[];
 
       const lmStudioTools = toolRegistry.getLMStudioTools();
-      
+
       // Should include built-in tools
       const bashTool = lmStudioTools.find(tool => tool && tool.name === "Bash");
       expect(bashTool).toBeDefined();
@@ -152,7 +152,7 @@ describe("MCP Tool Execution Integration", () => {
       const mockResult = {
         content: [{ type: "text", text: "MCP tool executed successfully" }]
       };
-      
+
       vi.mocked(mcpClientManager.callTool).mockResolvedValue(mockResult);
 
       state.availableTools = [
@@ -180,7 +180,9 @@ describe("MCP Tool Execution Integration", () => {
 
     it("should handle tool execution errors", async () => {
       const errorMessage = "Tool execution failed";
-      vi.mocked(mcpClientManager.callTool).mockRejectedValue(new Error(errorMessage));
+      vi.mocked(mcpClientManager.callTool).mockRejectedValue(
+        new Error(errorMessage)
+      );
 
       state.availableTools = [
         {
@@ -195,9 +197,9 @@ describe("MCP Tool Execution Integration", () => {
       const mcpTools = toolRegistry.getMcpTools();
       const failingTool = mcpTools[0];
 
-      await expect(
-        failingTool.implementation({ input: "test" })
-      ).rejects.toThrow(errorMessage);
+      await expect(failingTool.implementation({ input: "test" })).rejects.toThrow(
+        errorMessage
+      );
     });
 
     it("should pass correct arguments to MCP tools", async () => {
@@ -254,7 +256,7 @@ describe("MCP Tool Execution Integration", () => {
 
       const builtinTools = toolRegistry.getBuiltinTools();
       const readTool = builtinTools.find(tool => tool.name === "Read");
-      
+
       expect(readTool).toBeDefined();
       expect(readTool!.source).toBe("builtin");
       expect(typeof readTool!.implementation).toBe("function");
@@ -330,7 +332,7 @@ describe("MCP Tool Execution Integration", () => {
         },
         {
           name: "server2_tool",
-          description: "Tool from server 2", 
+          description: "Tool from server 2",
           inputSchema: { type: "object" },
           serverId: "server-2",
           serverName: "Server 2"
@@ -348,10 +350,10 @@ describe("MCP Tool Execution Integration", () => {
 
       const mcpTools = toolRegistry.getMcpTools();
       expect(mcpTools).toHaveLength(3);
-      
+
       const server1Tools = mcpTools.filter(tool => tool.serverId === "server-1");
       const server2Tools = mcpTools.filter(tool => tool.serverId === "server-2");
-      
+
       expect(server1Tools).toHaveLength(2);
       expect(server2Tools).toHaveLength(1);
     });
@@ -389,10 +391,10 @@ describe("MCP Tool Execution Integration", () => {
       ];
 
       const mcpTools = toolRegistry.getMcpTools();
-      
+
       // Should still include valid tools
       expect(mcpTools.some(tool => tool.name === "valid_tool")).toBe(true);
-      
+
       // Should handle malformed tools gracefully
       expect(() => toolRegistry.getAllTools()).not.toThrow();
     });
@@ -415,9 +417,9 @@ describe("MCP Tool Execution Integration", () => {
       const mcpTools = toolRegistry.getMcpTools();
       const tool = mcpTools[0];
 
-      await expect(
-        tool.implementation({ test: "data" })
-      ).rejects.toThrow("Server test-server is not connected");
+      await expect(tool.implementation({ test: "data" })).rejects.toThrow(
+        "Server test-server is not connected"
+      );
     });
   });
 });

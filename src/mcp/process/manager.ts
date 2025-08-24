@@ -180,7 +180,10 @@ export async function startServerProcess(
   const cmd =
     command === "node" || command.endsWith("/node") ? process.execPath : command;
 
-  Logger.debug("Command normalized", { originalCommand: command, normalizedCmd: cmd });
+  Logger.debug("Command normalized", {
+    originalCommand: command,
+    normalizedCmd: cmd
+  });
 
   // Grab script path (args[0]) safely
   const [rawScriptPath, ...restArgs] = args ?? [];
@@ -195,11 +198,11 @@ export async function startServerProcess(
     ? rawScriptPath
     : path.resolve(cwd, rawScriptPath);
 
-  Logger.debug("Script path resolution", { 
-    rawScriptPath, 
+  Logger.debug("Script path resolution", {
+    rawScriptPath,
     isAbsolute: path.isAbsolute(rawScriptPath),
     resolvedScriptPath: scriptPath,
-    cwd 
+    cwd
   });
 
   // Verify it exists
@@ -215,9 +218,7 @@ export async function startServerProcess(
 
   // Spawn the process
   const spawnArgs =
-    cmd === process.execPath
-      ? [scriptPath, ...restArgs]
-      : [scriptPath, ...restArgs];
+    cmd === process.execPath ? [scriptPath, ...restArgs] : [scriptPath, ...restArgs];
 
   Logger.debug("About to spawn process", {
     cmd,
@@ -327,7 +328,7 @@ export async function stopServerProcess(id: string): Promise<void> {
 
   try {
     // Send SIGTERM for graceful shutdown
-    process.kill(pid, 'SIGTERM');
+    process.kill(pid, "SIGTERM");
 
     // Wait up to 5 seconds for graceful shutdown
     const timeout = 5000;
@@ -348,12 +349,11 @@ export async function stopServerProcess(id: string): Promise<void> {
     // If still running, force kill with SIGKILL
     if (isProcessRunning(pid)) {
       Logger.debug(`Server ${id} did not terminate gracefully, sending SIGKILL`);
-      process.kill(pid, 'SIGKILL');
+      process.kill(pid, "SIGKILL");
     }
-
   } catch (err) {
     // Process might already be dead, that's ok
-    if ((err as NodeJS.ErrnoException).code !== 'ESRCH') {
+    if ((err as NodeJS.ErrnoException).code !== "ESRCH") {
       Logger.error(`Error stopping server ${id}:`, err as Error);
     }
   }

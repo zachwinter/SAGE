@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach
+} from "vitest";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -7,7 +15,7 @@ import {
   stopServerProcess,
   isServerRunning,
   getServerProcess,
-  cleanupStalePidFiles,
+  cleanupStalePidFiles
 } from "../../process/manager";
 import { ChildProcess } from "child_process";
 
@@ -25,7 +33,10 @@ describe("Process Integration", () => {
     tempDir = createTempDir();
     scriptPath = path.join(tempDir, "test-server.js");
     // A simple script that stays alive
-    fs.writeFileSync(scriptPath, "setInterval(() => { console.log('ping'); }, 1000);");
+    fs.writeFileSync(
+      scriptPath,
+      "setInterval(() => { console.log('ping'); }, 1000);"
+    );
   });
 
   afterAll(() => {
@@ -41,7 +52,12 @@ describe("Process Integration", () => {
   });
 
   it("should start a server process and create a PID file", async () => {
-    childProcess = await startServerProcess(serverId, "node", [scriptPath], process.cwd());
+    childProcess = await startServerProcess(
+      serverId,
+      "node",
+      [scriptPath],
+      process.cwd()
+    );
     expect(childProcess.pid).toBeDefined();
 
     const isRunning = isServerRunning(serverId);
@@ -53,7 +69,12 @@ describe("Process Integration", () => {
   });
 
   it("should stop a running server process", async () => {
-    childProcess = await startServerProcess(serverId, "node", [scriptPath], process.cwd());
+    childProcess = await startServerProcess(
+      serverId,
+      "node",
+      [scriptPath],
+      process.cwd()
+    );
     expect(isServerRunning(serverId)).toBe(true);
 
     await stopServerProcess(serverId);
@@ -67,8 +88,21 @@ describe("Process Integration", () => {
   it("should clean up stale PID files", async () => {
     // Manually create a stale PID file
     const staleServerId = "stale-server";
-    const pidFilePath = path.join(os.homedir(), ".sage", "pids", `${staleServerId}.pid`);
-    fs.writeFileSync(pidFilePath, JSON.stringify({ pid: 99999, startTime: new Date().toISOString(), command: "fake", args: [] }));
+    const pidFilePath = path.join(
+      os.homedir(),
+      ".sage",
+      "pids",
+      `${staleServerId}.pid`
+    );
+    fs.writeFileSync(
+      pidFilePath,
+      JSON.stringify({
+        pid: 99999,
+        startTime: new Date().toISOString(),
+        command: "fake",
+        args: []
+      })
+    );
 
     cleanupStalePidFiles();
 

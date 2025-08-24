@@ -30,17 +30,26 @@ export const View: FC<ViewProps> = ({
 }) => {
   const keys = keyBindings?.map?.(v => ({ label: v.label, value: v.key }));
 
-  const handleKeySelect = useCallback((value: string) => {
-    const binding = keyBindings?.find(b => b.key === value);
-    if (binding) {
-      binding.action();
-    }
-  }, [keyBindings]);
+  const handleKeySelect = useCallback(
+    (value: string) => {
+      const binding = keyBindings?.find(b => b.key === value);
+      if (binding) {
+        binding.action();
+      }
+    },
+    [keyBindings]
+  );
 
   const handleInput = useCallback(
     (
       input: string,
-      key: { escape: boolean; shift: boolean; tab: boolean; delete: boolean; return: boolean }
+      key: {
+        escape: boolean;
+        shift: boolean;
+        tab: boolean;
+        delete: boolean;
+        return: boolean;
+      }
     ) => {
       if (key.shift && key.tab) return cycleView();
       findAndCallActionHandlers(input, key);

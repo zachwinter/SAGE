@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach
+} from "vitest";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -9,7 +17,7 @@ import {
   removeServer,
   isServerInstalled,
   getServerPath,
-  ensureServersDirectory,
+  ensureServersDirectory
 } from "../../installation/filesystem";
 
 // Helper function to create a temporary directory
@@ -55,7 +63,7 @@ describe("Filesystem Integration", () => {
 
   it("should clone a repository to the correct location", async () => {
     const serverPath = await cloneServer(remoteRepoPath, "test-server");
-    
+
     // The server path should be inside the ~/.sage/servers directory
     const expectedServerPath = getServerPath(remoteRepoPath);
 

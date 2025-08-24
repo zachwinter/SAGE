@@ -167,64 +167,92 @@ process.exit(0);
       }
 
       // Mock successful connections for enabled servers
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        const server = state.servers[serverId];
-        if (server && server.config.enabled) {
-          server.status = "connected";
-          server.client = {} as any;
-          
-          // Mock capabilities based on server type
-          if (serverId === "file-server") {
-            server.capabilities = {
-              tools: [
-                { name: "read_file", description: "Read file", inputSchema: { type: "object" } },
-                { name: "write_file", description: "Write file", inputSchema: { type: "object" } }
-              ],
-              resources: [
-                { uri: `file://${tempDir}/data.txt`, name: "Test Data", description: "Test file" }
-              ],
-              prompts: [
-                { name: "file_operation", description: "File operation template" }
-              ]
-            };
-          } else if (serverId === "api-server") {
-            server.capabilities = {
-              tools: [
-                { name: "api_call", description: "Make API call", inputSchema: { type: "object" } }
-              ],
-              resources: [
-                { uri: "http://api.example.com/data", name: "API Data", description: "Remote data" }
-              ],
-              prompts: []
-            };
-          }
-          
-          // Update global state
-          if (server.capabilities) {
-            if (server.capabilities.tools) {
-              state.availableTools.push(...server.capabilities.tools.map(tool => ({
-                ...tool,
-                serverId: server.id,
-                serverName: server.name
-              })));
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          const server = state.servers[serverId];
+          if (server && server.config.enabled) {
+            server.status = "connected";
+            server.client = {} as any;
+
+            // Mock capabilities based on server type
+            if (serverId === "file-server") {
+              server.capabilities = {
+                tools: [
+                  {
+                    name: "read_file",
+                    description: "Read file",
+                    inputSchema: { type: "object" }
+                  },
+                  {
+                    name: "write_file",
+                    description: "Write file",
+                    inputSchema: { type: "object" }
+                  }
+                ],
+                resources: [
+                  {
+                    uri: `file://${tempDir}/data.txt`,
+                    name: "Test Data",
+                    description: "Test file"
+                  }
+                ],
+                prompts: [
+                  { name: "file_operation", description: "File operation template" }
+                ]
+              };
+            } else if (serverId === "api-server") {
+              server.capabilities = {
+                tools: [
+                  {
+                    name: "api_call",
+                    description: "Make API call",
+                    inputSchema: { type: "object" }
+                  }
+                ],
+                resources: [
+                  {
+                    uri: "http://api.example.com/data",
+                    name: "API Data",
+                    description: "Remote data"
+                  }
+                ],
+                prompts: []
+              };
             }
-            if (server.capabilities.resources) {
-              state.availableResources.push(...server.capabilities.resources.map(resource => ({
-                ...resource,
-                serverId: server.id,
-                serverName: server.name
-              })));
-            }
-            if (server.capabilities.prompts) {
-              state.availablePrompts.push(...server.capabilities.prompts.map(prompt => ({
-                ...prompt,
-                serverId: server.id,
-                serverName: server.name
-              })));
+
+            // Update global state
+            if (server.capabilities) {
+              if (server.capabilities.tools) {
+                state.availableTools.push(
+                  ...server.capabilities.tools.map(tool => ({
+                    ...tool,
+                    serverId: server.id,
+                    serverName: server.name
+                  }))
+                );
+              }
+              if (server.capabilities.resources) {
+                state.availableResources.push(
+                  ...server.capabilities.resources.map(resource => ({
+                    ...resource,
+                    serverId: server.id,
+                    serverName: server.name
+                  }))
+                );
+              }
+              if (server.capabilities.prompts) {
+                state.availablePrompts.push(
+                  ...server.capabilities.prompts.map(prompt => ({
+                    ...prompt,
+                    serverId: server.id,
+                    serverName: server.name
+                  }))
+                );
+              }
             }
           }
         }
-      });
+      );
 
       await mcpClientManager.connectAll();
 
@@ -244,63 +272,91 @@ process.exit(0);
       }
 
       // Use the same mock from previous test
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        const server = state.servers[serverId];
-        if (server && server.config.enabled) {
-          server.status = "connected";
-          server.client = {} as any;
-          
-          if (serverId === "file-server") {
-            server.capabilities = {
-              tools: [
-                { name: "read_file", description: "Read file", inputSchema: { type: "object" } },
-                { name: "write_file", description: "Write file", inputSchema: { type: "object" } }
-              ],
-              resources: [
-                { uri: `file://${tempDir}/data.txt`, name: "Test Data", description: "Test file" }
-              ],
-              prompts: [
-                { name: "file_operation", description: "File operation template" }
-              ]
-            };
-          } else if (serverId === "api-server") {
-            server.capabilities = {
-              tools: [
-                { name: "api_call", description: "Make API call", inputSchema: { type: "object" } }
-              ],
-              resources: [
-                { uri: "http://api.example.com/data", name: "API Data", description: "Remote data" }
-              ],
-              prompts: []
-            };
-          }
-          
-          // Update global state
-          if (server.capabilities) {
-            if (server.capabilities.tools) {
-              state.availableTools.push(...server.capabilities.tools.map(tool => ({
-                ...tool,
-                serverId: server.id,
-                serverName: server.name
-              })));
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          const server = state.servers[serverId];
+          if (server && server.config.enabled) {
+            server.status = "connected";
+            server.client = {} as any;
+
+            if (serverId === "file-server") {
+              server.capabilities = {
+                tools: [
+                  {
+                    name: "read_file",
+                    description: "Read file",
+                    inputSchema: { type: "object" }
+                  },
+                  {
+                    name: "write_file",
+                    description: "Write file",
+                    inputSchema: { type: "object" }
+                  }
+                ],
+                resources: [
+                  {
+                    uri: `file://${tempDir}/data.txt`,
+                    name: "Test Data",
+                    description: "Test file"
+                  }
+                ],
+                prompts: [
+                  { name: "file_operation", description: "File operation template" }
+                ]
+              };
+            } else if (serverId === "api-server") {
+              server.capabilities = {
+                tools: [
+                  {
+                    name: "api_call",
+                    description: "Make API call",
+                    inputSchema: { type: "object" }
+                  }
+                ],
+                resources: [
+                  {
+                    uri: "http://api.example.com/data",
+                    name: "API Data",
+                    description: "Remote data"
+                  }
+                ],
+                prompts: []
+              };
             }
-            if (server.capabilities.resources) {
-              state.availableResources.push(...server.capabilities.resources.map(resource => ({
-                ...resource,
-                serverId: server.id,
-                serverName: server.name
-              })));
-            }
-            if (server.capabilities.prompts) {
-              state.availablePrompts.push(...server.capabilities.prompts.map(prompt => ({
-                ...prompt,
-                serverId: server.id,
-                serverName: server.name
-              })));
+
+            // Update global state
+            if (server.capabilities) {
+              if (server.capabilities.tools) {
+                state.availableTools.push(
+                  ...server.capabilities.tools.map(tool => ({
+                    ...tool,
+                    serverId: server.id,
+                    serverName: server.name
+                  }))
+                );
+              }
+              if (server.capabilities.resources) {
+                state.availableResources.push(
+                  ...server.capabilities.resources.map(resource => ({
+                    ...resource,
+                    serverId: server.id,
+                    serverName: server.name
+                  }))
+                );
+              }
+              if (server.capabilities.prompts) {
+                state.availablePrompts.push(
+                  ...server.capabilities.prompts.map(prompt => ({
+                    ...prompt,
+                    serverId: server.id,
+                    serverName: server.name
+                  }))
+                );
+              }
             }
           }
         }
-      });
+      );
 
       await mcpClientManager.connectAll();
 
@@ -316,7 +372,7 @@ process.exit(0);
       // Verify tool attribution
       const fileTools = tools.filter(tool => tool.serverId === "file-server");
       const apiTools = tools.filter(tool => tool.serverId === "api-server");
-      
+
       expect(fileTools).toHaveLength(2);
       expect(apiTools).toHaveLength(1);
     });
@@ -330,41 +386,67 @@ process.exit(0);
       }
 
       // Mock the tool execution workflow
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        const server = state.servers[serverId];
-        if (server && server.config.enabled) {
-          server.status = "connected";
-          server.client = {} as any;
-          
-          if (serverId === "file-server") {
-            server.capabilities = {
-              tools: [
-                { name: "read_file", description: "Read file", inputSchema: { type: "object" } },
-                { name: "write_file", description: "Write file", inputSchema: { type: "object" } }
-              ]
-            };
-            state.availableTools.push(
-              { name: "read_file", description: "Read file", inputSchema: { type: "object" }, serverId: "file-server", serverName: "File Management Server" },
-              { name: "write_file", description: "Write file", inputSchema: { type: "object" }, serverId: "file-server", serverName: "File Management Server" }
-            );
-          }
-        }
-      });
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          const server = state.servers[serverId];
+          if (server && server.config.enabled) {
+            server.status = "connected";
+            server.client = {} as any;
 
-      vi.spyOn(mcpClientManager, 'callTool').mockImplementation(async (serverId, toolName, args) => {
-        if (serverId === "file-server") {
-          if (toolName === "read_file") {
-            return {
-              content: [{ type: "text", text: `Contents of ${args.path}` }]
-            };
-          } else if (toolName === "write_file") {
-            return {
-              content: [{ type: "text", text: `Successfully wrote to ${args.path}` }]
-            };
+            if (serverId === "file-server") {
+              server.capabilities = {
+                tools: [
+                  {
+                    name: "read_file",
+                    description: "Read file",
+                    inputSchema: { type: "object" }
+                  },
+                  {
+                    name: "write_file",
+                    description: "Write file",
+                    inputSchema: { type: "object" }
+                  }
+                ]
+              };
+              state.availableTools.push(
+                {
+                  name: "read_file",
+                  description: "Read file",
+                  inputSchema: { type: "object" },
+                  serverId: "file-server",
+                  serverName: "File Management Server"
+                },
+                {
+                  name: "write_file",
+                  description: "Write file",
+                  inputSchema: { type: "object" },
+                  serverId: "file-server",
+                  serverName: "File Management Server"
+                }
+              );
+            }
           }
         }
-        throw new Error(`Unknown tool: ${toolName}`);
-      });
+      );
+
+      vi.spyOn(mcpClientManager, "callTool").mockImplementation(
+        async (serverId, toolName, args) => {
+          if (serverId === "file-server") {
+            if (toolName === "read_file") {
+              return {
+                content: [{ type: "text", text: `Contents of ${args.path}` }]
+              };
+            } else if (toolName === "write_file") {
+              return {
+                content: [
+                  { type: "text", text: `Successfully wrote to ${args.path}` }
+                ]
+              };
+            }
+          }
+          throw new Error(`Unknown tool: ${toolName}`);
+        }
+      );
 
       await mcpClientManager.connectAll();
     });
@@ -388,10 +470,14 @@ process.exit(0);
 
     it("should handle mixed tool execution (built-in + MCP)", async () => {
       const allTools = toolRegistry.getAllTools();
-      
+
       // Get built-in and MCP tools
-      const bashTool = allTools.find(tool => tool.name === "Bash" && tool.source === "builtin");
-      const mcpTool = allTools.find(tool => tool.name === "read_file" && tool.source === "mcp");
+      const bashTool = allTools.find(
+        tool => tool.name === "Bash" && tool.source === "builtin"
+      );
+      const mcpTool = allTools.find(
+        tool => tool.name === "read_file" && tool.source === "mcp"
+      );
 
       expect(bashTool).toBeDefined();
       expect(mcpTool).toBeDefined();
@@ -409,13 +495,21 @@ process.exit(0);
       const fileServerTools = tools.filter(tool => tool.serverId === "file-server");
 
       expect(fileServerTools).toHaveLength(2);
-      expect(fileServerTools.every(tool => tool.serverName === "File Management Server")).toBe(true);
+      expect(
+        fileServerTools.every(tool => tool.serverName === "File Management Server")
+      ).toBe(true);
 
       // Test that tools are called on correct servers
-      const readTool = toolRegistry.getMcpTools().find(tool => tool.name === "read_file");
+      const readTool = toolRegistry
+        .getMcpTools()
+        .find(tool => tool.name === "read_file");
       await readTool!.implementation({ path: "/test" });
 
-      expect(mcpClientManager.callTool).toHaveBeenCalledWith("file-server", "read_file", { path: "/test" });
+      expect(mcpClientManager.callTool).toHaveBeenCalledWith(
+        "file-server",
+        "read_file",
+        { path: "/test" }
+      );
     });
   });
 
@@ -426,57 +520,99 @@ process.exit(0);
       }
 
       // Mock resource and prompt capabilities
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        const server = state.servers[serverId];
-        if (server && server.config.enabled) {
-          server.status = "connected";
-          server.client = {} as any;
-          
-          if (serverId === "file-server") {
-            server.capabilities = {
-              resources: [
-                { uri: `file://${tempDir}/config.json`, name: "Config", description: "Configuration file" },
-                { uri: `file://${tempDir}/data.csv`, name: "Data", description: "CSV data file" }
-              ],
-              prompts: [
-                { name: "file_summary", description: "Summarize file contents" },
-                { name: "file_analysis", description: "Analyze file structure" }
-              ]
-            };
-            
-            state.availableResources.push(
-              { uri: `file://${tempDir}/config.json`, name: "Config", description: "Configuration file", serverId: "file-server", serverName: "File Management Server" },
-              { uri: `file://${tempDir}/data.csv`, name: "Data", description: "CSV data file", serverId: "file-server", serverName: "File Management Server" }
-            );
-            
-            state.availablePrompts.push(
-              { name: "file_summary", description: "Summarize file contents", serverId: "file-server", serverName: "File Management Server" },
-              { name: "file_analysis", description: "Analyze file structure", serverId: "file-server", serverName: "File Management Server" }
-            );
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          const server = state.servers[serverId];
+          if (server && server.config.enabled) {
+            server.status = "connected";
+            server.client = {} as any;
+
+            if (serverId === "file-server") {
+              server.capabilities = {
+                resources: [
+                  {
+                    uri: `file://${tempDir}/config.json`,
+                    name: "Config",
+                    description: "Configuration file"
+                  },
+                  {
+                    uri: `file://${tempDir}/data.csv`,
+                    name: "Data",
+                    description: "CSV data file"
+                  }
+                ],
+                prompts: [
+                  { name: "file_summary", description: "Summarize file contents" },
+                  { name: "file_analysis", description: "Analyze file structure" }
+                ]
+              };
+
+              state.availableResources.push(
+                {
+                  uri: `file://${tempDir}/config.json`,
+                  name: "Config",
+                  description: "Configuration file",
+                  serverId: "file-server",
+                  serverName: "File Management Server"
+                },
+                {
+                  uri: `file://${tempDir}/data.csv`,
+                  name: "Data",
+                  description: "CSV data file",
+                  serverId: "file-server",
+                  serverName: "File Management Server"
+                }
+              );
+
+              state.availablePrompts.push(
+                {
+                  name: "file_summary",
+                  description: "Summarize file contents",
+                  serverId: "file-server",
+                  serverName: "File Management Server"
+                },
+                {
+                  name: "file_analysis",
+                  description: "Analyze file structure",
+                  serverId: "file-server",
+                  serverName: "File Management Server"
+                }
+              );
+            }
           }
         }
-      });
+      );
 
-      vi.spyOn(mcpClientManager, 'readResource').mockImplementation(async (serverId, uri) => {
-        return {
-          contents: [{ type: "text", text: `Resource content from ${uri}` }]
-        };
-      });
+      vi.spyOn(mcpClientManager, "readResource").mockImplementation(
+        async (serverId, uri) => {
+          return {
+            contents: [{ type: "text", text: `Resource content from ${uri}` }]
+          };
+        }
+      );
 
-      vi.spyOn(mcpClientManager, 'getPrompt').mockImplementation(async (serverId, name, args) => {
-        return {
-          messages: [
-            { role: "user", content: { type: "text", text: `Prompt: ${name} with args: ${JSON.stringify(args)}` } }
-          ]
-        };
-      });
+      vi.spyOn(mcpClientManager, "getPrompt").mockImplementation(
+        async (serverId, name, args) => {
+          return {
+            messages: [
+              {
+                role: "user",
+                content: {
+                  type: "text",
+                  text: `Prompt: ${name} with args: ${JSON.stringify(args)}`
+                }
+              }
+            ]
+          };
+        }
+      );
 
       await mcpClientManager.connectAll();
     });
 
     it("should manage resources from multiple servers", async () => {
       const resources = getAvailableMcpResources();
-      
+
       expect(resources).toHaveLength(2);
       expect(resources.every(r => r.serverId === "file-server")).toBe(true);
 
@@ -484,13 +620,16 @@ process.exit(0);
       const configResource = resources.find(r => r.name === "Config");
       expect(configResource).toBeDefined();
 
-      const result = await mcpClientManager.readResource("file-server", configResource!.uri);
+      const result = await mcpClientManager.readResource(
+        "file-server",
+        configResource!.uri
+      );
       expect(result.contents[0].text).toContain(configResource!.uri);
     });
 
     it("should manage prompts from multiple servers", async () => {
       const prompts = getAvailableMcpPrompts();
-      
+
       expect(prompts).toHaveLength(2);
       expect(prompts.every(p => p.serverId === "file-server")).toBe(true);
 
@@ -498,7 +637,11 @@ process.exit(0);
       const summaryPrompt = prompts.find(p => p.name === "file_summary");
       expect(summaryPrompt).toBeDefined();
 
-      const result = await mcpClientManager.getPrompt("file-server", summaryPrompt!.name, { file: "test.txt" });
+      const result = await mcpClientManager.getPrompt(
+        "file-server",
+        summaryPrompt!.name,
+        { file: "test.txt" }
+      );
       expect(result.messages[0].content.text).toContain("file_summary");
       expect(result.messages[0].content.text).toContain("test.txt");
     });
@@ -518,12 +661,14 @@ process.exit(0);
       await mcpClientManager.addServer(failingConfig);
 
       // Mock connection failure
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        if (serverId === "failing-server") {
-          state.servers[serverId].status = "error";
-          state.servers[serverId].error = "Command not found";
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          if (serverId === "failing-server") {
+            state.servers[serverId].status = "error";
+            state.servers[serverId].error = "Command not found";
+          }
         }
-      });
+      );
 
       await mcpClientManager.connectServer("failing-server");
 
@@ -538,52 +683,66 @@ process.exit(0);
 
     it("should handle tool execution failures", async () => {
       await mcpClientManager.addServer(mockServerConfigs[0]); // file-server
-      
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        const server = state.servers[serverId];
-        server.status = "connected";
-        server.client = {} as any;
-        server.capabilities = {
-          tools: [{ name: "failing_tool", description: "Tool that fails", inputSchema: { type: "object" } }]
-        };
-        state.availableTools.push({
-          name: "failing_tool",
-          description: "Tool that fails",
-          inputSchema: { type: "object" },
-          serverId: serverId,
-          serverName: server.name
-        });
-      });
 
-      vi.spyOn(mcpClientManager, 'callTool').mockRejectedValue(new Error("Tool execution failed"));
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          const server = state.servers[serverId];
+          server.status = "connected";
+          server.client = {} as any;
+          server.capabilities = {
+            tools: [
+              {
+                name: "failing_tool",
+                description: "Tool that fails",
+                inputSchema: { type: "object" }
+              }
+            ]
+          };
+          state.availableTools.push({
+            name: "failing_tool",
+            description: "Tool that fails",
+            inputSchema: { type: "object" },
+            serverId: serverId,
+            serverName: server.name
+          });
+        }
+      );
+
+      vi.spyOn(mcpClientManager, "callTool").mockRejectedValue(
+        new Error("Tool execution failed")
+      );
 
       await mcpClientManager.connectServer("file-server");
 
       const tools = toolRegistry.getMcpTools();
       const failingTool = tools.find(tool => tool.name === "failing_tool");
 
-      await expect(
-        failingTool!.implementation({ data: "test" })
-      ).rejects.toThrow("Tool execution failed");
+      await expect(failingTool!.implementation({ data: "test" })).rejects.toThrow(
+        "Tool execution failed"
+      );
     });
 
     it("should handle server disconnection during operation", async () => {
       await mcpClientManager.addServer(mockServerConfigs[0]);
-      
+
       // Connect server
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        state.servers[serverId].status = "connected";
-        state.servers[serverId].client = {} as any;
-      });
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          state.servers[serverId].status = "connected";
+          state.servers[serverId].client = {} as any;
+        }
+      );
 
       await mcpClientManager.connectServer("file-server");
       expect(state.servers["file-server"].status).toBe("connected");
 
       // Disconnect server
-      vi.spyOn(mcpClientManager, 'disconnectServer').mockImplementation(async (serverId) => {
-        state.servers[serverId].status = "disconnected";
-        delete state.servers[serverId].client;
-      });
+      vi.spyOn(mcpClientManager, "disconnectServer").mockImplementation(
+        async serverId => {
+          state.servers[serverId].status = "disconnected";
+          delete state.servers[serverId].client;
+        }
+      );
 
       await mcpClientManager.disconnectServer("file-server");
       expect(state.servers["file-server"].status).toBe("disconnected");
@@ -606,25 +765,33 @@ process.exit(0);
       expect(getServerStats().disconnected).toBe(3);
 
       // Connect servers
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        const server = state.servers[serverId];
-        if (server.config.enabled) {
-          server.status = "connected";
-          server.client = {} as any;
-          
-          // Add mock tools
-          server.capabilities = {
-            tools: [{ name: `${serverId}_tool`, description: "Test tool", inputSchema: { type: "object" } }]
-          };
-          state.availableTools.push({
-            name: `${serverId}_tool`,
-            description: "Test tool",
-            inputSchema: { type: "object" },
-            serverId: serverId,
-            serverName: server.name
-          });
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          const server = state.servers[serverId];
+          if (server.config.enabled) {
+            server.status = "connected";
+            server.client = {} as any;
+
+            // Add mock tools
+            server.capabilities = {
+              tools: [
+                {
+                  name: `${serverId}_tool`,
+                  description: "Test tool",
+                  inputSchema: { type: "object" }
+                }
+              ]
+            };
+            state.availableTools.push({
+              name: `${serverId}_tool`,
+              description: "Test tool",
+              inputSchema: { type: "object" },
+              serverId: serverId,
+              serverName: server.name
+            });
+          }
         }
-      });
+      );
 
       await mcpClientManager.connectAll();
 
@@ -634,13 +801,17 @@ process.exit(0);
       expect(getAvailableMcpTools()).toHaveLength(2);
 
       // Disconnect a server
-      vi.spyOn(mcpClientManager, 'disconnectServer').mockImplementation(async (serverId) => {
-        state.servers[serverId].status = "disconnected";
-        delete state.servers[serverId].client;
-        
-        // Remove tools from disconnected server
-        state.availableTools = state.availableTools.filter(tool => tool.serverId !== serverId);
-      });
+      vi.spyOn(mcpClientManager, "disconnectServer").mockImplementation(
+        async serverId => {
+          state.servers[serverId].status = "disconnected";
+          delete state.servers[serverId].client;
+
+          // Remove tools from disconnected server
+          state.availableTools = state.availableTools.filter(
+            tool => tool.serverId !== serverId
+          );
+        }
+      );
 
       await mcpClientManager.disconnectServer("file-server");
 
@@ -652,23 +823,23 @@ process.exit(0);
 
     it("should handle concurrent operations", async () => {
       const configs = mockServerConfigs.filter(c => c.enabled);
-      
+
       // Add servers concurrently
-      await Promise.all(
-        configs.map(config => mcpClientManager.addServer(config))
-      );
+      await Promise.all(configs.map(config => mcpClientManager.addServer(config)));
 
       expect(Object.keys(state.servers)).toHaveLength(2);
 
       // Connect servers concurrently
-      vi.spyOn(mcpClientManager, 'connectServer').mockImplementation(async (serverId) => {
-        // Simulate connection delay
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
-        
-        const server = state.servers[serverId];
-        server.status = "connected";
-        server.client = {} as any;
-      });
+      vi.spyOn(mcpClientManager, "connectServer").mockImplementation(
+        async serverId => {
+          // Simulate connection delay
+          await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+
+          const server = state.servers[serverId];
+          server.status = "connected";
+          server.client = {} as any;
+        }
+      );
 
       await Promise.all(
         configs.map(config => mcpClientManager.connectServer(config.id))

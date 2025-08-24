@@ -198,15 +198,15 @@ describe("Process Management", () => {
       };
 
       mockSpawn.mockReturnValue(mockChildProcess as any);
-      
+
       // Mock file existence checks
-      mockFs.existsSync.mockImplementation((path) => {
+      mockFs.existsSync.mockImplementation(path => {
         const pathStr = path.toString();
         if (pathStr.includes("test-server.pid")) return false; // Not already running
         if (pathStr === "/path/to/cwd/server.js") return true; // Script exists
         return false;
       });
-      
+
       mockProcessKill.mockReturnValue(true); // Process starts successfully
 
       const startPromise = startServerProcess(
@@ -225,11 +225,15 @@ describe("Process Management", () => {
       const result = await startPromise;
 
       expect(result).toBe(mockChildProcess);
-      expect(mockSpawn).toHaveBeenCalledWith(process.execPath, ["/path/to/cwd/server.js"], {
-        cwd: "/path/to/cwd",
-        stdio: "pipe",
-        env: expect.any(Object)
-      });
+      expect(mockSpawn).toHaveBeenCalledWith(
+        process.execPath,
+        ["/path/to/cwd/server.js"],
+        {
+          cwd: "/path/to/cwd",
+          stdio: "pipe",
+          env: expect.any(Object)
+        }
+      );
       expect(mockFs.writeFileSync).toHaveBeenCalledWith(
         "/mock/sage/path/pids/test-server.pid",
         expect.stringContaining('"pid": 1234')
@@ -238,13 +242,13 @@ describe("Process Management", () => {
 
     it("should throw error if server is already running", async () => {
       // Mock file existence checks
-      mockFs.existsSync.mockImplementation((path) => {
+      mockFs.existsSync.mockImplementation(path => {
         const pathStr = path.toString();
         if (pathStr.includes("test-server.pid")) return true; // PID file exists
         if (pathStr === "/path/to/cwd/server.js") return true; // Script exists
         return false;
       });
-      
+
       mockFs.readFileSync.mockReturnValue(
         JSON.stringify({
           pid: 1234,
@@ -271,9 +275,9 @@ describe("Process Management", () => {
       };
 
       mockSpawn.mockReturnValue(mockChildProcess as any);
-      
+
       // Mock file existence checks
-      mockFs.existsSync.mockImplementation((path) => {
+      mockFs.existsSync.mockImplementation(path => {
         const pathStr = path.toString();
         if (pathStr.includes("test-server.pid")) return false; // Not already running
         if (pathStr === "/path/to/cwd/server.js") return true; // Script exists
@@ -312,7 +316,12 @@ describe("Process Management", () => {
         }
       });
 
-      const startPromise = startServerProcess("test-server", "node", ["server.js"], "/path/to/cwd");
+      const startPromise = startServerProcess(
+        "test-server",
+        "node",
+        ["server.js"],
+        "/path/to/cwd"
+      );
 
       // Trigger error event
       const onError = mockChildProcess.once.mock.calls.find(
@@ -381,11 +390,11 @@ describe("Process Management", () => {
       // Process persists through SIGTERM, needs SIGKILL
       let sigkillSent = false;
       mockProcessKill.mockImplementation((pid, signal) => {
-        if (signal === 'SIGKILL') {
+        if (signal === "SIGKILL") {
           sigkillSent = true;
           return true; // SIGKILL succeeds
         }
-        if (signal === 'SIGTERM') {
+        if (signal === "SIGTERM") {
           return true; // SIGTERM succeeds but process doesn't die
         }
         // For isProcessRunning checks (signal 0)
@@ -501,9 +510,12 @@ describe("Process Management", () => {
       };
       mockSpawn.mockReturnValue(mockChildProcess as any);
 
-      const restartPromise = restartServerProcess("test-server", "node", [
-        "server.js"
-      ], "/path/to/cwd");
+      const restartPromise = restartServerProcess(
+        "test-server",
+        "node",
+        ["server.js"],
+        "/path/to/cwd"
+      );
 
       // Advance timers to allow async operations to complete
       await vi.advanceTimersByTimeAsync(1000);

@@ -18,8 +18,12 @@ vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
     listTools: vi.fn().mockResolvedValue({ tools: [] }),
     listResources: vi.fn().mockResolvedValue({ resources: [] }),
     listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
-    callTool: vi.fn().mockResolvedValue({ content: [{ type: "text", text: "HTTP tool result" }] }),
-    readResource: vi.fn().mockResolvedValue({ contents: [{ type: "text", text: "HTTP resource" }] }),
+    callTool: vi
+      .fn()
+      .mockResolvedValue({ content: [{ type: "text", text: "HTTP tool result" }] }),
+    readResource: vi
+      .fn()
+      .mockResolvedValue({ contents: [{ type: "text", text: "HTTP resource" }] }),
     getPrompt: vi.fn().mockResolvedValue({ messages: [] })
   }))
 }));
@@ -76,7 +80,7 @@ describe("HTTP Transport Support", () => {
     };
 
     vi.clearAllMocks();
-    
+
     // Reset mock implementations to ensure clean state
     vi.mocked(mockHttpTransport.close).mockResolvedValue(undefined);
     vi.mocked(mockHttpTransport.start).mockResolvedValue(undefined);
@@ -93,7 +97,7 @@ describe("HTTP Transport Support", () => {
         // Ignore cleanup errors
       }
     }
-    
+
     // Reset the client manager to ensure clean state for next test
     clientManager = new MCPClientManager();
 
@@ -105,26 +109,38 @@ describe("HTTP Transport Support", () => {
       listTools: vi.fn().mockResolvedValue({ tools: [] }),
       listResources: vi.fn().mockResolvedValue({ resources: [] }),
       listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
-      callTool: vi.fn().mockResolvedValue({ content: [{ type: "text", text: "HTTP tool result" }] }),
-      readResource: vi.fn().mockResolvedValue({ contents: [{ type: "text", text: "HTTP resource" }] }),
+      callTool: vi
+        .fn()
+        .mockResolvedValue({
+          content: [{ type: "text", text: "HTTP tool result" }]
+        }),
+      readResource: vi
+        .fn()
+        .mockResolvedValue({ contents: [{ type: "text", text: "HTTP resource" }] }),
       getPrompt: vi.fn().mockResolvedValue({ messages: [] })
     }));
   });
 
   describe("Transport Selection", () => {
     it("should use HTTP transport for servers with URL", async () => {
-      const { StreamableHTTPClientTransport } = await import("@modelcontextprotocol/sdk/client/streamableHttp.js");
+      const { StreamableHTTPClientTransport } = await import(
+        "@modelcontextprotocol/sdk/client/streamableHttp.js"
+      );
       const MockedHttpTransport = StreamableHTTPClientTransport as Mock;
 
       await clientManager.addServer(httpServerConfig);
       await clientManager.connectServer(httpServerConfig.id);
 
-      expect(MockedHttpTransport).toHaveBeenCalledWith(new URL(httpServerConfig.url!));
+      expect(MockedHttpTransport).toHaveBeenCalledWith(
+        new URL(httpServerConfig.url!)
+      );
       expect(state.servers[httpServerConfig.id].status).toBe("connected");
     });
 
     it("should use stdio transport for servers with command", async () => {
-      const { StdioClientTransport } = await import("@modelcontextprotocol/sdk/client/stdio.js");
+      const { StdioClientTransport } = await import(
+        "@modelcontextprotocol/sdk/client/stdio.js"
+      );
       const MockedStdioTransport = StdioClientTransport as Mock;
 
       await clientManager.addServer(stdioServerConfig);
@@ -163,7 +179,7 @@ describe("HTTP Transport Support", () => {
       for (const [index, config] of configs.entries()) {
         const serverId = `http-server-${index}`;
         const serverConfig = { ...config, id: serverId };
-        
+
         await clientManager.addServer(serverConfig);
         await clientManager.connectServer(serverId);
 
@@ -200,7 +216,7 @@ describe("HTTP Transport Support", () => {
     it("should execute tools via HTTP transport", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       const mockCallTool = vi.fn().mockResolvedValue({
         content: [{ type: "text", text: "HTTP tool executed" }]
       });
@@ -218,7 +234,9 @@ describe("HTTP Transport Support", () => {
       await clientManager.addServer(httpServerConfig);
       await clientManager.connectServer(httpServerConfig.id);
 
-      const result = await clientManager.callTool(httpServerConfig.id, "http-tool", { data: "test" });
+      const result = await clientManager.callTool(httpServerConfig.id, "http-tool", {
+        data: "test"
+      });
 
       expect(mockCallTool).toHaveBeenCalledWith({
         name: "http-tool",
@@ -230,7 +248,7 @@ describe("HTTP Transport Support", () => {
     it("should handle HTTP tool execution errors", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       MockedClient.mockImplementation(() => ({
         connect: vi.fn().mockResolvedValue(undefined),
         listTools: vi.fn().mockResolvedValue({ tools: [] }),
@@ -254,7 +272,7 @@ describe("HTTP Transport Support", () => {
     it("should read resources via HTTP transport", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       const mockReadResource = vi.fn().mockResolvedValue({
         contents: [{ type: "text", text: "HTTP resource content" }]
       });
@@ -272,9 +290,14 @@ describe("HTTP Transport Support", () => {
       await clientManager.addServer(httpServerConfig);
       await clientManager.connectServer(httpServerConfig.id);
 
-      const result = await clientManager.readResource(httpServerConfig.id, "http://example.com/resource");
+      const result = await clientManager.readResource(
+        httpServerConfig.id,
+        "http://example.com/resource"
+      );
 
-      expect(mockReadResource).toHaveBeenCalledWith({ uri: "http://example.com/resource" });
+      expect(mockReadResource).toHaveBeenCalledWith({
+        uri: "http://example.com/resource"
+      });
       expect(result.contents[0].text).toBe("HTTP resource content");
     });
 
@@ -305,7 +328,7 @@ describe("HTTP Transport Support", () => {
     it("should get prompts via HTTP transport", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       const mockGetPrompt = vi.fn().mockResolvedValue({
         messages: [
           { role: "user", content: { type: "text", text: "HTTP prompt message" } }
@@ -325,7 +348,11 @@ describe("HTTP Transport Support", () => {
       await clientManager.addServer(httpServerConfig);
       await clientManager.connectServer(httpServerConfig.id);
 
-      const result = await clientManager.getPrompt(httpServerConfig.id, "http-prompt", { context: "test" });
+      const result = await clientManager.getPrompt(
+        httpServerConfig.id,
+        "http-prompt",
+        { context: "test" }
+      );
 
       expect(mockGetPrompt).toHaveBeenCalledWith({
         name: "http-prompt",
@@ -373,7 +400,9 @@ describe("HTTP Transport Support", () => {
       await clientManager.connectServer(httpServerConfig.id);
 
       expect(state.servers[httpServerConfig.id].status).toBe("error");
-      expect(state.servers[httpServerConfig.id].error).toContain("HTTP connection refused");
+      expect(state.servers[httpServerConfig.id].error).toContain(
+        "HTTP connection refused"
+      );
     });
 
     it("should disconnect HTTP servers properly", async () => {
@@ -439,7 +468,7 @@ describe("HTTP Transport Support", () => {
       for (const config of preferenceConfigs) {
         const serverId = `${config.type}-preference`;
         const serverConfig = { ...config, id: serverId };
-        
+
         await clientManager.addServer(serverConfig);
         await clientManager.connectServer(serverId);
 
@@ -458,7 +487,7 @@ describe("HTTP Transport Support", () => {
       for (const [index, config] of configs.entries()) {
         const serverId = `invalid-${index}`;
         const serverConfig = { ...config, id: serverId };
-        
+
         await clientManager.addServer(serverConfig);
         await clientManager.connectServer(serverId);
 
@@ -474,22 +503,47 @@ describe("HTTP Transport Support", () => {
 
       const mockCapabilities = {
         tools: [
-          { name: "echo", description: "Echoes the input string.", inputSchema: { type: "object", properties: { message: { type: "string" } }, required: ["message"] } },
-          { name: "create_file", description: "Creates a file with the given content.", inputSchema: { type: "object", properties: { filePath: { type: "string" }, content: { type: "string" } }, required: ["filePath", "content"] } }
+          {
+            name: "echo",
+            description: "Echoes the input string.",
+            inputSchema: {
+              type: "object",
+              properties: { message: { type: "string" } },
+              required: ["message"]
+            }
+          },
+          {
+            name: "create_file",
+            description: "Creates a file with the given content.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                filePath: { type: "string" },
+                content: { type: "string" }
+              },
+              required: ["filePath", "content"]
+            }
+          }
         ],
         resources: [
-          { uri: "http://api.example.com/data", name: "API Data", description: "Remote data" }
+          {
+            uri: "http://api.example.com/data",
+            name: "API Data",
+            description: "Remote data"
+          }
         ],
-        prompts: [
-          { name: "http-prompt", description: "HTTP prompt" }
-        ]
+        prompts: [{ name: "http-prompt", description: "HTTP prompt" }]
       };
 
       MockedClient.mockImplementation(() => ({
         connect: vi.fn().mockResolvedValue(undefined),
         listTools: vi.fn().mockResolvedValue({ tools: mockCapabilities.tools }),
-        listResources: vi.fn().mockResolvedValue({ resources: mockCapabilities.resources }),
-        listPrompts: vi.fn().mockResolvedValue({ prompts: mockCapabilities.prompts }),
+        listResources: vi
+          .fn()
+          .mockResolvedValue({ resources: mockCapabilities.resources }),
+        listPrompts: vi
+          .fn()
+          .mockResolvedValue({ prompts: mockCapabilities.prompts }),
         callTool: vi.fn(),
         readResource: vi.fn(),
         getPrompt: vi.fn()

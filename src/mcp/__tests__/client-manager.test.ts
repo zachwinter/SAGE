@@ -65,7 +65,7 @@ describe("MCPClientManager", () => {
 
     mockHttpConfig = {
       id: "test-http-server",
-      name: "Test HTTP Server", 
+      name: "Test HTTP Server",
       type: "http",
       url: "http://localhost:3000/mcp",
       enabled: true
@@ -84,7 +84,7 @@ describe("MCPClientManager", () => {
         // Ignore cleanup errors
       }
     }
-    
+
     // Reset the client manager to ensure clean state for next test
     clientManager = new MCPClientManager();
 
@@ -160,7 +160,7 @@ describe("MCPClientManager", () => {
     it("should handle connection failures gracefully", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       MockedClient.mockImplementation(() => ({
         connect: vi.fn().mockRejectedValue(new Error("Connection failed")),
         listTools: vi.fn(),
@@ -187,7 +187,7 @@ describe("MCPClientManager", () => {
     it("should disconnect server and update state", async () => {
       await clientManager.addServer(mockStdioConfig);
       await clientManager.connectServer(mockStdioConfig.id);
-      
+
       expect(state.servers[mockStdioConfig.id].status).toBe("connected");
 
       await clientManager.disconnectServer(mockStdioConfig.id);
@@ -219,15 +219,36 @@ describe("MCPClientManager", () => {
       const MockedClient = Client as Mock;
 
       const mockTools = [
-        { name: "echo", description: "Echoes the input string.", inputSchema: { type: "object", properties: { message: { type: "string" } }, required: ["message"] } },
-        { name: "create_file", description: "Creates a file with the given content.", inputSchema: { type: "object", properties: { filePath: { type: "string" }, content: { type: "string" } }, required: ["filePath", "content"] } }
+        {
+          name: "echo",
+          description: "Echoes the input string.",
+          inputSchema: {
+            type: "object",
+            properties: { message: { type: "string" } },
+            required: ["message"]
+          }
+        },
+        {
+          name: "create_file",
+          description: "Creates a file with the given content.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              filePath: { type: "string" },
+              content: { type: "string" }
+            },
+            required: ["filePath", "content"]
+          }
+        }
       ];
       const mockResources = [
-        { uri: "test://resource", name: "Test Resource", description: "A test resource" }
+        {
+          uri: "test://resource",
+          name: "Test Resource",
+          description: "A test resource"
+        }
       ];
-      const mockPrompts = [
-        { name: "test-prompt", description: "A test prompt" }
-      ];
+      const mockPrompts = [{ name: "test-prompt", description: "A test prompt" }];
 
       MockedClient.mockImplementation(() => ({
         connect: vi.fn().mockResolvedValue(undefined),
@@ -271,7 +292,9 @@ describe("MCPClientManager", () => {
       MockedClient.mockImplementation(() => ({
         connect: vi.fn().mockResolvedValue(undefined),
         listTools: vi.fn().mockRejectedValue(new Error("Tools not supported")),
-        listResources: vi.fn().mockRejectedValue(new Error("Resources not supported")),
+        listResources: vi
+          .fn()
+          .mockRejectedValue(new Error("Resources not supported")),
         listPrompts: vi.fn().mockRejectedValue(new Error("Prompts not supported")),
         callTool: vi.fn(),
         readResource: vi.fn(),
@@ -294,7 +317,7 @@ describe("MCPClientManager", () => {
     it("should execute tools on connected servers", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       const mockCallTool = vi.fn().mockResolvedValue({
         content: [{ type: "text", text: "Tool executed successfully" }]
       });
@@ -312,7 +335,9 @@ describe("MCPClientManager", () => {
       await clientManager.addServer(mockStdioConfig);
       await clientManager.connectServer(mockStdioConfig.id);
 
-      const result = await clientManager.callTool(mockStdioConfig.id, "test-tool", { input: "test" });
+      const result = await clientManager.callTool(mockStdioConfig.id, "test-tool", {
+        input: "test"
+      });
 
       expect(mockCallTool).toHaveBeenCalledWith({
         name: "test-tool",
@@ -340,7 +365,7 @@ describe("MCPClientManager", () => {
     it("should read resources from connected servers", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       const mockReadResource = vi.fn().mockResolvedValue({
         contents: [{ type: "text", text: "Resource content" }]
       });
@@ -358,7 +383,10 @@ describe("MCPClientManager", () => {
       await clientManager.addServer(mockStdioConfig);
       await clientManager.connectServer(mockStdioConfig.id);
 
-      const result = await clientManager.readResource(mockStdioConfig.id, "test://resource");
+      const result = await clientManager.readResource(
+        mockStdioConfig.id,
+        "test://resource"
+      );
 
       expect(mockReadResource).toHaveBeenCalledWith({ uri: "test://resource" });
       expect(result.contents[0].text).toBe("Resource content");
@@ -377,7 +405,7 @@ describe("MCPClientManager", () => {
     it("should get prompts from connected servers", async () => {
       const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
       const MockedClient = Client as Mock;
-      
+
       const mockGetPrompt = vi.fn().mockResolvedValue({
         messages: [{ role: "user", content: { type: "text", text: "Test prompt" } }]
       });
@@ -395,7 +423,11 @@ describe("MCPClientManager", () => {
       await clientManager.addServer(mockStdioConfig);
       await clientManager.connectServer(mockStdioConfig.id);
 
-      const result = await clientManager.getPrompt(mockStdioConfig.id, "test-prompt", { arg: "value" });
+      const result = await clientManager.getPrompt(
+        mockStdioConfig.id,
+        "test-prompt",
+        { arg: "value" }
+      );
 
       expect(mockGetPrompt).toHaveBeenCalledWith({
         name: "test-prompt",
@@ -415,7 +447,9 @@ describe("MCPClientManager", () => {
 
   describe("Transport Selection", () => {
     it("should use stdio transport for servers with command", async () => {
-      const { StdioClientTransport } = await import("@modelcontextprotocol/sdk/client/stdio.js");
+      const { StdioClientTransport } = await import(
+        "@modelcontextprotocol/sdk/client/stdio.js"
+      );
       const MockedStdioTransport = StdioClientTransport as Mock;
 
       await clientManager.addServer(mockStdioConfig);
@@ -429,7 +463,9 @@ describe("MCPClientManager", () => {
     });
 
     it("should use HTTP transport for servers with URL", async () => {
-      const { StreamableHTTPClientTransport } = await import("@modelcontextprotocol/sdk/client/streamableHttp.js");
+      const { StreamableHTTPClientTransport } = await import(
+        "@modelcontextprotocol/sdk/client/streamableHttp.js"
+      );
       const MockedHttpTransport = StreamableHTTPClientTransport as Mock;
 
       await clientManager.addServer(mockHttpConfig);
@@ -445,7 +481,9 @@ describe("MCPClientManager", () => {
       await clientManager.connectServer(invalidConfig.id);
 
       expect(state.servers[invalidConfig.id].status).toBe("error");
-      expect(state.servers[invalidConfig.id].error).toContain("No command specified");
+      expect(state.servers[invalidConfig.id].error).toContain(
+        "No command specified"
+      );
     });
   });
 });

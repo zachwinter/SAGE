@@ -10,7 +10,13 @@ export default defineConfig({
 
     // Test organization
     include: ["src/**/*.test.ts", "src/**/*.spec.ts", "src/__tests__/**/*.test.ts"],
-    exclude: ["node_modules/**", "**/node_modules/**", "dist/**", "**/dist/**", "**/*.d.ts"],
+    exclude: [
+      "node_modules/**",
+      "**/node_modules/**",
+      "dist/**",
+      "**/dist/**",
+      "**/*.d.ts"
+    ],
 
     // Coverage configuration
     coverage: {

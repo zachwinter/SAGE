@@ -20,7 +20,7 @@ async function saveServerConfigs(): Promise<void> {
 async function loadServerConfigs(): Promise<void> {
   const configFile = path.join(mockConfigDir, "mcp-servers.json");
   if (!fs.existsSync(configFile)) return;
-  
+
   const data = await fs.promises.readFile(configFile, "utf-8");
   const configs = JSON.parse(data) as Record<string, McpServerConfig>;
   mcpState.serverConfigs = configs;
@@ -28,7 +28,7 @@ async function loadServerConfigs(): Promise<void> {
 
 async function saveMcpJsonConfig(filePath?: string): Promise<void> {
   const configPath = filePath || path.join(mockConfigDir, "mcp.json");
-  
+
   if (!fs.existsSync(mockConfigDir)) {
     await fs.promises.mkdir(mockConfigDir, { recursive: true });
   }
@@ -72,7 +72,7 @@ async function loadMcpJsonConfig(filePath?: string): Promise<void> {
 const debugLogFile = "/tmp/persistence-test-debug.log";
 function debugLog(message: string, data?: any) {
   const timestamp = new Date().toISOString();
-  const logLine = `[${timestamp}] ${message} ${data ? JSON.stringify(data, null, 2) : ''}\n`;
+  const logLine = `[${timestamp}] ${message} ${data ? JSON.stringify(data, null, 2) : ""}\n`;
   fs.appendFileSync(debugLogFile, logLine);
 }
 
@@ -87,9 +87,7 @@ describe("Persistence Integration", () => {
     }
 
     // Create a new temporary directory for each test to ensure isolation
-    tempHomeDir = fs.mkdtempSync(
-      path.join(os.tmpdir(), "mcp-persistence-test-")
-    );
+    tempHomeDir = fs.mkdtempSync(path.join(os.tmpdir(), "mcp-persistence-test-"));
 
     // Set up the config directory
     configDir = path.join(tempHomeDir, ".sage");
@@ -103,7 +101,7 @@ describe("Persistence Integration", () => {
   afterEach(() => {
     // Clean up state properly
     mcpState.serverConfigs = {};
-    
+
     if (tempHomeDir && fs.existsSync(tempHomeDir)) {
       fs.rmSync(tempHomeDir, { recursive: true, force: true });
     }
@@ -115,7 +113,7 @@ describe("Persistence Integration", () => {
     type: "stdio",
     command: "node",
     args: ["server.js"],
-    enabled: true,
+    enabled: true
   };
 
   it("should save and load server configs", async () => {
@@ -127,15 +125,19 @@ describe("Persistence Integration", () => {
     });
 
     mcpState.serverConfigs[mockConfig.id] = mockConfig;
-    debugLog("Added mockConfig to state", { serverConfigs: Object.keys(mcpState.serverConfigs) });
-    
+    debugLog("Added mockConfig to state", {
+      serverConfigs: Object.keys(mcpState.serverConfigs)
+    });
+
     await saveServerConfigs();
     debugLog("Called saveServerConfigs()");
 
     const configFile = path.join(configDir, "mcp-servers.json");
     const configFileExists = fs.existsSync(configFile);
-    const configDirContents = fs.existsSync(configDir) ? fs.readdirSync(configDir) : [];
-    
+    const configDirContents = fs.existsSync(configDir)
+      ? fs.readdirSync(configDir)
+      : [];
+
     debugLog("Checking config file", {
       configFile,
       configFileExists,
@@ -144,9 +146,7 @@ describe("Persistence Integration", () => {
       configDirContents
     });
 
-    expect(fs.existsSync(configFile), "Config file should be created").toBe(
-      true
-    );
+    expect(fs.existsSync(configFile), "Config file should be created").toBe(true);
 
     // Clear state and load from the file we just saved
     mcpState.serverConfigs = {};
@@ -160,10 +160,9 @@ describe("Persistence Integration", () => {
     const configFile = path.join(configDir, "mcp.json");
     await saveMcpJsonConfig(configFile);
 
-    expect(
-      fs.existsSync(configFile),
-      "MCP JSON config file should be created"
-    ).toBe(true);
+    expect(fs.existsSync(configFile), "MCP JSON config file should be created").toBe(
+      true
+    );
 
     // Clear state and load from the file
     mcpState.serverConfigs = {};
