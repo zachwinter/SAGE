@@ -1,0 +1,50 @@
+{
+  "name": "@sage/analysis",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Code analysis and graph processing for ink-cli",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./engine/*": {
+      "types": "./dist/engine/*.d.ts",
+      "import": "./dist/engine/*.js"
+    },
+    "./graph/*": {
+      "types": "./dist/graph/*.d.ts",
+      "import": "./dist/graph/*.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./utils/*": {
+      "types": "./dist/utils/*.d.ts",
+      "import": "./dist/utils/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "NODE_PATH=./node_modules vitest",
+    "test:watch": "vitest watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "kuzu": "^0.11.2",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.5.0",
+    "vitest": "^3.2.4",
+    "fast-check": "^4.2.0"
+  },
+  "files": [
+    "dist/"
+  ]
+}

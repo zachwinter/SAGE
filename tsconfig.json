@@ -3,21 +3,29 @@
     "target": "es2022",
     "moduleResolution": "bundler",
     "module": "es2022",
-    "lib": ["ES2022"],
-    "outDir": "./dist",
+    "lib": [
+      "ES2022"
+    ],
     "jsx": "react-jsx",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@sage/analysis": [
+        "packages/analysis/src/index"
+      ],
+      "@sage/analysis/*": [
+        "packages/analysis/src/*"
+      ]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/dist"
+  ],
   "ts-node": {
     "esm": true,
     "compilerOptions": {
