@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { startServerProcess, stopServerProcess } from "../process/manager.js";
 import { ChildProcess } from "child_process";
 import path from "path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { startServerProcess, stopServerProcess } from "../process/manager.js";
 
 describe("MCP SDK Diagnostics", () => {
   let serverProcess: ChildProcess;

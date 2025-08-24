@@ -1,0 +1,147 @@
+import {
+  Column,
+  Error,
+  Message,
+  Text,
+  UserMessage
+} from "@/components/index.js";
+import { state } from "@/threads/index.js";
+import { getToolRequestMap, ThreadsState } from "@/threads/state/index.js";
+import { ChatMessage } from "@lmstudio/sdk";
+import { Logger } from "@sage/utils";
+import { randomUUID } from "crypto";
+import { useMemo } from "react";
+import { useSnapshot } from "valtio";
+import { UnifiedToolCallRenderer } from "./UnifiedToolCallRenderer.js";
+import { 
+  generateToolCallKey, 
+  normalizeStreamingToolCall,
+  type UnifiedToolCall 
+} from "./utils/tool-call-utils.js";
+
+const logger = new Logger("Chat");
+const ids = new WeakMap<ChatMessage, string>();
+
+export function keyForMessage(m: ChatMessage) {
+  let k = ids.get(m);
+  if (!k) {
+    k = randomUUID();
+    ids.set(m, k);
+  }
+  return k;
+}
+
+export const Chat = () => {
+  const snap = useSnapshot<ThreadsState>(state);
+  const messages =
+    snap.active &&
+    typeof snap.active === "object" &&
+    typeof snap.active.getMessagesArray === "function"
+      ? snap.active.getMessagesArray()
+      : [];
+  const allRequests = getToolRequestMap(snap as any);
+  const pendingConfirmationId = snap.pendingToolCallConfirmation?.id;
+  
+  const unifiedStreamingToolCalls = useMemo(() => {
+    if (!Array.isArray(snap.streamingToolCalls)) {
+      return [];
+    }
+    
+    // Get all completed tool call IDs from messages to avoid duplicate display
+    const completedToolCallIds = new Set<string>();
+    messages.forEach(message => {
+      const requests = message.getToolCallRequests() ?? [];
+      requests.forEach(req => {
+        if (req.id) {
+          completedToolCallIds.add(req.id);
+        }
+      });
+    });
+    
+    // Filter out completed tool calls, pending confirmation tool calls, and approved tool calls
+    const filteredToolCalls = snap.streamingToolCalls.filter(
+      toolCall => {
+        // Skip pending confirmation tool calls
+        if (toolCall.id === pendingConfirmationId) {
+          return false;
+        }
+        
+        // Skip approved tool calls
+        if (toolCall.confirmationStatus === "approved") {
+          return false;
+        }
+        
+        // Skip if this streaming tool call has been completed and is now in messages
+        // Check both the toolCallId (if set) and the streaming ID
+        if (toolCall.toolCallId && completedToolCallIds.has(toolCall.toolCallId)) {
+          return false;
+        }
+        
+        return true;
+      }
+    );
+    
+    return filteredToolCalls.map(toolCall => {
+      const unified = normalizeStreamingToolCall(toolCall);
+      return {
+        unified,
+        key: generateToolCallKey(unified)
+      };
+    });
+  }, [snap.streamingToolCalls, pendingConfirmationId, messages]);
+
+  return (
+    <Column>
+      {messages.map(message => {
+        try {
+          return (
+            <Message
+              message={message}
+              key={keyForMessage(message)}
+              allRequests={allRequests}
+            />
+          );
+        } catch (error) {
+          logger.error("Error rendering message: " + (error as Error).message);
+          return (
+            <Error
+              key={`error-${keyForMessage(message)}`}
+              error="Failed to render message"
+              compact
+            />
+          );
+        }
+      })}
+
+      {snap.turn === "assistant" && (
+        <Column paddingBottom={1}>
+          {snap.response.length > 0 && <Text>{snap.response}</Text>}
+          {unifiedStreamingToolCalls.map(({ unified, key }) => {
+            try {
+              return (
+                <UnifiedToolCallRenderer
+                  key={key}
+                  toolCall={unified}
+                />
+              );
+            } catch (error) {
+              logger.error(
+                "Error rendering streaming tool call: " + (error as Error).message
+              );
+
+              return (
+                <Error
+                  key={`error-${key}`}
+                  error={`Failed to render tool call: ${unified.name || "unknown"}`}
+                  compact
+                />
+              );
+            }
+          })}
+        </Column>
+      )}
+
+      <UserMessage />
+    </Column>
+  );
+};

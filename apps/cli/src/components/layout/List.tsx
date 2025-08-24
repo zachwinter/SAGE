@@ -1,5 +1,5 @@
-import { Text, Column } from "@/components/index.js";
 import type { Key } from "react";
+import { Column, Text } from "../../components";
 
 export const List = ({ title, items }: { title?: string; items: unknown[] }) => (
   <Column>

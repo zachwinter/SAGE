@@ -2,7 +2,7 @@
   "name": "@sage/analysis",
   "version": "1.0.0",
   "type": "module",
-  "description": "Code analysis and graph processing for ink-cli",
+  "description": "Code analysis and graph processing for SAGE CLI.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -28,19 +28,20 @@
     }
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "test": "NODE_PATH=./node_modules vitest",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "NODE_PATH=./node_modules vitest > tests.log 2>&1",
     "test:watch": "vitest watch",
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@sage/utils": "workspace:*",
     "kuzu": "^0.11.2",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.14.1",
     "vitest": "^3.2.4",
     "fast-check": "^4.2.0"
   },

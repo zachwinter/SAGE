@@ -1,6 +1,7 @@
-import type { FC } from "react";
 import InkTextInput from "ink-text-input";
-import { Box } from "@/components";
+import type { FC } from "react";
+import { Box, Text } from "../../components";
+import { theme } from "../../config";
 
 interface InputProps {
   value: string;
@@ -9,27 +10,33 @@ interface InputProps {
   placeholder?: string;
   disabled?: boolean;
   onBackspaceEmpty?: () => void;
+  isConfirmationMode?: boolean;
 }
 
 export const TextInput: FC<InputProps> = ({
   value,
   setValue,
   onSubmit,
-  placeholder
+  placeholder,
+  isConfirmationMode = false
 }) => {
   return (
     <Box
-      borderColor="dim"
-      borderStyle={"round"}
+      borderColor={isConfirmationMode ? "yellow" : "dim"}
+      borderStyle={theme.border}
       paddingLeft={1}
       paddingRight={1}
     >
-      <InkTextInput
-        placeholder={placeholder}
-        value={value}
-        onChange={setValue}
-        onSubmit={onSubmit}
-      />
+      {isConfirmationMode && <Text color="yellow">{placeholder}</Text>}
+
+      {!isConfirmationMode && (
+        <InkTextInput
+          placeholder={placeholder}
+          value={value}
+          onChange={setValue}
+          onSubmit={onSubmit}
+        />
+      )}
     </Box>
   );
 };

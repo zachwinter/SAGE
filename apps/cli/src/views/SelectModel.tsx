@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Spinner } from "@inkjs/ui";
 import type { ModelInfo } from "@lmstudio/sdk";
-import { AsyncView, Row, Text, SearchableSelect } from "@/components/index.js";
-import { setView, Menu } from "@/router/index.js";
-import * as models from "@/models/index.js";
+import { useState } from "react";
+import { AsyncView, Row, SearchableSelect, Text } from "../components";
+import * as models from "../models";
+import { Menu, setView } from "../router";
 
 export const SelectModel = () => {
   const [loading, setLoading] = useState(false);

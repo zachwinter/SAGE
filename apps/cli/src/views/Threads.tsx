@@ -1,6 +1,6 @@
-import { View } from "@/components/index.js";
-import { setView, Home } from "@/router/index.js";
-import type { KeyBinding } from "@/components/layout/View.js";
+import { View } from "../components/index";
+import type { KeyBinding } from "../components/layout/View";
+import { Home, setView } from "../router";
 
 export const Threads = () => {
   const keyBindings: KeyBinding[] = [

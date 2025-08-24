@@ -1,8 +1,10 @@
 import { tool } from "@lmstudio/sdk";
-import { z } from "zod";
+import { Logger } from "@sage/utils";
 import { spawn } from "child_process";
 import { cwd } from "process";
-import Logger from "@/logger/logger.js";
+import { z } from "zod";
+
+const logger = new Logger("tools:bash", "debug.log");
 
 export const Bash = tool({
   name: "Bash",
@@ -15,7 +17,7 @@ export const Bash = tool({
       .describe("timeout in milliseconds (default: 30000)")
   },
   implementation: async ({ command, timeout = 30000 }) => {
-    Logger.info(`Tool:Bash invoked`, { command, timeout });
+    logger.info(`Tool:Bash invoked`, { command, timeout });
 
     try {
       const workingDir = cwd();
@@ -75,11 +77,11 @@ export const Bash = tool({
 
         child.on("close", code => {
           if (code === 0) {
-            Logger.info(`Tool:Bash success`, { command, bytes: stdout.length });
+            logger.info(`Tool:Bash success`, { command, bytes: stdout.length });
             safeResolve({ success: true, message: stdout.trim() });
           } else {
             const errorMessage = stderr.trim() || stdout.trim();
-            Logger.error(`Tool:Bash failed`, new Error(errorMessage), {
+            logger.error(`Tool:Bash failed`, new Error(errorMessage), {
               command,
               stderr,
               stdout
@@ -92,7 +94,7 @@ export const Bash = tool({
         });
 
         child.on("error", err => {
-          Logger.error(`Tool:Bash failed`, err, { command });
+          logger.error(`Tool:Bash failed`, err, { command });
           safeResolve({
             success: false,
             message: `Failed to start process: ${err.message}`
@@ -101,7 +103,7 @@ export const Bash = tool({
       });
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      Logger.error(`Tool:Bash failed`, error as Error, { command, timeout });
+      logger.error(`Tool:Bash failed`, error as Error, { command, timeout });
       return {
         success: false,
         message: errorMessage

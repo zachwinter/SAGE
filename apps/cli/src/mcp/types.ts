@@ -1,5 +1,5 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { Tool, Resource, Prompt } from "@modelcontextprotocol/sdk/types.js";
+import { Tool, Resource, Prompt } from "@modelcontextprotocol/sdk/types";
 
 export type MCPServer = {
   name: string;

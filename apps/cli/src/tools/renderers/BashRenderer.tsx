@@ -1,6 +1,6 @@
 import type { FC } from "react";
-import { Text } from "@/components/index.js";
-import type { ToolRendererProps } from "../registry.js";
+import { Text } from "../../components";
+import type { ToolRendererProps } from "../registry";
 
 export const BashRenderer: FC<ToolRendererProps> = ({ args }) => {
   const command = String(args.command || "").trim();

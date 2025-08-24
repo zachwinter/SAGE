@@ -1,7 +1,7 @@
 import type { FC } from "react";
-import { Column, Text } from "@/components/index.js";
-import type { ToolRendererProps } from "../registry.js";
 import { useMemo } from "react";
+import { Column, Text } from "../../components";
+import type { ToolRendererProps } from "../registry.js";
 
 export const EditRenderer: FC<ToolRendererProps> = ({ args }) => {
   const filePath = String(args.file_path || "").trim();
@@ -30,8 +30,8 @@ export const EditRenderer: FC<ToolRendererProps> = ({ args }) => {
           paddingLeft={2}
           paddingTop={1}
         >
-          {diffContent.oldBlock && <Text color="red">{diffContent.oldBlock}</Text>}
-          {diffContent.newBlock && <Text color="green">{diffContent.newBlock}</Text>}
+          {diffContent.oldBlock && <Text>{diffContent.oldBlock}</Text>}
+          {diffContent.newBlock && <Text>{diffContent.newBlock}</Text>}
         </Column>
       )}
     </Column>

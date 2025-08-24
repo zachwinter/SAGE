@@ -1,6 +1,6 @@
-import { View } from "@/components/index.js";
-import { KeyBinding } from "@/components/layout/View";
-import { setView, Menu, DiscoverMCP, ManageMCP, MCPTools } from "@/router/index.js";
+import { View } from "../../components";
+import { KeyBinding } from "../../components/layout/View";
+import { DiscoverMCP, ManageMCP, MCPTools, Menu, setView } from "../../router";
 
 const keyBindings: KeyBinding[] = [
   {

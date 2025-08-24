@@ -18,6 +18,12 @@
       ],
       "@sage/analysis/*": [
         "packages/analysis/src/*"
+      ],
+      "@sage/utils": [
+        "packages/utils/src/index.ts"
+      ],
+      "@sage/utils/*": [
+        "packages/utils/src/*"
       ]
     }
   },

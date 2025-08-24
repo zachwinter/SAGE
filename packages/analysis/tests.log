@@ -1,0 +1,50 @@
+
+ RUN  v3.2.4 /Users/zach/dev/ink-cli/packages/analysis
+
+ ✓ src/engine/parser/__tests__/parser-utils.test.ts (12 tests) 3ms
+ ✓ src/engine/parser/__tests__/basic-js-parser.test.ts (17 tests) 5ms
+ ✓ src/engine/__tests__/analyzer.test.ts (16 tests) 15ms
+ ✓ src/engine/parser/__tests__/property-based.test.ts (13 tests) 25ms
+ ✓ src/engine/parser/__tests__/ts-ast-extractor.test.ts (23 tests) 12ms
+ ❯ src/engine/__tests__/analyzer.integration.test.ts (6 tests | 2 failed) 26ms
+   ✓ Multiple file analysis > should analyze multiple files of different types 9ms
+   ✓ Multiple file analysis > should return analysis for all files, even those with no entities 2ms
+   × Complex TypeScript Project Analysis (ESM) > should correctly analyze entities in ESM project 2ms
+     → allInterfaces is not defined
+   ✓ Complex TypeScript Project Analysis (ESM) > should correctly parse decorators and generator functions 0ms
+   × Complex TypeScript Project Analysis (CJS) > should correctly analyze entities in CJS project 0ms
+     → allInterfaces is not defined
+   ✓ Complex TypeScript Project Analysis (CJS) > should correctly parse decorators and generator functions 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/engine/__tests__/analyzer.integration.test.ts > Complex TypeScript Project Analysis (ESM) > should correctly analyze entities in ESM project
+ReferenceError: allInterfaces is not defined
+ ❯ src/engine/__tests__/analyzer.integration.test.ts:107:12
+    105|     expect(allEntities.length).toBeGreaterThan(0);
+    106| 
+    107|     expect(allInterfaces.some(i => i.name === "User")).toBe(true);
+       |            ^
+    108|       expect(allInterfaces.some(i => i.name === "Timestamped")).toBe(t…
+    109|       expect(allInterfaces.some(i => i.name === "Calculator")).toBe(tr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/engine/__tests__/analyzer.integration.test.ts > Complex TypeScript Project Analysis (CJS) > should correctly analyze entities in CJS project
+ReferenceError: allInterfaces is not defined
+ ❯ src/engine/__tests__/analyzer.integration.test.ts:183:12
+    181|     expect(allEntities.length).toBeGreaterThan(0);
+    182| 
+    183|     expect(allInterfaces.some(i => i.name === "User")).toBe(true);
+       |            ^
+    184|       expect(allInterfaces.some(i => i.name === "Timestamped")).toBe(t…
+    185|       expect(allInterfaces.some(i => i.name === "Calculator")).toBe(tr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  2 failed | 85 passed (87)
+   Start at  11:50:20
+   Duration  425ms (transform 118ms, setup 66ms, collect 654ms, tests 85ms, environment 0ms, prepare 203ms)
+

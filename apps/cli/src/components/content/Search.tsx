@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Column, TextInput, Text } from "@/components";
 import { useInput } from "ink";
+import { useEffect, useState } from "react";
+import { Column, Text, TextInput } from "../../components";
 
 const MAX_VISIBLE_ITEMS = 15;
 

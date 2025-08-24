@@ -1,11 +1,11 @@
 import { useInput } from "ink";
+import BigText from "ink-big-text";
+import Gradient from "ink-gradient";
 import type { FC } from "react";
 import { useCallback } from "react";
-import { Column, SearchableSelect } from "@/components/index.js";
-import { cycleView } from "@/router/actions.js";
-import { theme } from "@/config";
-import Gradient from "ink-gradient";
-import BigText from "ink-big-text";
+import { Column, SearchableSelect } from "../../components";
+import { theme } from "../../config";
+import { cycleView } from "../../router/actions";
 
 export interface KeyBinding {
   key: string;
@@ -82,7 +82,22 @@ export const View: FC<ViewProps> = ({
       paddingLeft={theme.padding}
       paddingRight={theme.padding}
     >
-      <Gradient name="mind">
+      {/**
+       *'cristal'
+       *'teen'
+       *'mind'
+       *'morning'
+       *'vice'
+       *'passion'
+       *'fruit'
+       *'instagram'
+       *'atlas'
+       *'retro'
+       *'summer'
+       *'pastel'
+       *'rainbow'
+       */}
+      <Gradient name="teen">
         <BigText
           text={title}
           font="block"

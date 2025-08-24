@@ -1,7 +1,7 @@
 import { tool as lmStudioTool } from "@lmstudio/sdk";
-import { z } from "zod";
-import { mcpClientManager, getAvailableMcpTools, McpTool } from "@/mcp/index.js";
 import type { FC } from "react";
+import { z } from "zod";
+import { getAvailableMcpTools, mcpClientManager } from "../mcp";
 
 import { Bash } from "./Bash.js";
 import { Edit } from "./Edit.js";

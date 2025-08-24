@@ -1,18 +1,23 @@
 #!/usr/bin/env node
 
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { render } from "ink";
+import { settings } from "./config/index";
+import { Logger } from "@sage/utils";
+import { initializeMcp } from "./mcp";
+
+// Create debug logger
+const debugLogger = new Logger("CLI", "debug.log");
+import { state as modelState } from "./models/state.js";
 import { Router } from "./router/Router.js";
 import { state } from "./router/state.js";
-import { cleanupOldStreamingToolCalls } from "./threads/streaming/actions.js";
-import { state as modelState } from "./models/state.js";
 import { state as threadState } from "./threads/state/index.js";
-import { initializeToolCallCleanup } from "@/tools/utils/tool-cleanup.js";
-import { initializeMcp } from "@/mcp/index.js";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import Logger from "@/logger/logger.js";
-import { hydrateCurrentThread } from "@/threads/utils/persistence.js";
+import { cleanupOldStreamingToolCalls } from "./threads/streaming/actions.js";
+import { hydrateCurrentThread } from "./threads/utils/persistence";
+import { initializeToolCallCleanup } from "./tools/utils/tool-cleanup";
 import { config } from "./utils/directories.js";
-import { settings } from "@/config/index.js";
+
+const logger = new Logger('CLI');
 
 function initializeConfig() {
   modelState.selectedModel = settings.defaultModel;
@@ -34,7 +39,7 @@ function loadMessages() {
 }
 
 export async function initializeApp() {
-  Logger.info("Sage app initializing...");
+  logger.info("Sage app initializing...");
 
   if (state.initialized) return;
 
@@ -44,20 +49,20 @@ export async function initializeApp() {
     loadMessages();
   }
 
-  Logger.debug("Initializing cleanup utilities.");
+  logger.debug("Initializing cleanup utilities.");
   cleanupOldStreamingToolCalls();
   initializeToolCallCleanup();
 
   try {
-    Logger.info("Initializing MCP system...");
+    logger.info("Initializing MCP system...");
     await initializeMcp();
-    Logger.info("MCP system initialized successfully.");
+    logger.info("MCP system initialized successfully.");
   } catch (error) {
-    Logger.error("Failed to initialize MCP system", error as Error);
+    logger.error("Failed to initialize MCP system", error as Error);
   }
 
   state.initialized = true;
-  Logger.info("Sage app initialization complete.");
+  logger.info("Sage app initialization complete.");
 }
 
 // Handle command line arguments
@@ -104,13 +109,13 @@ function printVersion() {
 
 // Check for help or version flags
 if (args.includes("--help") || args.includes("-h")) {
-  Logger.info("Displaying help message.", { args });
+  logger.info("Displaying help message.", { args });
   printHelp();
   process.exit(0);
 }
 
 if (args.includes("--version") || args.includes("-v")) {
-  Logger.info("Displaying version information.", { args });
+  logger.info("Displaying version information.", { args });
   printVersion();
   process.exit(0);
 }

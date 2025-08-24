@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio";
 import { Logger } from "../../logger/logger.js";
 import path from "path";
 import fs from "fs";

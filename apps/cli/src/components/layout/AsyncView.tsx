@@ -1,5 +1,5 @@
-import { useAsyncData } from "@/hooks";
-import { Spinner } from "@/components/index.js";
+import { Spinner } from "../../components";
+import { useAsyncData } from "../../hooks";
 import { View } from "./View";
 
 interface AsyncViewProps<T> {

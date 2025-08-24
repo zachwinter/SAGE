@@ -1,0 +1,76 @@
+import { Column, Row, Text, TextInput } from "@/components/index.js";
+import * as models from "@/models/index.js";
+import * as threads from "@/threads/index.js";
+import { getGlobalAbortController, setTurn } from "@/threads/index.js";
+import { useInput } from "ink";
+import { useSnapshot } from "valtio";
+
+export const UserMessage = () => {
+  const threadsSnap = useSnapshot(threads.state);
+  const modelsSnap = useSnapshot(models.state);
+  const totalMessages = threadsSnap.active?.getLength?.() || 0;
+  const [prefix, suffix] =
+    typeof modelsSnap.selectedModel === "string"
+      ? modelsSnap.selectedModel.split("/")
+      : [null, null];
+
+  const pendingConfirmationId = threadsSnap.pendingToolCallConfirmation?.id;
+
+  useInput((input, key) => {
+    if (threadsSnap.resolveConfirmation) {
+      if (input.toLowerCase() === "y" || key.return) {
+        threads.approveToolCall();
+        return;
+      } else if (input.toLowerCase() === "n" || key.escape) {
+        threads.denyToolCall();
+        return;
+      }
+    }
+
+    if (key.escape && threadsSnap.turn === "assistant") {
+      getGlobalAbortController()?.abort?.();
+      setTurn("user");
+    }
+  });
+
+  return (
+    <Column>
+      <TextInput
+        placeholder={
+          pendingConfirmationId
+            ? `CONFIRM ${pendingConfirmationId} ? (Y/n)`
+            : threadsSnap.turn === "user"
+              ? "send a message"
+              : "hit ESC to interrupt"
+        }
+        value={threadsSnap.message}
+        setValue={threads.setMessage}
+        onSubmit={threads.sendMessage}
+      />
+
+      <Row
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Row gap={1}>
+          <Text color="magenta">≡</Text>
+          <Text>
+            SHIFT<Text color="gray">+</Text>TAB
+          </Text>
+        </Row>
+        <Row gap={3}>
+          <Row>
+            <Text dimColor>{prefix}</Text>
+            <Text dimColor>/</Text>
+            <Text>{suffix}</Text>
+          </Row>
+
+          <Row gap={1}>
+            <Text>{totalMessages}</Text>
+            <Text dimColor>msg(s) in thread</Text>
+          </Row>
+        </Row>
+      </Row>
+    </Column>
+  );
+};

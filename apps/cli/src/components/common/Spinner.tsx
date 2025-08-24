@@ -1,7 +1,7 @@
 import { Spinner as InkSpinner } from "@inkjs/ui";
 import type { SpinnerName } from "cli-spinners";
 import type { FC } from "react";
-import { theme } from "@/config";
+import { theme } from "../../config";
 
 interface SpinnerProps {
   type?: SpinnerName;

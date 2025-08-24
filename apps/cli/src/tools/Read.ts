@@ -1,9 +1,11 @@
 import { tool } from "@lmstudio/sdk";
-import { z } from "zod";
+import { Logger } from "@sage/utils";
 import { readFile } from "fs/promises";
-import { resolve, isAbsolute } from "path";
+import { isAbsolute, resolve } from "path";
 import { cwd } from "process";
-import Logger from "@/logger/logger.js";
+import { z } from "zod";
+
+const logger = new Logger("tools:read", "debug.log");
 
 export const Read = tool({
   name: "Read",
@@ -12,17 +14,17 @@ export const Read = tool({
     file_path: z.string().describe("(relative or absolute)")
   },
   implementation: async ({ file_path }) => {
-    Logger.info(`Tool:Read invoked`, { file_path });
+    logger.info(`Tool:Read invoked`, { file_path });
     try {
       const resolvedPath = isAbsolute(file_path)
         ? file_path
         : resolve(cwd(), file_path);
       const content = await readFile(resolvedPath, "utf8");
-      Logger.info(`Tool:Read success`, { file_path, bytes: content.length });
+      logger.info(`Tool:Read success`, { file_path, bytes: content.length });
       return { success: true, message: content };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      Logger.error(`Tool:Read failed`, error as Error, { file_path });
+      logger.error(`Tool:Read failed`, error as Error, { file_path });
       return {
         success: false,
         message: errorMessage

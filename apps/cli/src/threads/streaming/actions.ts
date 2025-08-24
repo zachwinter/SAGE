@@ -1,7 +1,10 @@
 // src/threads/streaming/actions.ts
 
+import { Logger } from "@sage/utils";
+import { batch } from "valtio";
 import { state, type StreamingToolCall } from "../state/state.js";
-import Logger from "../../logger/logger.js";
+
+const logger = new Logger("threads:streaming:actions");
 
 export function addStreamingToolCall(callId: number, info: { toolCallId?: string }) {
   const exists = state.streamingToolCalls.some(tc => tc.id === callId);
@@ -15,11 +18,11 @@ export function addStreamingToolCall(callId: number, info: { toolCallId?: string
       hasError: false
     };
     state.streamingToolCalls.push(newToolCall);
-    Logger.debug(
+    logger.debug(
       `[Streaming] Added new streaming tool call: callId=${callId}, toolCallId=${info.toolCallId}`
     );
   } else {
-    Logger.debug(
+    logger.debug(
       `[Streaming] Streaming tool call already exists for callId: ${callId}`
     );
   }
@@ -31,11 +34,11 @@ export function updateStreamingToolCallName(callId: number, name: string) {
     const previousName = toolCall.name;
     toolCall.name = name || "";
     toolCall.hasError = false;
-    Logger.debug(
+    logger.debug(
       `[Streaming] Updated tool call name for callId: ${callId}, "${previousName}" -> "${name}"`
     );
   } else {
-    Logger.warn(
+    logger.warn(
       `[Streaming] Tool call not found for name update, callId: ${callId}, name: ${name}`
     );
   }
@@ -78,16 +81,16 @@ function flushFragmentBuffer(callId: number): Promise<void> {
       if (toolCall) {
         toolCall.arguments += buffer;
         toolCall.hasError = false;
-        Logger.debug(
+        logger.debug(
           `[Streaming] Flushed buffer for callId: ${callId}, added ${buffer.length} chars.`
         );
       } else {
-        Logger.warn(
+        logger.warn(
           `[Streaming] Tool call not found for callId: ${callId} during flush`
         );
       }
     } catch (error) {
-      Logger.error(
+      logger.error(
         `Error during flush for callId: ${callId}`,
         error instanceof Error ? error : String(error)
       );
@@ -110,12 +113,12 @@ function flushFragmentBuffer(callId: number): Promise<void> {
 export function appendToStreamingToolCallArgs(callId: number, fragment: string) {
   // FIX 1: Add the debug log for empty fragments, which the other test expects.
   if (!fragment) {
-    Logger.debug(`[Streaming] Empty fragment received for callId: ${callId}`);
+    logger.debug(`[Streaming] Empty fragment received for callId: ${callId}`);
     return;
   }
 
   // FIX 2: Add the debug log for appended fragments, which the failing test expects.
-  Logger.debug(`[Streaming] Fragment appended to callId: ${callId}`);
+  logger.debug(`[Streaming] Fragment appended to callId: ${callId}`);
 
   try {
     const currentBuffer = fragmentBuffers.get(callId) || "";
@@ -131,7 +134,7 @@ export function appendToStreamingToolCallArgs(callId: number, fragment: string) 
     }, 16); // ~60fps
     fragmentTimeouts.set(callId, timeout);
   } catch (error) {
-    Logger.error(
+    logger.error(
       `Error appending fragment to callId: ${callId}`,
       error instanceof Error ? error : String(error)
     );

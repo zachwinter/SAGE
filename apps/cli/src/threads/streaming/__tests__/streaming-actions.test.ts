@@ -1,32 +1,27 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { Logger } from "@sage/utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { state } from "../../state/state.js";
 import {
   addStreamingToolCall,
-  updateStreamingToolCallName,
   appendToStreamingToolCallArgs,
-  removeCompletedStreamingToolCalls,
   clearAllStreamingToolCalls,
-  flushFragmentBuffer
+  flushFragmentBuffer,
+  removeCompletedStreamingToolCalls,
+  updateStreamingToolCallName
 } from "../actions.js";
-import { state } from "../../state/state.js";
-import Logger from "../../../logger/logger.js";
 
-// Mock Logger methods since that's what the actions actually use
+const logger = new Logger("Streaming Actions Test");
+
 beforeEach(() => {
-  // Reset state
   clearAllStreamingToolCalls();
   state.streamingToolCalls = [];
-
-  // Mock Logger methods
-  vi.spyOn(Logger, "debug").mockImplementation(() => {});
-  vi.spyOn(Logger, "warn").mockImplementation(() => {});
-  vi.spyOn(Logger, "error").mockImplementation(() => {});
+  vi.spyOn(logger, "debug").mockImplementation(() => {});
+  vi.spyOn(logger, "warn").mockImplementation(() => {});
+  vi.spyOn(logger, "error").mockImplementation(() => {});
 });
 
 afterEach(() => {
-  // Restore Logger methods
   vi.restoreAllMocks();
-
-  // Clean up any remaining state
   clearAllStreamingToolCalls();
 });
 
@@ -72,7 +67,7 @@ describe("Streaming Tool Call Actions", () => {
     it("should handle missing tool call gracefully", () => {
       updateStreamingToolCallName(999, "Write");
 
-      expect(Logger.warn).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining("Tool call not found for name update, callId: 999")
       );
     });
@@ -88,7 +83,7 @@ describe("Streaming Tool Call Actions", () => {
     it("should handle empty fragments", () => {
       appendToStreamingToolCallArgs(1, "");
 
-      expect(Logger.debug).toHaveBeenCalledWith(
+      expect(logger.debug).toHaveBeenCalledWith(
         expect.stringContaining("Empty fragment received for callId: 1")
       );
     });
@@ -125,7 +120,7 @@ describe("Streaming Tool Call Actions", () => {
       // This should not throw but log debug information
       appendToStreamingToolCallArgs(invalidCallId, "test");
 
-      expect(Logger.debug).toHaveBeenCalledWith(
+      expect(logger.debug).toHaveBeenCalledWith(
         expect.stringContaining(`Fragment appended to callId: ${invalidCallId}`)
       );
     });

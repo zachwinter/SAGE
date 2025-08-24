@@ -1,14 +1,14 @@
-import { View, Chat } from "@/components/index.js";
 import { useSnapshot } from "valtio";
-import { state } from "@/threads/state/state.js";
+import { Chat, View } from "../components/index";
+import { KeyBinding } from "../components/layout/View";
 import {
   interruptGeneration,
   removeLastMessage
-} from "@/threads/messaging/actions.js";
-import { KeyBinding } from "@/components/layout/View";
+} from "../threads/messaging/actions";
+import { state } from "../threads/state/state";
 
 export const Home = () => {
-  const snap = useSnapshot(state);
+  const snap = useSnapshot(state, { sync: true });
 
   const keyBindings: KeyBinding[] = [
     {

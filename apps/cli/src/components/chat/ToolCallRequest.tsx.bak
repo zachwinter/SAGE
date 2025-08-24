@@ -1,0 +1,145 @@
+import { Code, Column, Text } from "@/components/index.js";
+import { toolRegistry } from "@/tools/registry.js";
+import { Logger } from "@sage/utils";
+import { memo, useMemo } from "react";
+
+const logger = new Logger("ToolCallRequest");
+
+function processToolArguments(
+  args: string | Record<string, unknown>
+): Record<string, any> {
+  if (typeof args === "string") {
+    // Handle streaming string format with improved parsing
+    const parsedArgs: Record<string, string> = {};
+
+    try {
+      // Handle streaming completion of parameters
+      const completedRegex = /<parameter=([^>]+)>(.*?)<\/parameter>/gs;
+      let match;
+
+      // Process completed parameters
+      while ((match = completedRegex.exec(args)) !== null) {
+        const key = match[1].trim();
+        const value = match[2];
+        parsedArgs[key] = value;
+      }
+
+      // Handle incomplete parameters at the end of stream
+      const incompleteMatch = args.match(/<parameter=([^>]+)>([^<]*)$/);
+      if (incompleteMatch) {
+        const key = incompleteMatch[1].trim();
+        const value = incompleteMatch[2];
+        // Only add if it's a meaningful partial value
+        if (value.length > 0 || !parsedArgs[key]) {
+          parsedArgs[key] = value;
+        }
+      }
+    } catch (error) {
+      // Fallback for malformed streaming content
+      logger.warn(
+        "Error parsing streaming tool arguments:",
+        error instanceof Error ? error : String(error)
+      );
+      return { raw_content: args };
+    }
+
+    return parsedArgs;
+  } else if (typeof args === "object" && args !== null) {
+    // Handle completed object format - ensure consistent serialization
+    const normalizedArgs: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(args)) {
+      // Normalize values to ensure consistent display between streaming and completed
+      if (typeof value === "string") {
+        normalizedArgs[key] = value;
+      } else if (value === null || value === undefined) {
+        normalizedArgs[key] = "";
+      } else {
+        // Properly serialize objects instead of using String() which creates [object Object]
+        normalizedArgs[key] =
+          typeof value === "object" && value !== null
+            ? JSON.stringify(value, null, 2)
+            : String(value);
+      }
+    }
+
+    return normalizedArgs;
+  }
+
+  return {};
+}
+
+export const ToolCallRequest = memo(
+  ({
+    name,
+    args,
+    hasError,
+    errorMessage
+  }: {
+    name: string;
+    args: string | Record<string, unknown>;
+    hasError?: boolean;
+    errorMessage?: string;
+  }) => {
+    const displayArgs: Record<string, any> = useMemo(() => {
+      return processToolArguments(args);
+    }, [args]);
+
+    if (!name) {
+      return null;
+    }
+
+    // Show error state if there's an error
+    if (hasError) {
+      return (
+        <Column>
+          <Text color="red">❌ {name} - Error</Text>
+          {errorMessage && (
+            <Text
+              color="red"
+              dimColor
+            >
+              {errorMessage}
+            </Text>
+          )}
+        </Column>
+      );
+    }
+
+    const tool = toolRegistry.getTool(name);
+
+    // If the tool has a custom renderer, use it.
+    if (tool?.Renderer) {
+      const Renderer = tool.Renderer;
+      return (
+        <Renderer
+          args={displayArgs}
+          hasError={hasError}
+          errorMessage={errorMessage}
+        />
+      );
+    }
+
+    // Otherwise, fall back to the generic default display with syntax highlighting.
+    const hasArgs = Object.keys(displayArgs).length > 0;
+
+    if (!hasArgs) {
+      return <Text>{name}</Text>;
+    }
+
+    const jsonString = JSON.stringify(displayArgs, null, 2);
+    return (
+      <Column>
+        <Text>{name}</Text>
+        <Column
+          paddingLeft={2}
+          paddingTop={1}
+        >
+          <Code language="json">{jsonString}</Code>
+        </Column>
+      </Column>
+    );
+  }
+);
+
+ToolCallRequest.displayName = "ToolCallRequest";

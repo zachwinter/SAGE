@@ -1,18 +1,20 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import type { McpServerConfig } from "../types.js";
+import { Logger } from "@sage/utils";
 import {
   mcpState,
-  updateServerStatus,
-  updateServerCapabilities
+  updateServerCapabilities,
+  updateServerStatus
 } from "../state/index.js";
-import Logger from "../../logger/logger.js";
+import type { McpServerConfig } from "../types.js";
 
 interface ClientInfo {
   client: Client;
   transport: StdioClientTransport | StreamableHTTPClientTransport;
 }
+
+const logger = new Logger("mcp-client-manager");
 
 class MCPClientManager {
   private servers = new Map<string, McpServerConfig>();
@@ -45,7 +47,7 @@ class MCPClientManager {
       return; // Already trying to connect or is connected.
     }
 
-    Logger.info(`🔌 Attempting to connect to ${config.name}...`);
+    logger.info(`🔌 Attempting to connect to ${config.name}...`);
     updateServerStatus(serverId, "connecting");
 
     try {
@@ -59,7 +61,7 @@ class MCPClientManager {
       if (config.type === "http" && config.url) {
         // Use HTTP transport
         transport = new StreamableHTTPClientTransport(new URL(config.url));
-        Logger.info(`Using HTTP transport for ${config.name} at ${config.url}`);
+        logger.info(`Using HTTP transport for ${config.name} at ${config.url}`);
       } else {
         // Use stdio transport (default)
         if (!config.command) {
@@ -68,114 +70,116 @@ class MCPClientManager {
         transport = new StdioClientTransport({
           command: config.command,
           args: config.args || [],
-          env: { 
-            ...process.env, 
+          env: {
+            ...process.env,
             NODE_PATH: process.env.NODE_PATH || "./node_modules",
             ...config.env
           } as Record<string, any>
         });
-        Logger.info(
+        logger.info(
           `Using stdio transport for ${config.name}: ${config.command} ${config.args?.join(" ") || ""}`
         );
       }
 
       this.clients.set(serverId, { client, transport });
 
-      Logger.info(`🔌 About to call client.connect() for ${config.name}`);
+      logger.info(`🔌 About to call client.connect() for ${config.name}`);
       await client.connect(transport);
-      Logger.info(`🔌 client.connect() completed for ${config.name}`);
-      Logger.info(`✅ Connection established with ${config.name}!`);
-      
+      logger.info(`🔌 client.connect() completed for ${config.name}`);
+      logger.info(`✅ Connection established with ${config.name}!`);
+
       // 🚀 BREAKTHROUGH FIX - call capabilities IMMEDIATELY after connect!
       try {
-        Logger.info(`🚀 IMMEDIATE capability calls right after connect...`);
-        
+        logger.info(`🚀 IMMEDIATE capability calls right after connect...`);
+
         // Call all three methods immediately while socket context is intact
         const [toolsResult, resourcesResult, promptsResult] = await Promise.all([
           client.listTools().catch(e => ({ tools: [] })),
-          client.listResources().catch(e => ({ resources: [] })), 
+          client.listResources().catch(e => ({ resources: [] })),
           client.listPrompts().catch(e => ({ prompts: [] }))
         ]);
-        
-        Logger.info(`🚀 IMMEDIATE calls SUCCESS!`, {
+
+        logger.info(`🚀 IMMEDIATE calls SUCCESS!`, {
           tools: toolsResult.tools?.length || 0,
           resources: resourcesResult.resources?.length || 0,
           prompts: promptsResult.prompts?.length || 0
         });
-        
+
         const capabilities = {
           tools: toolsResult.tools || [],
           resources: resourcesResult.resources || [],
           prompts: promptsResult.prompts || []
         };
-        
+
         // Update state properly
         mcpState.servers[serverId].client = client;
         updateServerStatus(serverId, "connected");
         updateServerCapabilities(serverId, capabilities);
-        
-        Logger.info(`🎉 BREAKTHROUGH! Fetched ${capabilities.tools.length} tools, ${capabilities.resources.length} resources, ${capabilities.prompts.length} prompts immediately after connect!`);
+
+        logger.info(
+          `🎉 BREAKTHROUGH! Fetched ${capabilities.tools.length} tools, ${capabilities.resources.length} resources, ${capabilities.prompts.length} prompts immediately after connect!`
+        );
         return;
-        
       } catch (immediateError) {
-        Logger.error(`🚀 Even immediate calls failed:`, immediateError);
+        logger.error(`🚀 Even immediate calls failed:`, immediateError);
       }
-      
+
       mcpState.servers[serverId].client = client;
       updateServerStatus(serverId, "connected");
       // Fetch real capabilities from the connected server!
-      Logger.info(`🔍 Fetching capabilities from ${config.name}...`);
+      logger.info(`🔍 Fetching capabilities from ${config.name}...`);
 
       try {
-        Logger.info(`🔧 About to fetch capabilities from ${config.name}`);
-        
+        logger.info(`🔧 About to fetch capabilities from ${config.name}`);
+
         // EXACT COPY of working test pattern - bypass all our complex logic
-        Logger.info(`🔧 Trying EXACT working test pattern...`);
-        
+        logger.info(`🔧 Trying EXACT working test pattern...`);
+
         try {
           // Debug the client transport state before calling
           const clientInfo = this.clients.get(serverId);
           if (clientInfo?.transport instanceof StdioClientTransport) {
             const transport = clientInfo.transport as any; // Access private members
-            Logger.info(`🔧 Transport debug:`, {
+            logger.info(`🔧 Transport debug:`, {
               hasProcess: !!transport._process,
               processId: transport._process?.pid,
               hasStdin: !!transport._process?.stdin,
               stdinWritable: transport._process?.stdin?.writable
             });
           }
-          
-          Logger.info(`🔧 Direct listTools call (like working test)...`);
+
+          logger.info(`🔧 Direct listTools call (like working test)...`);
           const toolsResult = await client.listTools();
-          Logger.info(`🔧 MIRACLE! Direct call worked:`, toolsResult);
-          
+          logger.info(`🔧 MIRACLE! Direct call worked:`, toolsResult);
+
           const capabilities = {
             tools: toolsResult.tools || [],
             resources: [], // Skip for now, just get tools working
             prompts: []
           };
-          
-          Logger.info(
+
+          logger.info(
             `✅ BREAKTHROUGH! Fetched ${capabilities.tools.length} tools directly!`
           );
           updateServerCapabilities(serverId, capabilities);
           return; // Early return on success
-          
         } catch (directError) {
-          Logger.error(`🔧 Direct call also failed:`, directError);
+          logger.error(`🔧 Direct call also failed:`, directError);
         }
 
         // If direct call fails, fall back to old pattern
         const results = [
-          { status: 'rejected', value: { tools: [] } },
-          { status: 'rejected', value: { resources: [] } },
-          { status: 'rejected', value: { prompts: [] } }
+          { status: "rejected", value: { tools: [] } },
+          { status: "rejected", value: { resources: [] } },
+          { status: "rejected", value: { prompts: [] } }
         ];
-        
-        Logger.info(`🔧 Got capability results for ${config.name}:`, { 
+
+        logger.info(`🔧 Got capability results for ${config.name}:`, {
           resultsCount: results.length,
           statuses: results.map(r => r.status),
-          errors: results.filter(r => r.status === 'rejected').map(r => (r as any).reason?.message)
+          errors: results
+            .filter(r => r.status === "rejected")
+            .map(r => (r as any).reason?.message)
         });
 
         const capabilities = {
@@ -184,12 +188,12 @@ class MCPClientManager {
           prompts: promptsResult.prompts || []
         };
 
-        Logger.info(
+        logger.info(
           `✅ Successfully fetched ${capabilities.tools.length} tools, ${capabilities.resources.length} resources, ${capabilities.prompts.length} prompts from ${config.name}!`
         );
         updateServerCapabilities(serverId, capabilities);
       } catch (error) {
-        Logger.error(
+        logger.error(
           `❌ Critical error fetching capabilities from ${config.name}:`,
           error
         );
@@ -198,7 +202,7 @@ class MCPClientManager {
         updateServerCapabilities(serverId, emptyCapabilities);
       }
     } catch (error: any) {
-      Logger.error(`❌ Failed to connect to server ${serverId}:`, error.message);
+      logger.error(`❌ Failed to connect to server ${serverId}:`, error.message);
       updateServerStatus(serverId, "error", error.message);
       this.clients.delete(serverId); // Clean up failed attempt
     }
@@ -207,7 +211,7 @@ class MCPClientManager {
   async disconnectServer(serverId: string) {
     const clientInfo = this.clients.get(serverId);
     if (clientInfo) {
-      Logger.info(`🔌 Disconnecting from ${mcpState.servers[serverId]?.name}...`);
+      logger.info(`🔌 Disconnecting from ${mcpState.servers[serverId]?.name}...`);
       await clientInfo.transport.close();
       this.clients.delete(serverId);
     }
@@ -240,8 +244,10 @@ class MCPClientManager {
       throw new Error(`Server ${serverId} is not in connected state`);
     }
 
-    Logger.info(`🔧 Calling tool ${toolName} on server ${server.name}...`);
-    Logger.info(`🚀 Creating fresh connection for tool call to avoid socket binding issue...`);
+    logger.info(`🔧 Calling tool ${toolName} on server ${server.name}...`);
+    logger.info(
+      `🚀 Creating fresh connection for tool call to avoid socket binding issue...`
+    );
 
     try {
       // Create fresh client for this call to avoid socket binding issues
@@ -253,28 +259,30 @@ class MCPClientManager {
       const freshTransport = new StdioClientTransport({
         command: config.command,
         args: config.args || [],
-        env: { 
-          ...process.env, 
+        env: {
+          ...process.env,
           NODE_PATH: process.env.NODE_PATH || "./node_modules",
           ...config.env
         } as Record<string, any>
       });
 
       await freshClient.connect(freshTransport);
-      
+
       // Call tool immediately after connect while socket context is fresh
       const result = await freshClient.callTool({
         name: toolName,
         arguments: args
       });
-      
+
       // Clean up
       await freshClient.close?.();
 
-      Logger.info(`✅ Tool ${toolName} executed successfully with fresh connection!`);
+      logger.info(
+        `✅ Tool ${toolName} executed successfully with fresh connection!`
+      );
       return result;
     } catch (error: any) {
-      Logger.error(
+      logger.error(
         `❌ Failed to call tool ${toolName} on server ${serverId}:`,
         error.message
       );
@@ -293,14 +301,14 @@ class MCPClientManager {
       throw new Error(`Server ${serverId} is not in connected state`);
     }
 
-    Logger.info(`📄 Reading resource ${uri} from server ${server.name}...`);
+    logger.info(`📄 Reading resource ${uri} from server ${server.name}...`);
 
     try {
       const result = await clientInfo.client.readResource({ uri });
-      Logger.info(`✅ Resource ${uri} read successfully`);
+      logger.info(`✅ Resource ${uri} read successfully`);
       return result;
     } catch (error: any) {
-      Logger.error(
+      logger.error(
         `❌ Failed to read resource ${uri} from server ${serverId}:`,
         error.message
       );
@@ -323,7 +331,7 @@ class MCPClientManager {
       throw new Error(`Server ${serverId} is not in connected state`);
     }
 
-    Logger.info(`💬 Getting prompt ${name} from server ${server.name}...`);
+    logger.info(`💬 Getting prompt ${name} from server ${server.name}...`);
 
     try {
       const result = await clientInfo.client.getPrompt({
@@ -331,10 +339,10 @@ class MCPClientManager {
         arguments: args
       });
 
-      Logger.info(`✅ Prompt ${name} retrieved successfully`);
+      logger.info(`✅ Prompt ${name} retrieved successfully`);
       return result;
     } catch (error: any) {
-      Logger.error(
+      logger.error(
         `❌ Failed to get prompt ${name} from server ${serverId}:`,
         error.message
       );

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { toolRegistry } from "@/tools/registry.js";
-import { mcpClientManager } from "@/mcp/client/index.js";
-import { state } from "@/mcp/state/index.js";
-import type { McpServerConfig, McpTool } from "@/mcp/types.js";
+import { toolRegistry } from "@/tools/registry";
+import { mcpClientManager } from "@/mcp/client/index";
+import { state } from "@/mcp/state/index";
+import type { McpServerConfig, McpTool } from "@/mcp/types";
 
 // Mock the MCP client manager
 vi.mock("@/mcp/client/MCPClientManager.js", () => {

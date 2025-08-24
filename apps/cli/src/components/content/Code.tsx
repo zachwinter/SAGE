@@ -1,5 +1,5 @@
 import { highlight } from "cli-highlight";
-import { Text } from "@/components/index.js";
+import { Text } from "../../components";
 
 export const Code = ({
   children,

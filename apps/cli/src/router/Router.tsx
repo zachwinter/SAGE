@@ -1,8 +1,8 @@
 import { type FC } from "react";
 import { useSnapshot } from "valtio";
+import { Text } from "../components";
+import * as Views from "../views";
 import * as app from "./state.js";
-import { Text } from "@/components/index.js";
-import * as Views from "@/views/index.js";
 
 export const Router: FC = () => {
   const { view } = useSnapshot(app.state);

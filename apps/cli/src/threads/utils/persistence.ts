@@ -1,8 +1,8 @@
+import { Chat, ChatMessageLike, type ChatHistoryData } from "@lmstudio/sdk";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
-import { ChatMessageLike, Chat, type ChatHistoryData } from "@lmstudio/sdk";
-import { state as threadState } from "@/threads";
 import path from "path";
-import { threads } from "@/utils/directories.js";
+import { state as threadState } from "../../threads";
+import { threads } from "../../utils/directories";
 
 export const listThreads = (threadsDir: string) =>
   readdirSync(threadsDir).filter(v => v.includes(".json"));

@@ -1,19 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import fs from "fs";
 import { spawn } from "child_process";
+import fs from "fs";
 import process from "process";
-import {
-  getRunningServers,
-  isServerRunning,
-  startServerProcess,
-  stopServerProcess,
-  restartServerProcess,
-  cleanupStalePidFiles,
-  getServerProcess
-} from "../process/index.js";
-import * as processModule from "../process/index.js";
 import { PassThrough } from "stream";
-import Logger from "../../logger/logger.js";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  cleanupStalePidFiles,
+  getRunningServers,
+  getServerProcess,
+  isServerRunning,
+  restartServerProcess,
+  startServerProcess,
+  stopServerProcess
+} from "../process/index.js";
 
 // Mock dependencies
 vi.mock("fs");
@@ -197,12 +195,12 @@ describe("Process Management", () => {
       const args = ["server.js"];
       const cwd = "/tmp";
       const scriptPath = `${cwd}/${args[0]}`;
-      
+
       // Mock that server is not already running
       mockFs.existsSync.mockImplementation(path => {
         const pathStr = path.toString();
-        if (pathStr.includes(`${serverId}.pid`)) return false;  // No PID file exists
-        if (pathStr === scriptPath) return true;  // Script exists
+        if (pathStr.includes(`${serverId}.pid`)) return false; // No PID file exists
+        if (pathStr === scriptPath) return true; // Script exists
         return false;
       });
 
@@ -218,7 +216,7 @@ describe("Process Management", () => {
 
       // Start the process
       const startPromise = startServerProcess(serverId, command, args, cwd);
-      
+
       // Simulate the server becoming ready
       process.nextTick(() => {
         mockStderr.write("MCP server ready");
@@ -439,12 +437,12 @@ describe("Process Management", () => {
       const scriptPath = `${cwd}/${args[0]}`; // /tmp/server.js
 
       // --- MOCK SETUP ---
-      
+
       // Mock file system calls
       mockFs.existsSync.mockImplementation(path => {
         const pathStr = path.toString();
-        if (pathStr.includes(`${serverId}.pid`)) return false;  // No PID file exists initially
-        if (pathStr === scriptPath) return true;  // Script exists
+        if (pathStr.includes(`${serverId}.pid`)) return false; // No PID file exists initially
+        if (pathStr === scriptPath) return true; // Script exists
         return false;
       });
 
@@ -461,7 +459,7 @@ describe("Process Management", () => {
 
       // --- ACTION ---
       const restartPromise = restartServerProcess(serverId, command, args, cwd);
-      
+
       // Simulate the server becoming ready (this is what the real server.js would do)
       process.nextTick(() => {
         mockStderr.write("MCP server ready");
@@ -473,7 +471,7 @@ describe("Process Management", () => {
 
       // Verify that a child process was returned
       expect(result).toBe(mockChildProcess);
-      
+
       // Verify that spawn was called with the right parameters
       expect(mockSpawn).toHaveBeenCalledWith(
         expect.stringMatching(/node$/), // Command is normalized to an absolute path
@@ -484,7 +482,7 @@ describe("Process Management", () => {
       // Verify that a PID file was written (indicating the process was started successfully)
       expect(mockFs.writeFileSync).toHaveBeenCalledWith(
         expect.stringContaining(`${serverId}.pid`),
-        expect.stringContaining('54321')
+        expect.stringContaining("54321")
       );
     });
   });

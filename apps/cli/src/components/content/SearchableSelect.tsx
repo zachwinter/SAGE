@@ -1,5 +1,6 @@
+import { theme } from "../../config";
+import { Box, Row, Text } from "../index.js";
 import { Search, SearchProps } from "./Search.js";
-import { Text, Box, Row } from "../index.js";
 
 export interface SelectOption {
   label: string;
@@ -36,7 +37,7 @@ export const SearchableSelect = ({
     <Box
       key={`${option.value}-${index}`}
       paddingLeft={isSelected ? 0 : 1}
-      borderStyle={isSelected ? "round" : undefined}
+      borderStyle={isSelected ? theme.border : undefined}
       borderColor={isSelected ? "magenta" : undefined}
     >
       <Row paddingLeft={1}>
@@ -44,7 +45,7 @@ export const SearchableSelect = ({
           <Row gap={1}>
             <Row>
               <Text color="gray">(</Text>
-              <Text color="magenta">
+              <Text color={theme.primary}>
                 {option.value === "escape" ? "ESC" : option.value?.toUpperCase()}
               </Text>
               <Text color="gray">)</Text>

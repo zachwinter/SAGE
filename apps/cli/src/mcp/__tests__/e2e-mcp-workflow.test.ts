@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { mcpClientManager } from "@/mcp/client/index.js";
-import { state, mcpState } from "@/mcp/state/index.js";
-import { toolRegistry } from "@/tools/registry.js";
+import { mcpClientManager } from "@/mcp/client/index";
+import { state, mcpState } from "@/mcp/state/index";
+import { toolRegistry } from "@/tools/registry";
 import {
   getAvailableMcpTools,
   getAvailableMcpResources,
   getAvailableMcpPrompts,
   getServerStats,
   getConnectedServers
-} from "@/mcp/state/selectors.js";
-import type { McpServerConfig } from "@/mcp/types.js";
+} from "@/mcp/state/selectors";
+import type { McpServerConfig } from "@/mcp/types";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";

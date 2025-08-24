@@ -1,8 +1,8 @@
-import { View, Text, Box, Column, Row, Search } from "@/components/index.js";
-import { setView, MCPMenu } from "@/router/index.js";
-import { useSnapshot } from "valtio";
-import { mcpState, McpTool } from "@/mcp/index.js";
 import { useMemo } from "react";
+import { useSnapshot } from "valtio";
+import { Box, Column, Row, Search, Text, View } from "../../components";
+import { mcpState, McpTool } from "../../mcp";
+import { MCPMenu, setView } from "../../router";
 
 type CapabilityType = "tool" | "resource" | "prompt";
 

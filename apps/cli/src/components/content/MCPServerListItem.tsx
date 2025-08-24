@@ -1,6 +1,6 @@
-import { Box, Column, Row, Text } from "@/components/index.js";
-import { MCPServer } from "@/mcp/index.js";
-
+import { Box, Column, Row, Text } from "../../components/index";
+import { theme } from "../../config";
+import { MCPServer } from "../../mcp";
 interface MCPServerListItemProps {
   server: MCPServer;
   isSelected: boolean;
@@ -17,12 +17,12 @@ export const MCPServerListItem = ({
   return (
     <Box
       paddingLeft={1}
-      borderStyle={isSelected ? "round" : undefined}
-      borderColor={isSelected ? "magenta" : undefined}
+      borderStyle={isSelected ? theme.border : undefined}
+      borderColor={isSelected ? theme.primary : undefined}
     >
       <Column>
         <Row gap={1}>
-          <Text color="magenta">{server.name}</Text>
+          <Text color={theme.primary}>{server.name}</Text>
           <Text dimColor>({server.github.replace("https://github.com/", "")})</Text>
           <Text>{server.short_description}</Text>
           {loading ? (

@@ -1,8 +1,8 @@
+import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import { spawn } from "child_process";
 import { McpServerConfig } from "..";
-import { sage } from "@/utils/directories.js";
+import { sage } from "../../utils/directories";
 
 const SERVERS_DIR = path.join(sage, "servers");
 

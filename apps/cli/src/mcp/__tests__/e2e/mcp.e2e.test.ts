@@ -1,12 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import fs from "fs";
-import path from "path";
 import os from "os";
+import path from "path";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { mcpClientManager } from "../../client/MCPClientManager";
-import { mcpState } from "../../state/state";
 import { stopServerProcess } from "../../process/manager";
-import { vi } from "vitest";
-import Logger from "../../../logger/logger";
+import { mcpState } from "../../state/state";
+
 const createTempDir = () => {
   return fs.mkdtempSync(path.join(os.tmpdir(), "mcp-e2e-test-"));
 };
@@ -34,32 +33,15 @@ describe("MCP E2E Workflow", () => {
   let serverId: string;
 
   beforeAll(async () => {
-    console.log("🚨 E2E TEST STARTING - CONSOLE LOG!");
-    Logger.info("🚨 E2E test beforeAll starting - LOGGER!");
-
-    console.log("🚨 About to create temp directory");
-    Logger.info("🚨 About to create temp directory");
     tempHomeDir = createTempDir();
-    console.log("🚨 Created temp directory:", tempHomeDir);
-    Logger.info("🚨 Created temp directory", { tempHomeDir });
 
-    console.log("🚨 About to mock homedir");
-    Logger.info("🚨 About to mock homedir");
     vi.spyOn(os, "homedir").mockReturnValue(tempHomeDir);
-    console.log("🚨 Mocked homedir to:", tempHomeDir);
-    Logger.info("🚨 Mocked homedir", { tempHomeDir });
 
-    console.log("🚨 About to resolve fixture directory");
-    Logger.info("🚨 About to resolve fixture directory");
     const fixtureDir = path.resolve(
       __dirname,
       "../../../../__tests__/fixtures/mcp-server"
     );
-    console.log("🚨 Fixture directory resolved:", fixtureDir);
-    Logger.info("🚨 Fixture directory resolved", { fixtureDir });
 
-    console.log("🚨 About to create server config");
-    Logger.info("🚨 About to create server config");
     const config = {
       id: "e2e-test-server",
       name: "E2E Test Server",
@@ -70,46 +52,14 @@ describe("MCP E2E Workflow", () => {
       cwd: process.cwd() // if your manager supports this; otherwise pass as param
     };
     serverId = config.id;
-    console.log("🚨 Created server config:", JSON.stringify(config, null, 2));
-    Logger.info("🚨 Created server config", { config, fixtureDir });
-
-    console.log("🚨 About to add server to client manager");
-    Logger.info("🚨 About to add server to client manager");
-    // register client + connect (this handles the process spawning)
     await mcpClientManager.addServer(config);
-    console.log("🚨 Server added to client manager successfully!");
-    Logger.info("🚨 Server added to client manager successfully!");
 
-    console.log("🚨 About to connect to server");
-    Logger.info("🚨 About to connect to server");
     await mcpClientManager.connectServer(serverId);
-    console.log("🚨 Server connection initiated successfully!");
-    Logger.info("🚨 Server connection initiated successfully!");
-
-    // Check the state immediately after connectServer completes
-    const serverAfterConnect = mcpState.servers?.[serverId];
-    Logger.info("🚨 Server state immediately after connectServer:", {
-      serverExists: !!serverAfterConnect,
-      status: serverAfterConnect?.status,
-      serverId,
-      allServerIds: Object.keys(mcpState.servers || {})
-    });
-
-    // wait for actual connected state
-    Logger.debug("Waiting for server status to be 'connected'");
-    Logger.debug("Current server state", {
-      serverState: mcpState.servers?.[serverId]
-    });
 
     await waitFor(
       () => {
         const server = mcpState.servers?.[serverId];
-        Logger.info("🔄 Checking server status in waitFor", { 
-          status: server?.status, 
-          serverId, 
-          serverExists: !!server,
-          allServers: Object.keys(mcpState.servers || {})
-        });
+
         return server?.status === "connected";
       },
       {

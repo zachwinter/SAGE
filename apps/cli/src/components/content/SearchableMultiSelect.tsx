@@ -1,5 +1,6 @@
+import { theme } from "../../config";
+import { Box, Column, Row, Text } from "../index.js";
 import { Search, SearchProps } from "./Search.js";
-import { Text, Box, Row, Column } from "../index.js";
 
 export interface MultiSelectOption {
   label: string;
@@ -78,8 +79,8 @@ export const SearchableMultiSelect = ({
       <Box
         key={`${option.value}-${index}`}
         paddingLeft={1}
-        borderStyle={isSelected ? "round" : undefined}
-        borderColor={isSelected ? "magenta" : undefined}
+        borderStyle={isSelected ? theme.border : undefined}
+        borderColor={isSelected ? theme.primary : undefined}
       >
         <Column>
           <Row gap={1}>
@@ -89,7 +90,7 @@ export const SearchableMultiSelect = ({
             </Text>
 
             {/* Server name */}
-            <Text color="magenta">{option.label}</Text>
+            <Text color={theme.primary}>{option.label}</Text>
 
             {/* Status indicator */}
             {option.status && (

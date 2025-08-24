@@ -1,11 +1,13 @@
 import { tool } from "@lmstudio/sdk";
-import { z } from "zod";
-import { readFile, writeFile } from "fs/promises";
-import { resolve, isAbsolute } from "path";
-import { cwd } from "process";
+import { Logger } from "@sage/utils";
 import { existsSync } from "fs";
-import { defaultFlexibleBoolean } from "@/tools/utils/zod-mixins.js";
-import Logger from "@/logger/logger.js";
+import { readFile, writeFile } from "fs/promises";
+import { isAbsolute, resolve } from "path";
+import { cwd } from "process";
+import { z } from "zod";
+import { defaultFlexibleBoolean } from "../tools/utils/zod-mixins";
+
+const logger = new Logger("tools:edit", "debug.log");
 
 export const Edit = tool({
   name: "Edit",
@@ -21,7 +23,7 @@ export const Edit = tool({
   },
   implementation: async ({ file_path, old_string, new_string, replace_all }) => {
     const invocationArgs = { file_path, old_string, new_string, replace_all };
-    Logger.info(`Tool:Edit invoked`, invocationArgs);
+    logger.info(`Tool:Edit invoked`, invocationArgs);
 
     try {
       const resolvedPath = isAbsolute(file_path)
@@ -29,7 +31,7 @@ export const Edit = tool({
         : resolve(cwd(), file_path);
       if (!existsSync(resolvedPath)) {
         const message = `File not found: ${resolvedPath}`;
-        Logger.error(`Tool:Edit failed`, new Error(message), invocationArgs);
+        logger.error(`Tool:Edit failed`, new Error(message), invocationArgs);
         return {
           success: false,
           message
@@ -53,7 +55,7 @@ export const Edit = tool({
           if (firstIndex !== lastIndex) {
             const message =
               "String appears multiple times in file. Use replace_all=true or provide more context to make it unique.";
-            Logger.warn(`Tool:Edit failed - multiple occurrences`, invocationArgs);
+            logger.warn(`Tool:Edit failed - multiple occurrences`, invocationArgs);
             return {
               success: false,
               message
@@ -65,12 +67,12 @@ export const Edit = tool({
 
       if (content === newContent) {
         const message = `The string to be replaced was not found in ${file_path}. No changes were made.`;
-        Logger.info(`Tool:Edit success (no changes)`, { file_path });
+        logger.info(`Tool:Edit success (no changes)`, { file_path });
         return { success: true, message };
       }
 
       await writeFile(resolvedPath, newContent, "utf8");
-      Logger.info(`Tool:Edit success`, { file_path, bytes: newContent.length });
+      logger.info(`Tool:Edit success`, { file_path, bytes: newContent.length });
 
       return {
         success: true,
@@ -78,7 +80,7 @@ export const Edit = tool({
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      Logger.error(`Tool:Edit failed`, error as Error, invocationArgs);
+      logger.error(`Tool:Edit failed`, error as Error, invocationArgs);
       return {
         success: false,
         message: errorMessage

@@ -1,20 +1,14 @@
 import { useState } from "react";
 import { useSnapshot } from "valtio";
-import {
-  View,
-  Text,
-  Box,
-  Column,
-  SearchableMultiSelect
-} from "@/components/index.js";
-import { groupServersByRepo } from "@/mcp/utils/servers.js";
+import { Box, Column, SearchableMultiSelect, Text, View } from "../../components";
+import { theme } from "../../config";
 import {
   mcpState,
-  toggleServerEnabledWithError,
   removeServerConfigWithError,
-  serversToOptions
-} from "@/mcp/index.js";
-
+  serversToOptions,
+  toggleServerEnabledWithError
+} from "../../mcp";
+import { groupServersByRepo } from "../../mcp/utils/servers";
 export const ManageMCP = () => {
   const [error, setError] = useState<string | null>(null);
   const snap = useSnapshot(mcpState);
@@ -48,7 +42,7 @@ export const ManageMCP = () => {
       <Column>
         {error && (
           <Box
-            borderStyle="round"
+            borderStyle={theme.border as any}
             borderColor="red"
             paddingX={1}
             marginBottom={1}

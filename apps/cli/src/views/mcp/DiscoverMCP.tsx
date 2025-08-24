@@ -1,19 +1,16 @@
-import { useSnapshot } from "valtio";
 import { useEffect, useState } from "react";
-import { MCPServer } from "@/mcp/types";
-import { View, Search, MCPServerListItem, Error, Text } from "@/components/index.js";
+import { useSnapshot } from "valtio";
+import { Error, MCPServerListItem, Search, Text, View } from "../../components";
 import {
   initializeInstallationStatus,
-  toggleServerInstallation,
   installServerFromRegistry,
-  mcpRegistry
-} from "@/mcp/index.js";
-import {
+  mcpRegistry,
   mcpState,
-  updateSearchQuery,
+  setSearchFocused,
   setSearchSelectedIndex,
-  setSearchFocused
-} from "@/mcp/index.js";
+  updateSearchQuery
+} from "../../mcp";
+import { MCPServer } from "../../mcp/types";
 
 export const DiscoverMCP = () => {
   const snap = useSnapshot(mcpState);

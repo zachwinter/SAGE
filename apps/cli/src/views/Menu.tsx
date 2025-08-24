@@ -1,8 +1,8 @@
-import { setView, SelectModel, Home, MCPMenu, Threads } from "@/router/index.js";
-import { View, type KeyBinding } from "@/components/layout/View.js";
-import * as models from "@/models/index.js";
-import * as threads from "@/threads/index.js";
 import { useSnapshot } from "valtio";
+import { View, type KeyBinding } from "../components/layout/View";
+import * as models from "../models";
+import { Home, MCPMenu, SelectModel, setView, Threads } from "../router";
+import * as threads from "../threads";
 
 export const Menu = () => {
   const snap = useSnapshot(models.state);

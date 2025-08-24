@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from "vitest";
-import { KuzuGraphIngestor } from "../ingest.js";
-import type { FileAnalysisResult, CodeEntity, CallExpression } from "../../types.js";
+import { rmSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { rmSync } from "fs";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import type { CallExpression, CodeEntity, FileAnalysisResult } from "../../types.js";
+import { KuzuGraphIngestor } from "../ingest.js";
 
 function mapFrom(obj: Record<any, any>) {
   const map = new Map();

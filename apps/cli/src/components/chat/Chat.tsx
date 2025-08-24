@@ -1,20 +1,16 @@
+import { ChatMessage } from "@lmstudio/sdk";
+import { Logger } from "@sage/utils";
+import { randomUUID } from "crypto";
 import { useMemo } from "react";
 import { useSnapshot } from "valtio";
-import { state } from "@/threads/index.js";
-import { getToolRequestMap, ThreadsState } from "@/threads/state/index.js";
-import { ChatMessage } from "@lmstudio/sdk";
-import { randomUUID } from "crypto";
-import {
-  Column,
-  Message,
-  UserMessage,
-  AgentMessage,
-  ToolCallRequest,
-  Error
-} from "@/components/index.js";
-import { ToolCallConfirmation } from "./ToolCallConfirmation.js";
-import Logger from "@/logger/logger.js";
+import { Column, Error } from "../../components/index.js";
+import { getToolRequestMap, state, ThreadsState } from "../../threads/index.js";
+import { AssistantTurn } from "./AssistantTurn.js";
+import { ChatInput } from "./ChatInput.js";
+import { UserMessage } from "./UserMessage.js";
+import { normalizeStreamingToolCall } from "./utils/tool-call-utils.js";
 
+const logger = new Logger("Chat");
 const ids = new WeakMap<ChatMessage, string>();
 
 export function keyForMessage(m: ChatMessage) {
@@ -27,7 +23,7 @@ export function keyForMessage(m: ChatMessage) {
 }
 
 export const Chat = () => {
-  const snap = useSnapshot<ThreadsState>(state);
+  const snap = useSnapshot<ThreadsState>(state, { sync: true });
   const messages =
     snap.active &&
     typeof snap.active === "object" &&
@@ -35,33 +31,66 @@ export const Chat = () => {
       ? snap.active.getMessagesArray()
       : [];
   const allRequests = getToolRequestMap(snap as any);
-  const streamingToolCallsWithKeys = useMemo(() => {
+
+  // Process streaming tool calls with proper deduplication
+  const streamingToolCalls = useMemo(() => {
     if (!Array.isArray(snap.streamingToolCalls)) {
       return [];
     }
-    return snap.streamingToolCalls.map(toolCall => ({
-      ...toolCall,
-      stableKey: toolCall.toolCallId
-        ? `tool-${toolCall.toolCallId}`
-        : `streaming-${toolCall.id}`
-    }));
-  }, [snap.streamingToolCalls]);
 
-  const pendingConfirmationId = snap.pendingToolCallConfirmation?.id;
+    // Get all completed tool call IDs from messages to avoid duplicates
+    const completedToolCallIds = new Set<string>();
+    messages.forEach(message => {
+      const requests = message.getToolCallRequests() ?? [];
+      requests.forEach(req => {
+        if (req.id) {
+          completedToolCallIds.add(req.id);
+        }
+      });
+    });
+
+    return snap.streamingToolCalls
+      .filter(toolCall => {
+        // Skip approved tool calls (they'll be in messages soon)
+        if (toolCall.confirmationStatus === "approved") {
+          logger.debug(`🚫 Filtering out approved tool call: ${toolCall.name}`);
+          return false;
+        }
+
+        // Skip if this streaming tool call is already completed and in messages
+        if (toolCall.toolCallId && completedToolCallIds.has(toolCall.toolCallId)) {
+          logger.debug(
+            `🚫 Filtering out completed tool call: ${toolCall.name} (${toolCall.toolCallId})`
+          );
+          return false;
+        }
+
+        return true;
+      })
+      .map(normalizeStreamingToolCall);
+  }, [snap.streamingToolCalls, messages]);
 
   return (
     <Column>
+      {/* Render all completed messages */}
       {messages.map(message => {
         try {
-          return (
-            <Message
-              message={message}
+          const role = message.getRole();
+
+          return role === "user" ? (
+            <UserMessage
               key={keyForMessage(message)}
+              message={message}
+            />
+          ) : (
+            <AssistantTurn
+              key={keyForMessage(message)}
+              message={message}
               allRequests={allRequests}
             />
           );
         } catch (error) {
-          Logger.error("Error rendering message: " + (error as Error).message);
+          logger.error("Error rendering message: " + (error as Error).message);
           return (
             <Error
               key={`error-${keyForMessage(message)}`}
@@ -72,49 +101,18 @@ export const Chat = () => {
         }
       })}
 
-      {snap.turn === "assistant" && (
-        <Column paddingBottom={1}>
-          {snap.response.length > 0 && <AgentMessage />}
-          {streamingToolCallsWithKeys.map(toolCall => {
-            const isPendingConfirmation = toolCall.id === pendingConfirmationId;
+      {/* Render current assistant turn (streaming) */}
+      {snap.turn === "assistant" &&
+        (snap.response || streamingToolCalls.length > 0) &&
+        !snap.resolveConfirmation && (
+          <AssistantTurn
+            streamingText={snap.response}
+            streamingToolCalls={streamingToolCalls}
+          />
+        )}
 
-            if (isPendingConfirmation) {
-              return (
-                <ToolCallConfirmation
-                  key={toolCall.stableKey}
-                  toolCall={toolCall}
-                />
-              );
-            }
-
-            try {
-              return (
-                <ToolCallRequest
-                  key={toolCall.stableKey}
-                  name={toolCall.name || ""}
-                  args={toolCall.arguments || ""}
-                  hasError={toolCall.hasError}
-                  errorMessage={toolCall.errorMessage}
-                />
-              );
-            } catch (error) {
-              Logger.error(
-                "Error rendering streaming tool call: " + (error as Error).message
-              );
-
-              return (
-                <Error
-                  key={`error-${toolCall.stableKey}`}
-                  error={`Failed to render tool call: ${toolCall.name || "unknown"}`}
-                  compact
-                />
-              );
-            }
-          })}
-        </Column>
-      )}
-
-      {!snap.pendingToolCallConfirmation && <UserMessage />}
+      {/* Chat input with confirmation logic */}
+      <ChatInput />
     </Column>
   );
 };

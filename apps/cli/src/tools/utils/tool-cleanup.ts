@@ -1,4 +1,4 @@
-import { cleanupOldStreamingToolCalls } from "@/threads/streaming/actions.js";
+import { cleanupOldStreamingToolCalls } from "../../threads/streaming/actions";
 
 let cleanupInterval: NodeJS.Timeout | null = null;
 

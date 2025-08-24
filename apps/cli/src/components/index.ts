@@ -1,9 +1,9 @@
-export { AgentMessage } from "./chat/AgentMessage.js";
+export { AssistantTurn } from "./chat/AssistantTurn.js";
 export { Chat } from "./chat/Chat.js";
-export { Message } from "./chat/Message.js";
+export { ChatInput } from "./chat/ChatInput.js";
+export { ChatMessageComponent } from "./chat/ChatMessage.js";
+export { ToolCall } from "./chat/ToolCall.js";
 export { UserMessage } from "./chat/UserMessage.js";
-export { ToolCallRequest } from "./chat/ToolCallRequest.js";
-export { ToolCallResult } from "./chat/ToolCallResult.js";
 export { Code } from "./content/Code.js";
 export { Error } from "./content/Error.js";
 export { MCPServerListItem } from "./content/MCPServerListItem.js";

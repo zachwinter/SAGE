@@ -1,8 +1,10 @@
+import { Logger } from "@sage/utils";
+import { ChildProcess, spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import { spawn, ChildProcess } from "child_process";
-import { sage } from "@/utils/directories.js";
-import Logger from "../../logger/logger.js";
+import { sage } from "../../utils/directories";
+
+const logger = new Logger("MCP Process Manager");
 
 const PIDS_DIR = path.join(sage, "pids");
 
@@ -69,7 +71,7 @@ function readPidFile(
     const data = fs.readFileSync(pidFilePath, "utf-8");
     return JSON.parse(data);
   } catch (error) {
-    Logger.warn(`Failed to read PID file for ${serverId}:`, error as Error);
+    logger.warn(`Failed to read PID file for ${serverId}:`, error as Error);
     return null;
   }
 }
@@ -163,7 +165,7 @@ export async function startServerProcess(
   args: string[],
   cwd: string
 ): Promise<ChildProcess> {
-  Logger.debug("startServerProcess called", {
+  logger.debug("startServerProcess called", {
     id,
     command,
     args,
@@ -177,18 +179,21 @@ export async function startServerProcess(
 
   const cmd =
     command === "node" || command.endsWith("/node") ? process.execPath : command;
-  Logger.debug("Command normalized", { originalCommand: command, normalizedCmd: cmd });
+  logger.debug("Command normalized", {
+    originalCommand: command,
+    normalizedCmd: cmd
+  });
 
   const [rawScriptPath, ...restArgs] = args ?? [];
   if (!rawScriptPath) {
     throw new Error("startServerProcess: no script path provided in args[0]");
   }
-  Logger.debug("Script path extraction", { rawScriptPath, restArgs });
+  logger.debug("Script path extraction", { rawScriptPath, restArgs });
 
   const scriptPath = path.isAbsolute(rawScriptPath)
     ? rawScriptPath
     : path.resolve(cwd, rawScriptPath);
-  Logger.debug("Script path resolution", {
+  logger.debug("Script path resolution", {
     rawScriptPath,
     isAbsolute: path.isAbsolute(rawScriptPath),
     resolvedScriptPath: scriptPath,
@@ -196,17 +201,17 @@ export async function startServerProcess(
   });
 
   if (!fs.existsSync(scriptPath)) {
-    Logger.error(`MCP server script not found: ${scriptPath}`, undefined, {
+    logger.error(`MCP server script not found: ${scriptPath}`, undefined, {
       scriptPath,
       exists: fs.existsSync(scriptPath)
     });
     throw new Error(`MCP server script not found: ${scriptPath}`);
   }
-  Logger.debug("Script file exists", { scriptPath });
+  logger.debug("Script file exists", { scriptPath });
 
   const spawnArgs =
     cmd === process.execPath ? [scriptPath, ...restArgs] : [scriptPath, ...restArgs];
-  Logger.debug("About to spawn process", {
+  logger.debug("About to spawn process", {
     cmd,
     spawnArgs,
     cwd,
@@ -220,7 +225,7 @@ export async function startServerProcess(
   });
 
   if (!child) {
-    Logger.error(`Failed to spawn process - child is null or undefined`, undefined, {
+    logger.error(`Failed to spawn process - child is null or undefined`, undefined, {
       id,
       cmd,
       spawnArgs,
@@ -229,10 +234,10 @@ export async function startServerProcess(
     throw new Error(`Failed to spawn process - child is null or undefined`);
   }
 
-  Logger.debug("Process spawned", { pid: child.pid, id });
+  logger.debug("Process spawned", { pid: child.pid, id });
 
   if (!child.pid) {
-    Logger.error(`Failed to start process - no PID`, undefined, {
+    logger.error(`Failed to start process - no PID`, undefined, {
       id,
       cmd,
       spawnArgs,
@@ -255,49 +260,61 @@ export async function startServerProcess(
     };
 
     child.once("error", err => {
-      Logger.error(`[MCP] Failed to start server '${id}'`, err, { id, cmd, spawnArgs, cwd });
+      logger.error(`[MCP] Failed to start server '${id}'`, err, {
+        id,
+        cmd,
+        spawnArgs,
+        cwd
+      });
       cleanup();
       reject(err);
     });
 
     child.once("exit", (code, signal) => {
-      Logger.debug(`Process ${id} exited prematurely during startup`, { code, signal, pid: child.pid });
+      logger.debug(`Process ${id} exited prematurely during startup`, {
+        code,
+        signal,
+        pid: child.pid
+      });
       cleanup();
-      reject(new Error(`Server process '${id}' exited prematurely with code ${code}, signal ${signal}`));
+      reject(
+        new Error(
+          `Server process '${id}' exited prematurely with code ${code}, signal ${signal}`
+        )
+      );
     });
 
     const handleStdErr = (chunk: Buffer) => {
       const output = chunk.toString().trim();
       // Log all stderr for debugging
       if (output) {
-        Logger.error(`[${id}] stderr`, output, { id });
+        logger.error(`[${id}] stderr`, output, { id });
         console.error(`[MCP:${id}:stderr] ${output}`);
       }
 
       // Check for our readiness signal
       if (output.includes("MCP server ready")) {
-        Logger.info(`Server '${id}' signaled it is ready.`);
+        logger.info(`Server '${id}' signaled it is ready.`);
         clearTimeout(startupTimeout);
         // Remove this specific listener so we don't keep checking
         child.stderr?.removeListener("data", handleStdErr);
-        
+
         // Write PID file ONLY after we know it's ready
         try {
           writePidFile(id, child.pid!, cmd, spawnArgs);
           processes[id] = child;
-          
-          // Now that it's ready, re-attach a simple exit listener for long-term cleanup
-          child.removeAllListeners('exit'); // remove premature exit listener
-          child.once("exit", (code, signal) => {
-             Logger.debug(`Process ${id} exited`, { code, signal, pid: child.pid });
-             removePidFile(id);
-             delete processes[id];
-          });
-          
-          resolve(child);
 
+          // Now that it's ready, re-attach a simple exit listener for long-term cleanup
+          child.removeAllListeners("exit"); // remove premature exit listener
+          child.once("exit", (code, signal) => {
+            logger.debug(`Process ${id} exited`, { code, signal, pid: child.pid });
+            removePidFile(id);
+            delete processes[id];
+          });
+
+          resolve(child);
         } catch (err) {
-          Logger.error(`Failed to write PID file for ${id}`, err as Error);
+          logger.error(`Failed to write PID file for ${id}`, err as Error);
           child.kill();
           reject(err);
         }
@@ -327,7 +344,7 @@ export async function stopServerProcess(id: string): Promise<void> {
     return;
   }
 
-  Logger.debug(`Stopping server ${id} with PID ${pid}`);
+  logger.debug(`Stopping server ${id} with PID ${pid}`);
 
   try {
     // Send SIGTERM for graceful shutdown
@@ -344,20 +361,20 @@ export async function stopServerProcess(id: string): Promise<void> {
 
       if (!isProcessRunning(pid)) {
         // Process terminated gracefully
-        Logger.debug(`Server ${id} terminated gracefully`);
+        logger.debug(`Server ${id} terminated gracefully`);
         break;
       }
     }
 
     // If still running, force kill with SIGKILL
     if (isProcessRunning(pid)) {
-      Logger.debug(`Server ${id} did not terminate gracefully, sending SIGKILL`);
+      logger.debug(`Server ${id} did not terminate gracefully, sending SIGKILL`);
       process.kill(pid, "SIGKILL");
     }
   } catch (err) {
     // Process might already be dead, that's ok
     if ((err as NodeJS.ErrnoException).code !== "ESRCH") {
-      Logger.error(`Error stopping server ${id}:`, err as Error);
+      logger.error(`Error stopping server ${id}:`, err as Error);
     }
   }
 

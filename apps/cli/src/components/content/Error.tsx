@@ -1,8 +1,8 @@
 import type { FC } from "react";
+import { theme } from "../../config";
 import { Column } from "../layout/Column";
 import { Row } from "../layout/Row";
 import { Text } from "./Text";
-import { theme } from "@/config";
 
 type ErrorInput =
   | string

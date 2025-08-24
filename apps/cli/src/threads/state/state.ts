@@ -1,9 +1,21 @@
-import { proxy } from "valtio";
-import { listCurrentThreads } from "@/threads/utils/persistence.js";
 import { Chat } from "@lmstudio/sdk";
+import { proxy } from "valtio";
+import { listCurrentThreads } from "../utils/persistence";
 
 export type Turn = "user" | "assistant";
 export type ConfirmationStatus = "pending" | "approved" | "denied";
+
+const abort: { AbortController: AbortController | null } = {
+  AbortController: null
+};
+
+export function getGlobalAbortController() {
+  return abort.AbortController;
+}
+
+export function setGlobalAbortController(controller: AbortController | null) {
+  abort.AbortController = controller;
+}
 
 export type StreamingToolCall = {
   id: number;
@@ -25,8 +37,6 @@ export interface ThreadsState {
   message: string;
   response: string;
   streamingToolCalls: StreamingToolCall[];
-  refresh: number;
-  currentAbortController: AbortController | null;
   pendingToolCallConfirmation: StreamingToolCall | null;
   resolveConfirmation: ((result: "approved" | "denied") => void) | null;
 }
@@ -39,8 +49,6 @@ export const state = proxy<ThreadsState>({
   activeThreadId: null,
   response: "",
   streamingToolCalls: [],
-  pendingToolCallConfirmation: null, // ADD THIS
-  resolveConfirmation: null,
-  refresh: 0,
-  currentAbortController: null
+  pendingToolCallConfirmation: null,
+  resolveConfirmation: null
 });

@@ -1,10 +1,11 @@
 import { tool } from "@lmstudio/sdk";
-import { z } from "zod";
-import { writeFile, mkdir } from "fs/promises";
-import { resolve, isAbsolute, dirname } from "path";
-import { cwd } from "process";
+import { Logger } from "@sage/utils";
 import { existsSync } from "fs";
-import Logger from "@/logger/logger.js";
+import { mkdir, writeFile } from "fs/promises";
+import { dirname, isAbsolute, resolve } from "path";
+import { cwd } from "process";
+import { z } from "zod";
+const logger = new Logger("tools:write", "debug.log");
 
 export const Write = tool({
   name: "Write",
@@ -18,7 +19,7 @@ export const Write = tool({
       )
   },
   implementation: async ({ file_path, content }) => {
-    Logger.info(`Tool:Write invoked`, { file_path, content });
+    logger.info(`Tool:Write invoked`, { file_path, content });
 
     try {
       const resolvedPath = isAbsolute(file_path)
@@ -33,11 +34,11 @@ export const Write = tool({
         stringContent = content;
       }
       await writeFile(resolvedPath, stringContent, "utf8");
-      Logger.info(`Tool:Write success`, { file_path, bytes: stringContent.length });
+      logger.info(`Tool:Write success`, { file_path, bytes: stringContent.length });
       return { success: true, message: `Successfully wrote to ${file_path}` };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      Logger.error(`Tool:Write failed`, error as Error, { file_path, content });
+      logger.error(`Tool:Write failed`, error as Error, { file_path, content });
       return {
         success: false,
         message: errorMessage
