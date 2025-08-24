@@ -7,8 +7,6 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/__tests__/setup.ts"],
-
-    // Test organization
     include: ["src/**/*.test.ts", "src/**/*.spec.ts", "src/__tests__/**/*.test.ts"],
     exclude: [
       "node_modules/**",
@@ -17,8 +15,6 @@ export default defineConfig({
       "**/dist/**",
       "**/*.d.ts"
     ],
-
-    // Coverage configuration
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "json-summary"],
@@ -42,18 +38,9 @@ export default defineConfig({
         }
       }
     },
-
-    // Test timeouts
     testTimeout: 10000,
     hookTimeout: 10000,
-
-    // Reporter configuration
-    reporter: process.env.CI ? ["json", "github-actions"] : ["verbose"],
-
-    // Retry configuration for flaky tests
     retry: process.env.CI ? 2 : 0,
-
-    // Pool configuration for performance
     pool: "forks",
     poolOptions: {
       forks: {
