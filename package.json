@@ -10,7 +10,7 @@
     "tag": "tsx src/mcp/tag.ts",
     "build": "tsup",
     "start": "node dist/index.js",
-    "test": "vitest",
+    "test": "NODE_PATH=./node_modules vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:unit": "vitest run --testNamePattern='unit|Unit' || vitest run src/**/*.test.ts",

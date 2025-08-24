@@ -32,10 +32,13 @@ describe("Process Integration", () => {
   beforeAll(() => {
     tempDir = createTempDir();
     scriptPath = path.join(tempDir, "test-server.js");
-    // A simple script that stays alive
+    // A simple script that stays alive AND signals readiness
     fs.writeFileSync(
       scriptPath,
-      "setInterval(() => { console.log('ping'); }, 1000);"
+      `
+      console.error('MCP server ready'); // <-- THE FIX IS HERE
+      setInterval(() => { console.log('ping'); }, 1000);
+      `
     );
   });
 
@@ -45,8 +48,10 @@ describe("Process Integration", () => {
 
   afterEach(async () => {
     // Ensure the process is stopped after each test
-    if (childProcess && !childProcess.killed) {
-      await stopServerProcess(serverId);
+    if (childProcess && childProcess.pid && !childProcess.killed) {
+        // Await stopServerProcess which now handles cleanup.
+        await stopServerProcess(serverId);
+        childProcess = null;
     }
     cleanupStalePidFiles();
   });
@@ -56,7 +61,7 @@ describe("Process Integration", () => {
       serverId,
       "node",
       [scriptPath],
-      process.cwd()
+      tempDir // Use tempDir as cwd for consistency
     );
     expect(childProcess.pid).toBeDefined();
 
@@ -73,7 +78,7 @@ describe("Process Integration", () => {
       serverId,
       "node",
       [scriptPath],
-      process.cwd()
+      tempDir // Use tempDir as cwd
     );
     expect(isServerRunning(serverId)).toBe(true);
 

@@ -68,8 +68,12 @@ class MCPClientManager {
         transport = new StdioClientTransport({
           command: config.command,
           args: config.args || [],
-          env: { ...process.env, ...config.env } as Record<string, any>,
-          cwd: (config as any).cwd
+          env: { 
+            ...process.env, 
+            NODE_PATH: process.env.NODE_PATH || "./node_modules",
+            ...config.env 
+          } as Record<string, any>,
+          cwd: (config as any).cwd || process.cwd()
         });
         Logger.info(
           `Using stdio transport for ${config.name}: ${config.command} ${config.args?.join(" ") || ""}`
@@ -77,6 +81,21 @@ class MCPClientManager {
       }
 
       this.clients.set(serverId, { client, transport });
+      
+      // ----------- START TEMPORARY DEBUG CODE -----------
+      if (transport instanceof StdioClientTransport) {
+        // We need to wait for the transport to start the process.
+        // The `start` method is called inside `client.connect`.
+        // We can listen on the transport's events.
+        transport.onmessage = (msg) => {
+           console.log(`[E2E DEBUG ONMESSAGE]:`, JSON.stringify(msg));
+        };
+        transport.onerror = (err) => {
+           console.error(`[E2E DEBUG ONERROR]:`, err);
+        };
+      }
+      // ----------- END TEMPORARY DEBUG CODE -----------
+
       await client.connect(transport);
       Logger.info(`✅ Connection established with ${config.name}!`);
       mcpState.servers[serverId].client = client;

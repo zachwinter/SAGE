@@ -1,5 +1,6 @@
 import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
+import path from "path";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
@@ -7,6 +8,11 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/__tests__/setup.ts"],
+    // This sets the NODE_PATH environment variable for all test processes,
+    // ensuring that spawned scripts can find your project's node_modules.
+    env: {
+      NODE_PATH: path.resolve(__dirname, "./node_modules")
+    },
     include: ["src/**/*.test.ts", "src/**/*.spec.ts", "src/__tests__/**/*.test.ts"],
     exclude: [
       "node_modules/**",

@@ -53,7 +53,7 @@ describe("MCP E2E Workflow", () => {
     Logger.info("🚨 About to resolve fixture directory");
     const fixtureDir = path.resolve(
       __dirname,
-      "../../__tests__/fixtures/mcp-server"
+      "../../../__tests__/fixtures/mcp-server"
     );
     console.log("🚨 Fixture directory resolved:", fixtureDir);
     Logger.info("🚨 Fixture directory resolved", { fixtureDir });
@@ -64,10 +64,10 @@ describe("MCP E2E Workflow", () => {
       id: "e2e-test-server",
       name: "E2E Test Server",
       type: "stdio" as const,
-      command: process.execPath, // use the current Node
+      command: "node", // Use "node" directly instead of process.execPath // use the current Node
       args: [path.join(fixtureDir, "server.js")],
       enabled: true,
-      cwd: fixtureDir // if your manager supports this; otherwise pass as param
+      cwd: process.cwd() // if your manager supports this; otherwise pass as param
     };
     serverId = config.id;
     console.log("🚨 Created server config:", JSON.stringify(config, null, 2));
