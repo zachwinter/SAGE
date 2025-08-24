@@ -21,7 +21,7 @@ export default defineConfig({
     // Coverage configuration
     coverage: {
       provider: "v8",
-      reporter: ["text", "json", "html", "lcov"],
+      reporter: ["text", "json", "html", "json-summary"],
       exclude: [
         "node_modules/**",
         "dist/**",

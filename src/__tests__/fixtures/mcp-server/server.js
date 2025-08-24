@@ -1,4 +1,3 @@
-// Calculate the path to the main project's node_modules
 import { Server } from "../../../../node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js";
 import { StdioServerTransport } from "../../../../node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js";
 import {
@@ -6,7 +5,7 @@ import {
   ListToolsRequestSchema,
   ListResourcesRequestSchema,
   ListPromptsRequestSchema
-} from "../../../node_modules/@modelcontextprotocol/sdk/dist/esm/types.js";
+} from "../../../../node_modules/@modelcontextprotocol/sdk/dist/esm/types.js";
 
 // Create server instance
 const server = new Server(
