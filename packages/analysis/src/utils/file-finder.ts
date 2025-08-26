@@ -1,5 +1,5 @@
-import { join } from "path";
 import { glob } from "glob";
+import { join } from "path";
 
 export function getTypescriptFiles(dirPath: string) {
   const pattern = join(dirPath, "**/*.{ts,tsx,js,jsx,mts,cts}");
@@ -9,8 +9,7 @@ export function getTypescriptFiles(dirPath: string) {
       "**/dist/**",
       "**/build/**",
       "**/.git/**",
-      "**/coverage/**",
-      "**/[A-Z]*/**"
+      "**/coverage/**"
     ]
   });
 }

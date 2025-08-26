@@ -1,6 +1,5 @@
 import type { FC } from "react";
-import { Text, Box } from "@/components/index";
-import { Code } from "@/components/content/Code";
+import { Box, Code, Text } from "../../components";
 import type { ToolRendererProps } from "../registry.js";
 
 type QueryResult = any[];

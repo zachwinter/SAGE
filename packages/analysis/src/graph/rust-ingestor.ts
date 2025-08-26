@@ -1,13 +1,9 @@
 import { spawn } from "child_process";
-import { rmSync, mkdirSync } from "fs";
+import { mkdirSync, rmSync } from "fs";
 import { dirname } from "path";
 import { exportGraphToJson } from "../export/json-exporter.js";
 import type { AnalysisData } from "../types.js";
 
-/**
- * Path to the Rust kuzu-rust binary
- * This assumes the binary is built and accessible
- */
 const RUST_BINARY_PATH =
   process.env.KUZU_RUST_PATH || "/Users/zach/dev/kuzu-rust/target/release/kuzu-rust";
 
@@ -17,7 +13,6 @@ export interface IngestStats {
   duration: number;
 }
 
-// Protocol message types for handshake
 interface InitMessage {
   type: "init";
   version: string;
@@ -44,57 +39,47 @@ export class RustKuzuIngestor {
 
   constructor(dbPath: string) {
     this.dbPath = dbPath;
-    // Ensure the directory exists for the database file
     const dbDir = dirname(dbPath);
     mkdirSync(dbDir, { recursive: true });
   }
 
   async initialize(): Promise<void> {
-    // Perform handshake to ensure the Rust tool is ready and compatible
     await this.performHandshake();
   }
 
   private async performHandshake(): Promise<AckMessage> {
-    console.log("🤝 Performing handshake with Rust kuzu-rust tool...");
-    
     const result = await this.runRustCommand("handshake", []);
-    console.log("🐛 Handshake raw result:", result);
-    
+
     try {
       const ackMessage: AckMessage = JSON.parse(result);
-      
+
       if (ackMessage.type !== "ack" || !ackMessage.ready) {
         throw new Error("Rust tool not ready or invalid handshake response");
       }
-      
-      console.log(`✅ Handshake successful - Rust tool v${ackMessage.version} ready`);
-      console.log(`   Supported modes: ${ackMessage.supportedModes.join(", ")}`);
-      
+
       return ackMessage;
     } catch (error) {
-      console.error("🐛 Handshake parse error:", error);
-      throw new Error(`Handshake failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Handshake failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   async ingest(analysisData: AnalysisData): Promise<IngestStats> {
-    // Export graph data to temporary JSON file (zero conversion - direct format match!)
     const jsonPath = exportGraphToJson(analysisData);
 
     try {
-      // Call Rust binary to ingest the JSON
       const result = await this.runRustCommand("ingest", [jsonPath, this.dbPath]);
-
-      // Parse the structured JSON response
       const resultMessage = this.parseStructuredResult(result);
-      
+
       if (!resultMessage.success) {
-        throw new Error(`Ingestion failed: ${resultMessage.errors?.join(", ") || "Unknown error"}`);
+        throw new Error(
+          `Ingestion failed: ${resultMessage.errors?.join(", ") || "Unknown error"}`
+        );
       }
-      
+
       return resultMessage.stats;
     } finally {
-      // Clean up temporary file
       try {
         rmSync(jsonPath, { force: true });
       } catch {
@@ -103,16 +88,10 @@ export class RustKuzuIngestor {
     }
   }
 
-  /**
-   * Stream ingestion via stdio - faster, no temp files, real-time processing
-   * This is the preferred method for most use cases
-   */
   async ingestStream(
     analysisData: AnalysisData,
-    batchSize: number = 500
+    batchSize: number = 1000
   ): Promise<IngestStats> {
-    console.log(`🚀 Starting streaming ingestion with batch size ${batchSize}`);
-
     return new Promise((resolve, reject) => {
       const process = spawn(RUST_BINARY_PATH, ["ingest-stream", this.dbPath], {
         stdio: ["pipe", "pipe", "pipe"]
@@ -123,13 +102,12 @@ export class RustKuzuIngestor {
 
       process.stdout.on("data", data => {
         stdout += data.toString();
-        // Log any non-JSON progress messages
         const lines = data.toString().split("\n");
+
         for (const line of lines) {
           const trimmed = line.trim();
-          if (trimmed && !trimmed.startsWith('{"type":')) {
-            console.log(trimmed);
-          }
+
+          if (trimmed && !trimmed.startsWith('{"type":')) console.log(trimmed);
         }
       });
 
@@ -143,12 +121,20 @@ export class RustKuzuIngestor {
           try {
             const resultMessage = this.parseStructuredResult(stdout);
             if (!resultMessage.success) {
-              reject(new Error(`Streaming ingestion failed: ${resultMessage.errors?.join(", ") || "Unknown error"}`));
+              reject(
+                new Error(
+                  `Streaming ingestion failed: ${resultMessage.errors?.join(", ") || "Unknown error"}`
+                )
+              );
               return;
             }
             resolve(resultMessage.stats);
           } catch (error) {
-            reject(new Error(`Failed to parse streaming result: ${error instanceof Error ? error.message : String(error)}`));
+            reject(
+              new Error(
+                `Failed to parse streaming result: ${error instanceof Error ? error.message : String(error)}`
+              )
+            );
           }
         } else {
           reject(
@@ -163,18 +149,11 @@ export class RustKuzuIngestor {
         );
       });
 
-      // Stream data to stdin in batches
       this.streamDataToProcess(process, analysisData, batchSize).catch(reject);
     });
   }
 
-  /**
-   * Bulk ingestion using COPY FROM - fastest for large datasets
-   * Use this for "ingest 10M edges before lunch" scenarios
-   */
   async ingestBulk(analysisData: AnalysisData): Promise<IngestStats> {
-    console.log(`🔥 Starting BULK ingestion (COPY FROM mode)`);
-
     return new Promise((resolve, reject) => {
       const process = spawn(RUST_BINARY_PATH, ["ingest-bulk", this.dbPath], {
         stdio: ["pipe", "pipe", "pipe"]
@@ -198,12 +177,20 @@ export class RustKuzuIngestor {
           try {
             const resultMessage = this.parseStructuredResult(stdout);
             if (!resultMessage.success) {
-              reject(new Error(`Bulk ingestion failed: ${resultMessage.errors?.join(", ") || "Unknown error"}`));
+              reject(
+                new Error(
+                  `Bulk ingestion failed: ${resultMessage.errors?.join(", ") || "Unknown error"}`
+                )
+              );
               return;
             }
             resolve(resultMessage.stats);
           } catch (error) {
-            reject(new Error(`Failed to parse bulk result: ${error instanceof Error ? error.message : String(error)}`));
+            reject(
+              new Error(
+                `Failed to parse bulk result: ${error instanceof Error ? error.message : String(error)}`
+              )
+            );
           }
         } else {
           reject(
@@ -231,10 +218,6 @@ export class RustKuzuIngestor {
   }
 
   private async runRustCommand(command: string, args: string[]): Promise<string> {
-    console.log(
-      `Running Rust command: ${RUST_BINARY_PATH} ${command} ${args.join(" ")}`
-    );
-
     return new Promise((resolve, reject) => {
       const process = spawn(RUST_BINARY_PATH, [command, ...args], {
         stdio: ["pipe", "pipe", "pipe"]
@@ -252,8 +235,6 @@ export class RustKuzuIngestor {
       });
 
       process.on("close", code => {
-        console.log(`Rust command finished with code ${code}`);
-        console.log(`Stdout:`, stdout);
         if (stderr) console.log(`Stderr:`, stderr);
 
         if (code === 0) {
@@ -264,7 +245,6 @@ export class RustKuzuIngestor {
       });
 
       process.on("error", error => {
-        console.error(`Failed to spawn Rust process:`, error);
         reject(new Error(`Failed to spawn Rust process: ${error.message}`));
       });
     });
@@ -272,34 +252,33 @@ export class RustKuzuIngestor {
 
   private parseStructuredResult(output: string): ResultMessage {
     try {
-      // Find the JSON result line (might have other output before it)
-      const lines = output.trim().split('\n');
-      const jsonLine = lines.find(line => line.trim().startsWith('{"type":"result"'));
-      
+      const lines = output.trim().split("\n");
+      const jsonLine = lines.find(line =>
+        line.trim().startsWith('{"type":"result"')
+      );
+
       if (!jsonLine) {
         console.error("DEBUG: No JSON result found in output:");
         console.error("DEBUG: Output lines:", lines);
         throw new Error("No structured result found in output");
       }
-      
+
       const result: ResultMessage = JSON.parse(jsonLine);
-      
+
       if (result.type !== "result") {
         throw new Error("Invalid result message type");
       }
-      
+
       return result;
     } catch (error) {
       console.error("DEBUG: Failed to parse result, raw output:", output);
-      throw new Error(`Failed to parse structured result: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to parse structured result: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   private parseQueryOutput(output: string): any[] {
-    // The Rust binary outputs query results in a table format
-    // We need to parse this back into a JSON-like structure
-    // For now, we'll do a simple parsing - this might need refinement
-
     const lines = output.trim().split("\n");
     if (lines.length < 2) {
       return [];
@@ -328,9 +307,6 @@ export class RustKuzuIngestor {
     return results;
   }
 
-  /**
-   * Stream analysis data to Rust process via stdin as NDJSON batches
-   */
   private async streamDataToProcess(
     process: any,
     analysisData: AnalysisData,
@@ -339,10 +315,6 @@ export class RustKuzuIngestor {
     const stdin = process.stdin;
 
     try {
-      // Stream entities in batches
-      console.log(
-        `📦 Streaming ${analysisData.entities.length} entities in batches of ${batchSize}`
-      );
       for (let i = 0; i < analysisData.entities.length; i += batchSize) {
         const batch = analysisData.entities.slice(i, i + batchSize);
         const ndjsonLine =
@@ -351,18 +323,11 @@ export class RustKuzuIngestor {
             data: batch
           }) + "\n";
 
-        // Debug first batch only
-        if (i === 0) {
-          console.log("🐛 First entity batch sample:", batch.slice(0, 2));
-        }
-
         if (!stdin.write(ndjsonLine)) {
-          // Wait for drain if backpressure occurs
           await new Promise(resolve => stdin.once("drain", resolve));
         }
       }
 
-      // Stream relationships by type in batches
       const relationshipsByType = new Map<
         string,
         typeof analysisData.relationships
@@ -374,12 +339,7 @@ export class RustKuzuIngestor {
         relationshipsByType.get(rel.type)!.push(rel);
       }
 
-      console.log(
-        `🔗 Streaming ${analysisData.relationships.length} relationships across ${relationshipsByType.size} types`
-      );
       for (const [relType, rels] of relationshipsByType) {
-        console.log(`   ${relType}: ${rels.length} relationships`);
-
         for (let i = 0; i < rels.length; i += batchSize) {
           const batch = rels.slice(i, i + batchSize);
           const ndjsonLine =
@@ -395,12 +355,8 @@ export class RustKuzuIngestor {
         }
       }
 
-      // Signal end of stream
       const completeMessage = JSON.stringify({ type: "complete" }) + "\n";
-      console.log("📤 Sending completion signal...");
       stdin.write(completeMessage);
-      
-      // Ensure all data is flushed before closing
       await new Promise(resolve => {
         if (stdin.writableEnded || stdin.destroyed) {
           resolve(void 0);

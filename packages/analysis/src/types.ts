@@ -169,6 +169,7 @@ export interface AnalysisOptions {
   showBuiltin?: boolean;
   callDepth?: number;
   flat?: boolean;
+  includeDeps?: boolean; // NEW: Include external dependencies in graph
 }
 
 // Call Graph Types

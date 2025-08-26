@@ -1,7 +1,7 @@
 import { Chat } from "@lmstudio/sdk";
 import { Logger } from "@sage/utils";
 import { getSelectedModel } from "../../models";
-import * as tools from "../../tools";
+import { toolRegistry } from "../../tools/registry";
 import { setPendingToolCall } from "../messaging/actions.js";
 import {
   getGlobalAbortController,
@@ -14,7 +14,9 @@ export async function act(chat: Chat, events: any) {
   logger.info("=== ACT FUNCTION STARTED ===");
   logger.info(`🔍 Current turn state: ${state.turn}`);
   logger.info(`🔍 Pending confirmation: ${!!state.resolveConfirmation}`);
-  logger.info(`🔍 Active streaming tool calls: ${state.streamingToolCalls?.length || 0}`);
+  logger.info(
+    `🔍 Active streaming tool calls: ${state.streamingToolCalls?.length || 0}`
+  );
 
   setGlobalAbortController(new AbortController());
 
@@ -28,7 +30,7 @@ export async function act(chat: Chat, events: any) {
   logger.info(`Using model: ${model.constructor.name}`);
 
   try {
-    await model.act(chat, Object.values(tools), {
+    await model.act(chat, toolRegistry.getLMStudioTools(), {
       signal: getGlobalAbortController()!.signal,
       onRoundStart: roundIndex => {
         logger.info(`🔄 Round ${roundIndex} started`);
@@ -58,7 +60,7 @@ export async function act(chat: Chat, events: any) {
       },
       onToolCallRequestEnd: (roundIndex, callId, info) => {
         logger.info(
-          `🏁 Tool call ended: callId=${callId}, toolCallId=${info.toolCallId || 'undefined'}`
+          `🏁 Tool call ended: callId=${callId}, toolCallId=${info.toolCallId || "undefined"}`
         );
         events?.onToolCallEnd?.(callId, info);
       },
@@ -93,13 +95,16 @@ export async function act(chat: Chat, events: any) {
           `⏳ Waiting for user confirmation for tool call: ${controller.toolCallRequest.name}`
         );
 
-        const decision = await new Promise<"approved" | "denied">(resolve => {
-          state.resolveConfirmation = resolve;
-          setPendingToolCall(
-            streamingToolCall.id,
-            controller.toolCallRequest.arguments
-          );
-        });
+        const decision =
+          controller.toolCallRequest.name === "GraphQuery"
+            ? "approved"
+            : await new Promise<"approved" | "denied">(resolve => {
+                state.resolveConfirmation = resolve;
+                setPendingToolCall(
+                  streamingToolCall.id,
+                  controller.toolCallRequest.arguments
+                );
+              });
 
         logger.info(`📋 User decision: ${decision}`);
 

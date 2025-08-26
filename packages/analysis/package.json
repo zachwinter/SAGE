@@ -36,6 +36,8 @@
   },
   "dependencies": {
     "@sage/utils": "workspace:*",
+    "@types/glob": "^9.0.0",
+    "glob": "^11.0.3",
     "tree-sitter": "^0.25.0",
     "tree-sitter-javascript": "^0.23.1",
     "tree-sitter-rust": "^0.24.0",

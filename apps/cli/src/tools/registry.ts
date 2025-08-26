@@ -5,12 +5,14 @@ import { getAvailableMcpTools, mcpClientManager } from "../mcp";
 
 import { Bash } from "./Bash.js";
 import { Edit } from "./Edit.js";
+import { GraphQuery } from "./GraphQuery";
 import { Read } from "./Read.js";
-import { Write } from "./Write.js";
 import { BashRenderer } from "./renderers/BashRenderer.js";
 import { EditRenderer } from "./renderers/EditRenderer.js";
+import { GraphQueryRenderer } from "./renderers/GraphQueryRenderer.js";
 import { ReadRenderer } from "./renderers/ReadRenderer.js";
 import { WriteRenderer } from "./renderers/WriteRenderer.js";
+import { Write } from "./Write.js";
 
 export type ToolSource = "builtin" | "mcp";
 export interface ToolRendererProps {
@@ -39,6 +41,7 @@ class ToolRegistry {
     this.builtinTools.set("Edit", Edit);
     this.builtinTools.set("Read", Read);
     this.builtinTools.set("Write", Write);
+    this.builtinTools.set("GraphQuery", GraphQuery);
   }
 
   getBuiltinTools(): UnifiedTool[] {
@@ -46,7 +49,8 @@ class ToolRegistry {
       Bash: BashRenderer,
       Edit: EditRenderer,
       Read: ReadRenderer,
-      Write: WriteRenderer
+      Write: WriteRenderer,
+      GraphQuery: GraphQueryRenderer
     };
 
     return Array.from(this.builtinTools.entries()).map(([name, tool]) => ({
