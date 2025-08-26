@@ -14,10 +14,38 @@ export interface GraphEntity {
   flags: number;
   parentScopeId?: string; // For scope-based CONTAINS relationships
   extension?: string; // File extension (only for SourceFile entities)
+  isModule?: boolean; // Whether file has imports/exports (only for SourceFile entities)  
   size?: number; // File size in bytes (only for SourceFile entities)
   entityCount?: number; // Number of entities in file (only for SourceFile entities)
   totalLines?: number; // Total lines in file (only for SourceFile entities)
   relationshipCount?: number; // Number of relationships involving this file (only for SourceFile entities)
+  // First-class entity metadata fields
+  isAsync?: boolean; // For Function/Method
+  isExported?: boolean; // For Function/Class/Interface/Variable/etc
+  isAbstract?: boolean; // For Class  
+  isStatic?: boolean; // For Method/Property
+  visibility?: string; // For Method/Property ("public" | "private" | "protected")
+  className?: string; // For Method/Property (parent class name)
+  returnType?: string; // For Function/Method
+  parameters?: string[]; // For Function/Method
+  superClass?: string; // For Class
+  interfaces?: string[]; // For Class/Interface
+  type?: string; // For Variable/Property
+  isConst?: boolean; // For Variable/Enum
+  isReadonly?: boolean; // For Property
+  isOptional?: boolean; // For Property
+  scope?: string; // For Variable ("parameter" | "local" | "module" | "block")
+  defaultValue?: string; // For Variable/Property
+  extends?: string[]; // For Interface
+  properties?: string[]; // For Interface
+  members?: string[]; // For Enum
+  definition?: string; // For TypeAlias
+  typeParameters?: string[]; // For TypeAlias
+  localName?: string; // For ImportAlias/ExportAlias
+  originalName?: string; // For ImportAlias/ExportAlias
+  importPath?: string; // For ImportAlias
+  exportType?: string; // For ExportAlias ("named" | "default" | "namespace")
+  signature?: string; // Original signature text
 }
 
 export interface GraphRelationship {
@@ -47,14 +75,7 @@ export type EntityType =
   | "import"
   | "export"
   | "variable"
-  | "struct"
-  | "enum"
-  | "trait"
-  | "implementation"
-  | "module"
-  | "constant"
-  | "static"
-  | "type-alias";
+  | "enum";
 
 export interface BaseCodeEntity {
   type: EntityType;
@@ -85,22 +106,9 @@ export interface JavaScriptEntity extends BaseCodeEntity {
   exportType?: "named" | "default" | "all" | "namespace" | "assignment";
 }
 
-export interface RustEntity extends BaseCodeEntity {
-  type:
-    | "function"
-    | "struct"
-    | "enum"
-    | "trait"
-    | "implementation"
-    | "module"
-    | "import"
-    | "constant"
-    | "static"
-    | "type-alias";
-  language: "rust";
-}
+// Rust analysis removed - will be handled by Rust engine later
 
-export type CodeEntity = JavaScriptEntity | RustEntity;
+export type CodeEntity = JavaScriptEntity;
 
 export interface CallExpression {
   callee: string;

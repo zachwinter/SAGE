@@ -2,7 +2,6 @@ import chalk from "chalk";
 import fs from "fs";
 import ts from "typescript";
 import type { AnalysisOptions, FileAnalysisResult } from "../types.js";
-import { analyzeRustFile } from "./parser/rust-regex-parser.js";
 import {
   extractCallExpressions,
   extractEntitiesFromAST,
@@ -92,17 +91,9 @@ export function analyzeFile(
     totalLines: content.split("\n").length
   });
 
-  // Check if it's a Rust file
+  // Skip Rust files - they'll be handled by Rust analysis later
   if (filePath.endsWith(".rs")) {
-    try {
-      return analyzeRustFile(filePath, content, options);
-    } catch (error) {
-      console.warn(
-        line,
-        `Warning: Rust parsing failed for ${filePath}: ${error instanceof Error ? error.message : String(error)}`
-      );
-      return createEmptyResult();
-    }
+    return createEmptyResult();
   }
 
   // Check if it's a known TypeScript/JavaScript file extension
