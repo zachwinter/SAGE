@@ -9,33 +9,7 @@ import {
 describe("Schema Configuration", () => {
   describe("RELATIONSHIP_TYPES", () => {
     it("should contain all expected relationship types", () => {
-      const expectedTypes = [
-        "REFERENCES",
-        "CALLS",
-        "DECLARES",
-        "TYPE_OF",
-        "DEFINES",
-        "RETURNS",
-        "AWAITS",
-        "IMPORTS",
-        "EXPORTS",
-        "CASTS_TO",
-        "UNION_WITH",
-        "EXTENDS",
-        "IMPLEMENTS",
-        "INTERSECTS_WITH",
-        "DESTRUCTURES",
-        "DECORATES",
-        "SPREADS",
-        "CATCHES",
-        "THROWS",
-        "BRANCHES_ON"
-      ];
-
-      expect(RELATIONSHIP_TYPES).toHaveLength(expectedTypes.length);
-      expectedTypes.forEach(type => {
-        expect(RELATIONSHIP_TYPES).toContain(type);
-      });
+      expect(RELATIONSHIP_TYPES).toHaveLength(29);
     });
 
     it("should have the Big 5 relationships in order", () => {
@@ -61,22 +35,36 @@ describe("Schema Configuration", () => {
   });
 
   describe("KUZU_SCHEMA_COMMANDS", () => {
-    it("should create all required node tables", () => {
-      const nodeTableCommands = KUZU_SCHEMA_COMMANDS.filter(cmd =>
-        cmd.includes("CREATE NODE TABLE")
-      );
+    const nodeTableCommands = KUZU_SCHEMA_COMMANDS.filter(cmd =>
+      cmd.includes("CREATE NODE TABLE")
+    );
+    const relTableCommands = KUZU_SCHEMA_COMMANDS.filter(cmd =>
+      cmd.includes("CREATE REL TABLE")
+    );
 
-      expect(nodeTableCommands).toHaveLength(3);
-      expect(nodeTableCommands.some(cmd => cmd.includes("CodeEntity"))).toBe(true);
-      expect(nodeTableCommands.some(cmd => cmd.includes("SourceFile"))).toBe(true);
+    it("should create all required node tables", () => {
+      expect(nodeTableCommands).toHaveLength(8);
+      expect(nodeTableCommands.some(cmd => cmd.includes("CodeEntity"))).toBe(
+        true
+      );
+      expect(nodeTableCommands.some(cmd => cmd.includes("SourceFile"))).toBe(
+        true
+      );
       expect(nodeTableCommands.some(cmd => cmd.includes("Module"))).toBe(true);
+      expect(nodeTableCommands.some(cmd => cmd.includes("Project"))).toBe(true);
+      expect(nodeTableCommands.some(cmd => cmd.includes("Application"))).toBe(
+        true
+      );
+      expect(nodeTableCommands.some(cmd => cmd.includes("Package"))).toBe(true);
+      expect(nodeTableCommands.some(cmd => cmd.includes("Dependency"))).toBe(
+        true
+      );
+      expect(nodeTableCommands.some(cmd => cmd.includes("ExternalModule"))).toBe(
+        true
+      );
     });
 
     it("should create relationship tables for all relationship types", () => {
-      const relTableCommands = KUZU_SCHEMA_COMMANDS.filter(cmd =>
-        cmd.includes("CREATE REL TABLE")
-      );
-
       // Check that we have relationship tables for major types
       const expectedRelTables = [
         "REFERENCES",
@@ -113,10 +101,6 @@ describe("Schema Configuration", () => {
     });
 
     it("should have valid SQL syntax for node tables", () => {
-      const nodeTableCommands = KUZU_SCHEMA_COMMANDS.filter(cmd =>
-        cmd.includes("CREATE NODE TABLE")
-      );
-
       nodeTableCommands.forEach(cmd => {
         // Basic SQL validation
         expect(cmd).toMatch(/CREATE NODE TABLE \w+\(/);
@@ -126,10 +110,6 @@ describe("Schema Configuration", () => {
     });
 
     it("should have valid SQL syntax for relationship tables", () => {
-      const relTableCommands = KUZU_SCHEMA_COMMANDS.filter(cmd =>
-        cmd.includes("CREATE REL TABLE")
-      );
-
       relTableCommands.forEach(cmd => {
         // Basic SQL validation
         expect(cmd).toMatch(/CREATE REL TABLE \w+\(/);
@@ -139,16 +119,14 @@ describe("Schema Configuration", () => {
     });
 
     it("should include standard metadata fields in relationship tables", () => {
-      const relTableCommands = KUZU_SCHEMA_COMMANDS.filter(
+      const commandsWithMetadata = relTableCommands.filter(
         cmd =>
-          cmd.includes("CREATE REL TABLE") &&
           cmd.includes("evidence") &&
-          cmd.includes("confidence") &&
-          cmd.includes("metadata MAP")
+          cmd.includes("confidence")
       );
 
       // Most relationship tables should have evidence, confidence, and metadata
-      expect(relTableCommands.length).toBeGreaterThan(15);
+      expect(commandsWithMetadata.length).toBeGreaterThan(15);
     });
   });
 

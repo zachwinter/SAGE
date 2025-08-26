@@ -1,39 +1,51 @@
+import chalk from "chalk";
 import fs from "fs";
 import ts from "typescript";
+import type { AnalysisOptions, FileAnalysisResult } from "../types.js";
+import { analyzeRustFile } from "./parser/rust-regex-parser.js";
 import {
-  extractEntitiesFromAST,
   extractCallExpressions,
+  extractEntitiesFromAST,
   extractTypeInformation
 } from "./parser/ts-ast-extractor.js";
-import { analyzeRustFile } from "./parser/rust-regex-parser.js";
-import type { AnalysisOptions, FileAnalysisResult } from "../types.js";
 
+const line = chalk.magenta("│");
 export function analyzeFiles(
   files: string[],
   options: AnalysisOptions = {}
 ): FileAnalysisResult[] {
   const { debug = false } = options;
   const results: FileAnalysisResult[] = [];
+  const cwd = process.cwd();
 
-  if (debug) console.log(`🐛 Analyzing ${files.length} files...`);
+  if (debug) console.log(line, `Analyzing ${files.length} files...`);
 
   for (const filePath of files) {
     try {
       // Check if path is a directory before attempting to read it
       const stat = fs.statSync(filePath);
       if (stat.isDirectory()) {
-        if (debug) console.log(`🐛 Skipping directory: ${filePath}`);
-        console.warn(`Warning: Skipping directory ${filePath} (expected file)`);
+        if (debug) console.log(line, `Skipping directory: ${filePath}`);
+        console.warn(
+          line,
+          `Warning: Skipping directory ${filePath} (expected file)`
+        );
         continue;
       }
-      
-      if (debug) console.log(`🐛 Processing file: ${filePath}`);
+
       const content = fs.readFileSync(filePath, "utf8");
       const analysis = analyzeFile(filePath, content, options);
       results.push(analysis);
-      
+
       if (debug) {
-        console.log(`🐛   Found ${analysis.entities.length} entities, ${analysis.callExpressions.length} calls`);
+        console.log(
+          line,
+          analysis.entities.length,
+          "entities",
+          analysis.callExpressions.length,
+          "calls in",
+          filePath.replace(cwd + "/", "")
+        );
       }
     } catch (error) {
       // Only catch file system errors (file not found, permission denied, etc.)
@@ -45,8 +57,12 @@ export function analyzeFiles(
           error.message.includes("EISDIR") ||
           error.message.includes("no such file"))
       ) {
-        if (debug) console.log(`🐛 Error reading file ${filePath}: ${error.message}`);
-        console.warn(`Warning: Could not read file ${filePath}: ${error.message}`);
+        if (debug)
+          console.log(line, `Error reading file ${filePath}: ${error.message}`);
+        console.warn(
+          line,
+          `Warning: Could not read file ${filePath}: ${error.message}`
+        );
       } else {
         // Re-throw non-filesystem errors
         throw error;
@@ -54,7 +70,6 @@ export function analyzeFiles(
     }
   }
 
-  if (debug) console.log(`🐛 Analysis complete: ${results.length} files processed`);
   return results;
 }
 
@@ -83,6 +98,7 @@ export function analyzeFile(
       return analyzeRustFile(filePath, content, options);
     } catch (error) {
       console.warn(
+        line,
         `Warning: Rust parsing failed for ${filePath}: ${error instanceof Error ? error.message : String(error)}`
       );
       return createEmptyResult();
@@ -108,7 +124,7 @@ export function analyzeFile(
     );
 
     if (!sourceFile) {
-      console.warn(`Warning: Could not parse ${filePath}`);
+      console.warn(line, `Warning: Could not parse ${filePath}`);
       return createEmptyResult();
     }
 
@@ -139,6 +155,7 @@ export function analyzeFile(
     };
   } catch (error) {
     console.warn(
+      line,
       `Warning: TypeScript AST parsing failed for ${filePath}: ${error instanceof Error ? error.message : String(error)}`
     );
     return createEmptyResult();

@@ -1,6 +1,6 @@
 import { Box, Column, Row, Text } from "../../components/index";
 import { theme } from "../../config";
-import { MCPServer } from "../../mcp";
+import { MCPServer } from "@sage/mcp";
 interface MCPServerListItemProps {
   server: MCPServer;
   isSelected: boolean;

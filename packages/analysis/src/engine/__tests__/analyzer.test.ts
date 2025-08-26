@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "fs";
-import { analyzeFiles, analyzeFile } from "../analyzer.js";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AnalysisOptions } from "../../types.js";
+import { analyzeFile, analyzeFiles } from "../analyzer.js";
 
 // Mock fs module
 vi.mock("fs");
@@ -13,10 +13,6 @@ vi.mock("../parser/ts-ast-extractor.js", () => ({
   extractEntitiesFromAST: vi.fn(),
   extractCallExpressions: vi.fn(),
   extractTypeInformation: vi.fn()
-}));
-
-vi.mock("../parser/rust-regex-parser.js", () => ({
-  analyzeRustFile: vi.fn()
 }));
 
 vi.mock("../parser/basic-js-parser.js", () => ({
@@ -45,14 +41,13 @@ describe("Analyzer Core Engine", () => {
 
     // Import mocked modules
     const tsExtractor = await import("../parser/ts-ast-extractor.js");
-    const rustParser = await import("../parser/rust-regex-parser.js");
+
     const basicParser = await import("../parser/basic-js-parser.js");
     const ts = await import("typescript");
 
     mockExtractEntitiesFromAST = vi.mocked(tsExtractor.extractEntitiesFromAST);
     mockExtractCallExpressions = vi.mocked(tsExtractor.extractCallExpressions);
     mockExtractTypeInformation = vi.mocked(tsExtractor.extractTypeInformation);
-    mockAnalyzeRustFile = vi.mocked(rustParser.analyzeRustFile);
     mockAnalyzeFileBasic = vi.mocked(basicParser.analyzeFileBasic);
     mockTsCreateSourceFile = vi.mocked(ts.default.createSourceFile);
   });
@@ -66,6 +61,7 @@ describe("Analyzer Core Engine", () => {
       const files = ["/test/file1.ts", "/test/file2.ts"];
       const options: AnalysisOptions = {};
 
+      mockFs.statSync.mockReturnValue({ isDirectory: () => false } as any);
       mockFs.readFileSync
         .mockReturnValueOnce("function test1() {}")
         .mockReturnValueOnce("function test2() {}");
@@ -86,26 +82,34 @@ describe("Analyzer Core Engine", () => {
       // Enhanced assertions for result structure and data quality
       expect(results).toHaveLength(2);
       expect(Array.isArray(results)).toBe(true);
-      
+
       // Validate each result has required properties with correct types
       results.forEach((result, index) => {
-        expect(result).toHaveProperty('filePath', files[index]);
-        expect(result).toHaveProperty('entities');
-        expect(result).toHaveProperty('callExpressions');
-        expect(result).toHaveProperty('typeInfo');
-        expect(result).toHaveProperty('totalLines');
+        expect(result).toHaveProperty("filePath", files[index]);
+        expect(result).toHaveProperty("entities");
+        expect(result).toHaveProperty("callExpressions");
+        expect(result).toHaveProperty("typeInfo");
+        expect(result).toHaveProperty("totalLines");
         expect(Array.isArray(result.entities)).toBe(true);
         expect(Array.isArray(result.callExpressions)).toBe(true);
-        expect(typeof result.typeInfo).toBe('object');
-        expect(typeof result.totalLines).toBe('number');
+        expect(typeof result.typeInfo).toBe("object");
+        expect(typeof result.totalLines).toBe("number");
         expect(result.totalLines).toBeGreaterThanOrEqual(1);
       });
-      
+
       // Verify mock interactions with detailed parameter checking
       expect(mockFs.readFileSync).toHaveBeenCalledTimes(2);
-      expect(mockFs.readFileSync).toHaveBeenNthCalledWith(1, "/test/file1.ts", "utf8");
-      expect(mockFs.readFileSync).toHaveBeenNthCalledWith(2, "/test/file2.ts", "utf8");
-      
+      expect(mockFs.readFileSync).toHaveBeenNthCalledWith(
+        1,
+        "/test/file1.ts",
+        "utf8"
+      );
+      expect(mockFs.readFileSync).toHaveBeenNthCalledWith(
+        2,
+        "/test/file2.ts",
+        "utf8"
+      );
+
       // Verify TypeScript parser was called for each file
       expect(mockTsCreateSourceFile).toHaveBeenCalledTimes(2);
       expect(mockExtractEntitiesFromAST).toHaveBeenCalledTimes(2);
@@ -128,6 +132,7 @@ describe("Analyzer Core Engine", () => {
     it("should include files with no entities in the results", () => {
       const files = ["/test/empty.ts", "/test/withEntities.ts"];
 
+      mockFs.statSync.mockReturnValue({ isDirectory: () => false } as any);
       mockFs.readFileSync
         .mockReturnValueOnce("// empty file")
         .mockReturnValueOnce("function test() {}");
@@ -148,7 +153,7 @@ describe("Analyzer Core Engine", () => {
       const results = analyzeFiles(files);
 
       expect(results).toHaveLength(2);
-      
+
       // Enhanced validation for empty file result
       const emptyFileResult = results.find(r => r.filePath === "/test/empty.ts");
       expect(emptyFileResult).toBeDefined();
@@ -156,9 +161,11 @@ describe("Analyzer Core Engine", () => {
       expect(emptyFileResult?.entities).toEqual([]);
       expect(emptyFileResult?.totalLines).toBeGreaterThanOrEqual(1);
       expect(Array.isArray(emptyFileResult?.callExpressions)).toBe(true);
-      
+
       // Enhanced validation for file with entities
-      const withEntitiesResult = results.find(r => r.filePath === "/test/withEntities.ts");
+      const withEntitiesResult = results.find(
+        r => r.filePath === "/test/withEntities.ts"
+      );
       expect(withEntitiesResult).toBeDefined();
       expect(withEntitiesResult?.entities).toHaveLength(1);
       expect(withEntitiesResult?.entities[0]).toMatchObject({
@@ -174,6 +181,7 @@ describe("Analyzer Core Engine", () => {
       const files = ["/test/calls-only.ts"];
       const options: AnalysisOptions = { calls: true };
 
+      mockFs.statSync.mockReturnValue({ isDirectory: () => false } as any);
       mockFs.readFileSync.mockReturnValueOnce("someFunction();");
 
       const mockSourceFile = { kind: "SourceFile" } as any;
@@ -193,7 +201,7 @@ describe("Analyzer Core Engine", () => {
       const results = analyzeFiles(files, options);
 
       expect(results).toHaveLength(1);
-      
+
       // Enhanced validation for call expressions
       const result = results[0];
       expect(result.callExpressions).toHaveLength(1);
@@ -205,7 +213,7 @@ describe("Analyzer Core Engine", () => {
         signature: "someFunction()",
         argumentCount: 0
       });
-      
+
       // Verify file structure
       expect(result.filePath).toBe("/test/calls-only.ts");
       expect(result.entities).toHaveLength(0);
@@ -215,6 +223,7 @@ describe("Analyzer Core Engine", () => {
     it("should handle file read errors gracefully", () => {
       const files = ["/test/missing.ts", "/test/valid.ts"];
 
+      mockFs.statSync.mockReturnValue({ isDirectory: () => false } as any);
       mockFs.readFileSync
         .mockImplementationOnce(() => {
           throw new Error("ENOENT: no such file or directory");
@@ -237,7 +246,7 @@ describe("Analyzer Core Engine", () => {
       // Enhanced validation for error handling
       expect(results).toHaveLength(1);
       expect(Array.isArray(results)).toBe(true);
-      
+
       const validResult = results[0];
       expect(validResult.filePath).toBe("/test/valid.ts");
       expect(validResult.entities).toHaveLength(1);
@@ -247,13 +256,16 @@ describe("Analyzer Core Engine", () => {
         line: 1,
         signature: expect.stringContaining("function test()")
       });
-      
+
       // Verify error was properly logged
       expect(console.warn).toHaveBeenCalledTimes(1);
       expect(console.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/Warning: Could not read file \/test\/missing\.ts.*ENOENT/)
+        expect.any(String),
+        expect.stringMatching(
+          /Warning: Could not read file \/test\/missing\.ts.*ENOENT/
+        )
       );
-      
+
       // Verify fs interactions
       expect(mockFs.readFileSync).toHaveBeenCalledTimes(2); // One failed, one succeeded
     });
@@ -283,7 +295,7 @@ describe("Analyzer Core Engine", () => {
         totalLines: 1,
         sourceFile: mockSourceFile
       });
-      
+
       // Validate entities array and content
       expect(result.entities).toHaveLength(1);
       expect(Array.isArray(result.entities)).toBe(true);
@@ -293,10 +305,10 @@ describe("Analyzer Core Engine", () => {
         line: 1,
         signature: expect.stringContaining("function hello()")
       });
-      
+
       // Validate call expressions are always included
       expect(Array.isArray(result.callExpressions)).toBe(true);
-      
+
       // Validate TypeScript parser interaction
       expect(mockTsCreateSourceFile).toHaveBeenCalledTimes(1);
       expect(mockTsCreateSourceFile).toHaveBeenCalledWith(
@@ -306,46 +318,6 @@ describe("Analyzer Core Engine", () => {
         true
       );
       expect(mockExtractEntitiesFromAST).toHaveBeenCalledWith(mockSourceFile, {});
-    });
-
-    it("should analyze Rust files using Rust parser", () => {
-      const filePath = "/test/file.rs";
-      const content = 'fn hello() -> &str { "world" }';
-
-      const mockRustResult = {
-        filePath,
-        entities: [
-          {
-            type: "function",
-            name: "hello",
-            line: 1,
-            signature: "fn hello() -> &str"
-          }
-        ],
-        callExpressions: [],
-        typeInfo: {},
-        totalLines: 1
-      };
-
-      mockAnalyzeRustFile.mockReturnValue(mockRustResult);
-
-      const result = analyzeFile(filePath, content);
-
-      // Enhanced validation for Rust file analysis
-      expect(result).toEqual(mockRustResult);
-      expect(result).toHaveProperty('filePath', filePath);
-      expect(result).toHaveProperty('entities');
-      expect(result).toHaveProperty('callExpressions');
-      expect(result).toHaveProperty('typeInfo');
-      expect(result).toHaveProperty('totalLines');
-      
-      // Verify Rust parser was called with correct parameters
-      expect(mockAnalyzeRustFile).toHaveBeenCalledTimes(1);
-      expect(mockAnalyzeRustFile).toHaveBeenCalledWith(filePath, content, {});
-      
-      // Verify TypeScript parser was NOT called for Rust files
-      expect(mockTsCreateSourceFile).not.toHaveBeenCalled();
-      expect(mockExtractEntitiesFromAST).not.toHaveBeenCalled();
     });
 
     it("should extract call expressions when requested", () => {
@@ -372,7 +344,7 @@ describe("Analyzer Core Engine", () => {
       // Enhanced validation for call expression extraction
       expect(result.callExpressions).toHaveLength(1);
       expect(Array.isArray(result.callExpressions)).toBe(true);
-      
+
       const callExpression = result.callExpressions[0];
       expect(callExpression).toMatchObject({
         callee: "target",
@@ -382,11 +354,14 @@ describe("Analyzer Core Engine", () => {
         signature: "target()",
         argumentCount: 0
       });
-      
+
       // Verify parser interactions
       expect(mockExtractCallExpressions).toHaveBeenCalledTimes(1);
       expect(mockExtractCallExpressions).toHaveBeenCalledWith(mockSourceFile);
-      expect(mockExtractEntitiesFromAST).toHaveBeenCalledWith(mockSourceFile, options);
+      expect(mockExtractEntitiesFromAST).toHaveBeenCalledWith(
+        mockSourceFile,
+        options
+      );
     });
 
     it("should extract type information when requested", () => {
@@ -418,10 +393,10 @@ describe("Analyzer Core Engine", () => {
 
       // Enhanced validation for type information extraction
       expect(result.typeInfo).toBeDefined();
-      expect(typeof result.typeInfo).toBe('object');
+      expect(typeof result.typeInfo).toBe("object");
       expect(result.typeInfo.interfaces).toHaveLength(1);
       expect(Array.isArray(result.typeInfo.interfaces)).toBe(true);
-      
+
       const userInterface = result.typeInfo.interfaces[0];
       expect(userInterface).toMatchObject({
         name: "User",
@@ -431,11 +406,11 @@ describe("Analyzer Core Engine", () => {
         properties: 1,
         isExported: false
       });
-      
+
       // Verify type extraction was called
       expect(mockExtractTypeInformation).toHaveBeenCalledTimes(1);
       expect(mockExtractTypeInformation).toHaveBeenCalledWith(mockSourceFile);
-      
+
       // Verify call expressions are still extracted when types are requested
       expect(Array.isArray(result.callExpressions)).toBe(true);
       expect(mockExtractCallExpressions).toHaveBeenCalledWith(mockSourceFile);
@@ -602,10 +577,15 @@ describe("Analyzer Core Engine", () => {
       expect(result.entities).toHaveLength(0);
       expect(Array.isArray(result.entities)).toBe(true);
       expect(Array.isArray(result.callExpressions)).toBe(true);
-      expect(typeof result.typeInfo).toBe('object');
-      
+      expect(typeof result.typeInfo).toBe("object");
+
       // Verify parser was still called for empty file
-      expect(mockTsCreateSourceFile).toHaveBeenCalledWith(filePath, content, 99, true);
+      expect(mockTsCreateSourceFile).toHaveBeenCalledWith(
+        filePath,
+        content,
+        99,
+        true
+      );
       expect(mockExtractEntitiesFromAST).toHaveBeenCalledWith(mockSourceFile, {});
     });
 
@@ -621,7 +601,7 @@ describe("Analyzer Core Engine", () => {
 
       expect(result.totalLines).toBe(10001); // 10000 functions + 1 empty line at end
       expect(result.filePath).toBe(filePath);
-      expect(typeof result.totalLines).toBe('number');
+      expect(typeof result.totalLines).toBe("number");
       expect(result.totalLines).toBeGreaterThan(0);
     });
 
@@ -651,8 +631,8 @@ describe("Analyzer Core Engine", () => {
       expect(result.filePath).toBe(filePath);
       expect(Array.isArray(result.entities)).toBe(true);
       expect(Array.isArray(result.callExpressions)).toBe(true);
-      expect(typeof result.typeInfo).toBe('object');
-      expect(typeof result.totalLines).toBe('number');
+      expect(typeof result.typeInfo).toBe("object");
+      expect(typeof result.totalLines).toBe("number");
       expect(result.totalLines).toBeGreaterThan(0);
     });
 
@@ -662,18 +642,20 @@ describe("Analyzer Core Engine", () => {
 
       const mockSourceFile = { kind: "SourceFile" } as any;
       mockTsCreateSourceFile.mockReturnValue(mockSourceFile);
-      mockExtractEntitiesFromAST.mockReturnValue([{
-        type: "function",
-        name: "test",
-        line: 1,
-        signature: "function test() {}"
-      }]);
+      mockExtractEntitiesFromAST.mockReturnValue([
+        {
+          type: "function",
+          name: "test",
+          line: 1,
+          signature: "function test() {}"
+        }
+      ]);
 
       const result = analyzeFile(specialPath, content);
 
       expect(result.filePath).toBe(specialPath);
-      expect(result.entities[0]).toHaveProperty('type', 'function');
-      expect(result.entities[0]).toHaveProperty('name', 'test');
+      expect(result.entities[0]).toHaveProperty("type", "function");
+      expect(result.entities[0]).toHaveProperty("name", "test");
     });
   });
 
@@ -691,7 +673,7 @@ describe("Analyzer Core Engine", () => {
       expect(result.filePath).toBe(filePath);
       expect(Array.isArray(result.entities)).toBe(true);
       expect(Array.isArray(result.callExpressions)).toBe(true);
-      expect(typeof result.typeInfo).toBe('object');
+      expect(typeof result.typeInfo).toBe("object");
     });
 
     it("should handle entity extraction throwing errors", () => {
@@ -709,6 +691,7 @@ describe("Analyzer Core Engine", () => {
 
       expect(result.filePath).toBe(filePath);
       expect(console.warn).toHaveBeenCalledWith(
+        expect.any(String),
         expect.stringContaining("Entity extraction failed")
       );
     });

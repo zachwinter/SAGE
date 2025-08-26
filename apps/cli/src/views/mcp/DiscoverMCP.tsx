@@ -9,8 +9,8 @@ import {
   setSearchFocused,
   setSearchSelectedIndex,
   updateSearchQuery
-} from "../../mcp";
-import { MCPServer } from "../../mcp/types";
+} from "@sage/mcp";
+import { MCPServer } from "@sage/mcp";
 
 export const DiscoverMCP = () => {
   const snap = useSnapshot(mcpState);

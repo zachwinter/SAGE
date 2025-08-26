@@ -1,78 +1,77 @@
 import { analyzeToGraph, getCodeFiles } from "@sage/analysis";
+import { PrettyTask } from "../utils/prettyTask";
+
+export async function runAnalysis(options: { debug?: boolean } = {}) {
+  const { debug } = { debug: false };
+
+  const allFiles = getCodeFiles(process.cwd());
+  const task = new PrettyTask({
+    title: "analyzing",
+    subtitle: `${allFiles.length} files`,
+    location: process.cwd()
+  });
+
+  if (allFiles.length === 0) {
+    task.log("No TypeScript or Rust files found in current directory.");
+    return null;
+  }
+
+  const analysisData = analyzeToGraph(allFiles, { debug });
+
+  return { allFiles, analysisData, task };
+}
 
 export async function analyze(options: { debug?: boolean; format?: string } = {}) {
-  const { debug = false, format = 'summary' } = options;
-  const start = Date.now();
-  
-  if (debug) {
-    console.log("🐛 Debug mode enabled");
-    console.log(`🐛 Working directory: ${process.cwd()}`);
-  }
-  
+  const { debug = false, format = "summary" } = options;
+
   try {
-    if (debug) console.log("🐛 Finding code files...");
-    const allFiles = getCodeFiles(process.cwd());
+    const result = await runAnalysis({ debug });
+    if (!result) return;
 
-    if (debug) {
-      console.log(`🐛 Found ${allFiles.length} files:`);
-      allFiles.slice(0, 10).forEach(file => console.log(`🐛   - ${file}`));
-      if (allFiles.length > 10) {
-        console.log(`🐛   ... and ${allFiles.length - 10} more files`);
-      }
-    }
+    const { analysisData, task } = result;
 
-    if (allFiles.length === 0) {
-      console.log("No TypeScript or Rust files found in current directory.");
-      return;
-    }
-
-    if (debug) console.log("🐛 Starting code analysis...");
-    const analysisData = analyzeToGraph(allFiles, { debug });
-    
-    const end = Date.now();
-    const duration = Number(((end - start) / 1000).toFixed(2));
-
-    if (format === 'json') {
+    if (format === "json") {
       console.log(JSON.stringify(analysisData, null, 2));
     } else {
       // Summary format - break down entities by type
-      const entityCounts = analysisData.entities.reduce((counts, entity) => {
-        counts[entity.kind] = (counts[entity.kind] || 0) + 1;
-        return counts;
-      }, {} as Record<string, number>);
-
-      const relationshipCounts = analysisData.relationships.reduce((counts, rel) => {
-        counts[rel.type] = (counts[rel.type] || 0) + 1;
-        return counts;
-      }, {} as Record<string, number>);
-
-      console.log(
-        `Analyzed`,
-        allFiles.length,
-        `files in`,
-        duration,
-        `seconds.`
+      const entityCounts = analysisData.entities.reduce(
+        (counts, entity) => {
+          counts[entity.kind] = (counts[entity.kind] || 0) + 1;
+          return counts;
+        },
+        {} as Record<string, number>
       );
-      console.log(
-        `Found`,
-        analysisData.entities.length,
-        `entities and`,
-        analysisData.relationships.length,
-        `relationships.`
+
+      const relationshipCounts = analysisData.relationships.reduce(
+        (counts, rel) => {
+          counts[rel.type] = (counts[rel.type] || 0) + 1;
+          return counts;
+        },
+        {} as Record<string, number>
       );
-      
-      console.log("\nEntities by type:");
+
+      task.logDim("Nodes");
       Object.entries(entityCounts)
-        .sort(([,a], [,b]) => b - a)
-        .forEach(([type, count]) => console.log(`  ${type}: ${count}`));
-      
-      console.log("\nRelationships by type:");
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([type, count]) => task.logKeyValue(type, count, "(:", ")"));
+
+      task.logDim("Relationships");
       Object.entries(relationshipCounts)
-        .sort(([,a], [,b]) => b - a)
-        .forEach(([type, count]) => console.log(`  ${type}: ${count}`));
+        .sort(([, a], [, b]) => b - a)
+        .forEach(([type, count]) => {
+          task.logKeyValue(type, count, "[:", "]");
+        });
+
+      const nodes = PrettyTask.formatCount(analysisData.entities.length, "nodes");
+      const relationships = PrettyTask.formatCount(
+        analysisData.relationships.length,
+        "relationships"
+      );
+
+      task.finish(`found ${nodes} & ${relationships} in {time}`);
     }
   } catch (error) {
-    console.error("❌ Analysis failed:", error);
+    console.error("❌ analysis failed:", error);
     process.exit(1);
   }
 }

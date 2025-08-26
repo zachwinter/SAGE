@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useSnapshot } from "valtio";
 import { Box, Column, Row, Search, Text, View } from "../../components";
-import { mcpState, McpTool } from "../../mcp";
+import { mcpState, McpTool } from "@sage/mcp";
 import { MCPMenu, setView } from "../../router";
 
 type CapabilityType = "tool" | "resource" | "prompt";

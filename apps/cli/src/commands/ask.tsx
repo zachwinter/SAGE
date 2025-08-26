@@ -2,7 +2,7 @@ import { Logger } from "@sage/utils";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { render } from "ink";
 import { settings } from "../config/index";
-import { initializeMcp } from "../mcp";
+import { initializeMcp } from "@sage/mcp";
 import { state as modelState } from "../models/state.js";
 import { Router } from "../router/Router.js";
 import { state } from "../router/state.js";

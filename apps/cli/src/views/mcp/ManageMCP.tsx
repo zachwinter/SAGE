@@ -7,8 +7,8 @@ import {
   removeServerConfigWithError,
   serversToOptions,
   toggleServerEnabledWithError
-} from "../../mcp";
-import { groupServersByRepo } from "../../mcp/utils/servers";
+} from "@sage/mcp";
+import { groupServersByRepo } from "@sage/mcp";
 export const ManageMCP = () => {
   const [error, setError] = useState<string | null>(null);
   const snap = useSnapshot(mcpState);

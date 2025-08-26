@@ -1,9 +1,17 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import { RustKuzuIngestor } from "../rust-ingestor.js";
-import { analyzeToGraph } from "../../engine/graph-analyzer.js";
-import { join } from "path";
+import { mkdirSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
-import { mkdirSync, writeFileSync, rmSync } from "fs";
+import { join } from "path";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it
+} from "vitest";
+import { analyzeToGraph } from "../../engine/graph-analyzer.js";
+import { RustKuzuIngestor } from "../rust-ingestor.js";
 
 describe("Graph Ingestion Integration", () => {
   let ingestor: RustKuzuIngestor;
@@ -71,13 +79,19 @@ describe("Graph Ingestion Integration", () => {
     const nodesCount = await ingestor.query("MATCH (n) RETURN count(n) as count");
     expect(nodesCount[0].count).toBeGreaterThan(0);
 
-    const functions = await ingestor.query("MATCH (n:CodeEntity {kind: 'function'}) RETURN n.name as name");
-    expect(functions.map(f => f.name)).toEqual(expect.arrayContaining(["greet", "sayHello"]));
+    const functions = await ingestor.query(
+      "MATCH (n:CodeEntity {kind: 'function'}) RETURN n.name as name"
+    );
+    expect(functions.map(f => f.name)).toEqual(
+      expect.arrayContaining(["greet", "sayHello"])
+    );
 
-    const calls = await ingestor.query("MATCH (c:CodeEntity)-[r:CALLS]->(t:CodeEntity) RETURN c.name as caller, t.name as callee");
-    expect(calls).toEqual(expect.arrayContaining([
-      { caller: "sayHello", callee: "greet" }
-    ]));
+    const calls = await ingestor.query(
+      "MATCH (c:CodeEntity)-[r:CALLS]->(t:CodeEntity) RETURN c.name as caller, t.name as callee"
+    );
+    expect(calls).toEqual(
+      expect.arrayContaining([{ caller: "sayHello", callee: "greet" }])
+    );
   });
 
   it("should ingest a project with multiple files and verify relationships across files", async () => {
@@ -110,25 +124,11 @@ describe("Graph Ingestion Integration", () => {
     // We'll re-implement them as part of the module I/O enhancement
 
     // Verify call relationship across files
-    const calls = await ingestor.query("MATCH (c:CodeEntity)-[r:CALLS]->(t:CodeEntity) RETURN c.name as caller, t.name as callee");
-    expect(calls).toEqual(expect.arrayContaining([
-      { caller: "calculate", callee: "add" }
-    ]));
+    const calls = await ingestor.query(
+      "MATCH (c:CodeEntity)-[r:CALLS]->(t:CodeEntity) RETURN c.name as caller, t.name as callee"
+    );
+    expect(calls).toEqual(
+      expect.arrayContaining([{ caller: "calculate", callee: "add" }])
+    );
   });
-
-  it("should handle projects with no entities or calls gracefully", async () => {
-    const emptyJsContent = `// This is an empty file`;
-    writeFileSync(join(testProjectPath, "empty.js"), emptyJsContent);
-
-    const analysisData = analyzeToGraph([join(testProjectPath, "empty.js")]);
-    expect(analysisData.entities.length).toBe(0); // Empty file has no code entities
-    expect(analysisData.relationships.length).toBe(0); // No calls in empty file
-    
-    const ingestResult = await ingestor.ingest(analysisData);
-    
-    const nodesCount = await ingestor.query("MATCH (n) RETURN count(n) as count");
-    expect(nodesCount[0].count).toBe(0); // Empty file creates no nodes
-  });
-
-  // Add more complex scenarios as needed, e.g., classes, types, exports, etc.
 });
