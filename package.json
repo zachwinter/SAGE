@@ -2,7 +2,6 @@
   "name": "@sage/monorepo",
   "version": "1.0.0",
   "type": "module",
-  "private": true,
   "scripts": {
     "dev": "pnpm -F @sage/cli dev",
     "build": "pnpm -r build",
@@ -13,8 +12,7 @@
     "test:e2e": "pnpm -F @sage/cli test:e2e",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write .",
-    "clean": "pnpm -r clean",
-    "validate": "tsx tools/validate-monorepo.ts"
+    "clean": "pnpm -r clean"
   },
   "author": "",
   "license": "ISC",
