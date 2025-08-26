@@ -1,5 +1,34 @@
 import ts from "typescript";
 
+// Graph-native types (matching Rust format for zero-conversion)
+export interface GraphEntity {
+  id: string;
+  kind: string;
+  name: string;
+  text: string;
+  filePath: string;
+  line: number;
+  column: number;
+  pos: number;
+  end: number;
+  flags: number;
+  parentScopeId?: string; // For scope-based CONTAINS relationships
+}
+
+export interface GraphRelationship {
+  from: string;
+  to: string;
+  type: string;
+  evidence: string;
+  confidence: "high" | "medium" | "low";
+  metadata: Record<string, any>;
+}
+
+export interface AnalysisData {
+  entities: GraphEntity[];
+  relationships: GraphRelationship[];
+}
+
 export interface ContextLine {
   number: number;
   content: string;
@@ -30,6 +59,7 @@ export interface BaseCodeEntity {
   contextLines?: ContextLine[];
   id?: string;
   filePath?: string;
+  parentScopeId?: string; // NEW: For scope-based CONTAINS relationships
 }
 
 export interface JavaScriptEntity extends BaseCodeEntity {

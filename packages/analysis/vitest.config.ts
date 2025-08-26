@@ -27,7 +27,6 @@ export default defineConfig({
       "dist/**",
       "**/dist/**",
       "**/*.d.ts",
-      "src/graph/**", // Temporarily exclude graph tests
     ],
     testTimeout: 10000,
     hookTimeout: 10000,

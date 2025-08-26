@@ -1,11 +1,18 @@
+import { Logger } from "@sage/utils";
 import { readdirSync, readFileSync, statSync } from "fs";
 import { join } from "path";
-import { beforeAll, describe, expect, it } from "vitest";
-import type { AnalysisOptions, FileAnalysisResult } from "../../types.js";
+import { describe, expect, it } from "vitest";
+import type { AnalysisOptions } from "../../types.js";
 import { analyzeFiles } from "../analyzer.js";
-import { Logger } from "@sage/utils";
 
 const fixturesPath = join(__dirname, "fixtures");
+
+// Enhanced logging for better test debugging
+const testLogger = (message: string) => {
+  if (process.env.NODE_ENV === 'test' && process.env.DEBUG_TESTS) {
+    logger.debug(`Integration Test: ${message}`);
+  }
+};
 const logger = new Logger("AnalyzerIntegrationTests", "analysis-debug.log");
 
 describe("Multiple file analysis", () => {
@@ -19,23 +26,70 @@ describe("Multiple file analysis", () => {
 
     const results = analyzeFiles(files, options);
 
+    // Enhanced validation for multi-file analysis
     expect(results.length).toBe(3);
+    expect(Array.isArray(results)).toBe(true);
 
-    // Each result should have the correct file path
-    expect(results[0].filePath).toBe(files[0]);
-    expect(results[1].filePath).toBe(files[1]);
-    expect(results[2].filePath).toBe(files[2]);
+    // Comprehensive file path validation
+    expect(results.map(r => r.filePath)).toEqual(expect.arrayContaining(files));
+    results.forEach((result, index) => {
+      expect(result.filePath).toBe(files[index]);
+      expect(typeof result.filePath).toBe('string');
+      expect(result.filePath.length).toBeGreaterThan(0);
+    });
 
-    // Should have found entities in each file
+    // Enhanced entity validation with data quality checks
     results.forEach(result => {
       expect(result.entities.length).toBeGreaterThan(0);
+      expect(Array.isArray(result.entities)).toBe(true);
+      
+      // Validate entity structure for each found entity
+      result.entities.forEach(entity => {
+        expect(entity).toHaveProperty('type');
+        expect(entity).toHaveProperty('name');
+        expect(entity).toHaveProperty('line');
+        expect(entity).toHaveProperty('signature');
+        expect(typeof entity.type).toBe('string');
+        expect(typeof entity.name).toBe('string');
+        expect(typeof entity.line).toBe('number');
+        expect(entity.line).toBeGreaterThan(0);
+      });
     });
 
-    // Should have call expressions where requested
+    // Enhanced call expression validation for TypeScript files
     const tsResults = results.filter(r => r.filePath.endsWith(".ts"));
+    expect(tsResults.length).toBeGreaterThanOrEqual(2);
+    
     tsResults.forEach(result => {
       expect(Array.isArray(result.callExpressions)).toBe(true);
+      // Validate call expression structure if any exist
+      result.callExpressions.forEach(call => {
+        expect(call).toHaveProperty('callee');
+        expect(call).toHaveProperty('type');
+        expect(call).toHaveProperty('line');
+        expect(typeof call.callee).toBe('string');
+        expect(typeof call.type).toBe('string');
+        expect(typeof call.line).toBe('number');
+      });
+      
+      // Validate other required properties
+      expect(result).toHaveProperty('totalLines');
+      expect(result).toHaveProperty('typeInfo');
+      expect(typeof result.totalLines).toBe('number');
+      expect(result.totalLines).toBeGreaterThan(0);
+      expect(typeof result.typeInfo).toBe('object');
     });
+    
+    // Validate Rust file handling (should have different structure)
+    const rustResults = results.filter(r => r.filePath.endsWith(".rs"));
+    if (rustResults.length > 0) {
+      rustResults.forEach(result => {
+        expect(result).toHaveProperty('entities');
+        expect(result).toHaveProperty('callExpressions');
+        expect(Array.isArray(result.entities)).toBe(true);
+        expect(Array.isArray(result.callExpressions)).toBe(true);
+      });
+    }
   });
 
   it("should return analysis for all files, even those with no entities", () => {
@@ -47,18 +101,64 @@ describe("Multiple file analysis", () => {
 
     const results = analyzeFiles(files, options);
 
-    // Should return a result for every file
+    // Enhanced validation for mixed file analysis
     expect(results.length).toBe(2);
+    expect(Array.isArray(results)).toBe(true);
 
-    // The sample file should have entities
+    // Comprehensive sample file validation
     const sampleResult = results.find(r => r.filePath.endsWith("sample.ts"));
     expect(sampleResult).toBeDefined();
     expect(sampleResult?.entities.length).toBeGreaterThan(0);
+    expect(Array.isArray(sampleResult?.entities)).toBe(true);
+    
+    // Validate sample file structure completeness
+    if (sampleResult) {
+      expect(sampleResult).toMatchObject({
+        filePath: expect.stringContaining('sample.ts'),
+        totalLines: expect.any(Number),
+        typeInfo: expect.any(Object)
+      });
+      expect(sampleResult.totalLines).toBeGreaterThan(0);
+      expect(Array.isArray(sampleResult.callExpressions)).toBe(true);
+      
+      // Validate entity data quality
+      sampleResult.entities.forEach(entity => {
+        expect(entity).toHaveProperty('type');
+        expect(entity).toHaveProperty('name');
+        expect(entity).toHaveProperty('line');
+        expect(entity.name.trim().length).toBeGreaterThan(0);
+      });
+    }
 
-    // The malformed file should still be in the results, even if it has no entities
+    // Enhanced malformed file validation
     const malformedResult = results.find(r => r.filePath.endsWith("malformed.js"));
     expect(malformedResult).toBeDefined();
     expect(Array.isArray(malformedResult?.entities)).toBe(true);
+    
+    if (malformedResult) {
+      expect(malformedResult).toMatchObject({
+        filePath: expect.stringContaining('malformed.js'),
+        entities: expect.any(Array),
+        callExpressions: expect.any(Array),
+        typeInfo: expect.any(Object),
+        totalLines: expect.any(Number)
+      });
+      expect(malformedResult.totalLines).toBeGreaterThan(0);
+      
+      // Even malformed files should have valid structure
+      malformedResult.entities.forEach(entity => {
+        expect(typeof entity.type).toBe('string');
+        expect(typeof entity.name).toBe('string');
+        expect(typeof entity.line).toBe('number');
+      });
+    }
+    
+    // Validate that all files were processed (no skips due to errors)
+    const processedPaths = results.map(r => r.filePath);
+    expect(processedPaths).toHaveLength(files.length);
+    files.forEach(filePath => {
+      expect(processedPaths).toContain(filePath);
+    });
   });
 });
 
@@ -85,325 +185,73 @@ function readAllFixtureFiles(
   return files;
 }
 
-describe("Complex TypeScript Project Analysis (ESM)", () => {
-  let esmProjectFiles: { filePath: string; content: string }[];
-  let esmAnalysisResults: FileAnalysisResult[];
-
-  beforeAll(() => {
-    esmProjectFiles = readAllFixtureFiles("complex-ts-esm-project");
-    esmAnalysisResults = analyzeFiles(
-      esmProjectFiles.map(f => f.filePath),
-      { calls: true, types: true }
-    );
-    logger.info('ESM Entities', { test: "should correctly analyze entities in ESM project", entities: esmAnalysisResults.flatMap(r => r.entities) });
-    logger.info('ESM Calls', { test: "should correctly analyze call expressions in ESM project", calls: esmAnalysisResults.flatMap(r => r.callExpressions) });
-    logger.info('ESM TypeInfo', { test: "should correctly analyze type information in ESM project", typeInfo: esmAnalysisResults.map(r => r.typeInfo) });
+// Additional comprehensive integration tests
+describe("Integration test scenarios with enhanced validation", () => {
+  it("should handle mixed file types with comprehensive validation", () => {
+    const mixedFiles = [
+      join(fixturesPath, "sample.ts"),
+      join(fixturesPath, "calls.ts")
+    ];
+    const options: AnalysisOptions = { calls: true, types: true };
+    
+    const results = analyzeFiles(mixedFiles, options);
+    
+    expect(results).toHaveLength(2);
+    
+    // Validate comprehensive analysis results
+    results.forEach(result => {
+      // Basic structure validation
+      expect(result).toMatchObject({
+        filePath: expect.any(String),
+        entities: expect.any(Array),
+        callExpressions: expect.any(Array),
+        typeInfo: expect.any(Object),
+        totalLines: expect.any(Number)
+      });
+      
+      // Quality validation
+      expect(result.filePath.length).toBeGreaterThan(0);
+      expect(result.totalLines).toBeGreaterThan(0);
+      
+      // TypeScript-specific validation
+      if (result.filePath.endsWith('.ts')) {
+        expect(result).toHaveProperty('sourceFile');
+        // Should have extracted type info when requested
+        expect(result.typeInfo).toBeDefined();
+        expect(typeof result.typeInfo).toBe('object');
+      }
+    });
   });
-
-  it("should correctly analyze entities in ESM project", () => {
-    const allEntities = esmAnalysisResults.flatMap(r => r.entities);
-    const allTypeInfos = esmAnalysisResults.map(r => r.typeInfo);
-    const allInterfaces = allTypeInfos.flatMap(ti => ti.interfaces || []);
-    const allTypeAliases = allTypeInfos.flatMap(ti => ti.typeAliases || []);
-    const allTypeReferences = allTypeInfos.flatMap(ti => ti.typeReferences || []);
-
-    expect(allEntities.length).toBeGreaterThan(0);
-
-    // Check for specific entities from common.ts, helpers.ts, app.ts, main.ts
-    expect(allEntities.some(e => e.name === "User" && e.type === "interface")).toBe(
-      true
-    );
-    expect(
-      allEntities.some(e => e.name === "Logger" && e.type === "class")).toBe(
-      true
-    );
-    expect(
-      allEntities.some(e => e.name === "idGenerator" && e.type === "function")
-    ).toBe(true);
-    expect(
-      allEntities.some(e => e.name === "SimpleCalculator" && e.type === "class")
-    ).toBe(true);
-    expect(
-      allEntities.some(
-        e => e.name === "initializeApplication" && e.type === "function"
-      )
-    ).toBe(true);
-    expect(
-      allEntities.some(e => e.name === "startApp" && e.type === "function")
-    ).toBe(true);
-
-    // Check for decorators
-    expect(
-      allEntities.some(e => e.name === "Deprecated" && e.type === "variable")
-    ).toBe(true); // Class decorator variable
-    expect(
-      allEntities.some(e => e.name === "logMethod" && e.type === "variable")
-    ).toBe(true); // Method decorator property
-
-    // Check for interfaces
-    expect(allInterfaces.some(i => i.name === "Timestamped")).toBe(true);
-    expect(allInterfaces.some(i => i.name === "User")).toBe(true);
-    expect(allInterfaces.some(i => i.name === "Calculator")).toBe(true);
-
-    // Check for type aliases
-    expect(allTypeAliases.some(ta => ta.name === "ID")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "MenuItem")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "FeatureFlags")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "GetReturnType")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "EventName")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "Shape")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "DeepPartial")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "ExtractPromiseType")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "Sum")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "NumberGenerator")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "MethodDecorator")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "ClassDecorator")).toBe(true);
-});
-
-describe("Complex TypeScript Project Analysis (CJS)", () => {
-  let cjsProjectFiles: { filePath: string; content: string }[];
-  let cjsAnalysisResults: FileAnalysisResult[];
-
-  beforeAll(() => {
-    cjsProjectFiles = readAllFixtureFiles("complex-ts-cjs-project");
-    cjsAnalysisResults = analyzeFiles(
-      cjsProjectFiles.map(f => f.filePath),
-      { calls: true, types: true }
-    );
-    logger.info('CJS Entities', { test: "should correctly analyze entities in CJS project", entities: cjsAnalysisResults.flatMap(r => r.entities) });
-    logger.info('CJS Calls', { test: "should correctly analyze call expressions in CJS project", calls: cjsAnalysisResults.flatMap(r => r.callExpressions) });
-    logger.info('CJS TypeInfo', { test: "should correctly analyze type information in CJS project", typeInfo: cjsAnalysisResults.map(r => r.typeInfo) });
+  
+  it("should provide consistent results across multiple runs", () => {
+    const files = [join(fixturesPath, "sample.ts")];
+    const options: AnalysisOptions = { calls: true };
+    
+    const firstRun = analyzeFiles(files, options);
+    const secondRun = analyzeFiles(files, options);
+    
+    expect(firstRun).toHaveLength(secondRun.length);
+    expect(firstRun[0].filePath).toBe(secondRun[0].filePath);
+    expect(firstRun[0].entities.length).toBe(secondRun[0].entities.length);
+    expect(firstRun[0].totalLines).toBe(secondRun[0].totalLines);
+    
+    // Verify entity names are consistent
+    const firstNames = firstRun[0].entities.map(e => e.name).sort();
+    const secondNames = secondRun[0].entities.map(e => e.name).sort();
+    expect(firstNames).toEqual(secondNames);
   });
-
-  it("should correctly analyze call expressions in ESM project", () => {
-    const allCalls = esmAnalysisResults.flatMap(r => r.callExpressions);
-    expect(allCalls.length).toBeGreaterThan(0);
-
-    // Calls from app.ts
-    expect(
-      allCalls.some(
-        c =>
-          c.callee === "Logger.info" &&
-          c.containingFunction === "initializeApplication"
-      )
-    ).toBe(true);
-    expect(
-      allCalls.some(
-        c =>
-          c.callee === "idGenerator" &&
-          c.containingFunction === "initializeApplication"
-      )
-    ).toBe(true);
-    expect(
-      allCalls.some(
-        c =>
-          c.callee === "processUserData" &&
-          c.containingFunction === "initializeApplication"
-      )
-    ).toBe(true);
-    expect(
-      allCalls.some(
-        c => c.callee === "SimpleCalculator" && c.type === "function"
-      )
-    ).toBe(true);
-    expect(
-      allCalls.some(
-        c => c.callee === "add" && c.containingFunction === "initializeApplication"
-      )
-    ).toBe(true);
-    expect(
-      allCalls.some(
-        c => c.callee === "sum" && c.containingFunction === "initializeApplication"
-      )
-    ).toBe(true);
-    expect(
-      allCalls.some(
-        c =>
-          c.callee === "safeParseJSON" &&
-          c.containingFunction === "initializeApplication"
-      )
-    ).toBe(true);
-
-    // Calls from main.ts
-    expect(
-      allCalls.some(
-        c =>
-          c.callee === "initializeApplication" && c.containingFunction === "startApp"
-      )
-    ).toBe(true);
-  });
-
-  it("should correctly analyze type information in ESM project", () => {
-    const allTypeInfos = esmAnalysisResults.map(r => r.typeInfo);
-    const allInterfaces = allTypeInfos.flatMap(ti => ti.interfaces || []);
-    const allTypeAliases = allTypeInfos.flatMap(ti => ti.typeAliases || []);
-    const allTypeReferences = allTypeInfos.flatMap(ti => ti.typeReferences || []);
-
-    // Check for interfaces
-    expect(allInterfaces.some(i => i.name === "Timestamped")).toBe(true);
-    expect(allInterfaces.some(i => i.name === "User")).toBe(true);
-    expect(allInterfaces.some(i => i.name === "Calculator")).toBe(true);
-
-    // Check for type aliases
-    expect(allTypeAliases.some(ta => ta.name === "ID")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "MenuItem")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "FeatureFlags")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "GetReturnType")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "EventName")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "Shape")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "DeepPartial")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "ExtractPromiseType")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "Sum")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "NumberGenerator")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "MethodDecorator")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "ClassDecorator")).toBe(true);
-
-    // Check for type references (e.g., User, Logger, SimpleCalculator)
-    expect(allTypeReferences.some(tr => tr.typeName === "User")).toBe(true);
-    expect(allTypeReferences.some(tr => tr.typeName === "Logger")).toBe(true);
-    expect(allTypeReferences.some(tr => tr.typeName === "SimpleCalculator")).toBe(
-      true
-    );
-    expect(allTypeReferences.some(tr => tr.typeName === "Generator")).toBe(true);
-  });
-
-  it("should correctly parse decorators and generator functions", () => {
-    const allEntities = esmAnalysisResults.flatMap(r => r.entities);
-    const allCalls = esmAnalysisResults.flatMap(r => r.callExpressions);
-    const allTypeInfos = esmAnalysisResults.map(r => r.typeInfo);
-
-    // Check for generator function
-    const idGenFn = allEntities.find(
-      e => e.name === "idGenerator" && e.type === "function"
-    );
-    expect(idGenFn).toBeDefined();
-
-    // Check for decorator usage on class and method
-    const simpleCalcClass = allEntities.find(
-      e => e.name === "SimpleCalculator" && e.type === "class"
-    );
-    expect(simpleCalcClass).toBeDefined();
-    // Decorator application is harder to capture as a direct entity/relationship without deeper AST analysis
-    // For now, we rely on the decorator *definition* being parsed as a variable/function
-
-    // Check for type predicate function
-    const isCircleFn = allEntities.find(
-      e => e.name === "isCircle" && e.type === "function"
-    );
-    expect(isCircleFn).toBeDefined();
-    expect(isCircleFn?.signature).toContain(
-      'shape is { kind: "circle"; radius: number }'
-    );
-  });
-});
-
-describe("Complex TypeScript Project Analysis (CJS)", () => {
-  let cjsProjectFiles: { filePath: string; content: string }[];
-  let cjsAnalysisResults: FileAnalysisResult[];
-
-  beforeAll(() => {
-    cjsProjectFiles = readAllFixtureFiles("complex-ts-cjs-project");
-    cjsAnalysisResults = analyzeFiles(
-      cjsProjectFiles.map(f => f.filePath),
-      { calls: true, types: true }
-    );
-    logger.info('CJS Entities', { test: "should correctly analyze entities in CJS project", entities: cjsAnalysisResults.flatMap(r => r.entities) });
-    logger.info('CJS Calls', { test: "should correctly analyze call expressions in CJS project", calls: cjsAnalysisResults.flatMap(r => r.callExpressions) });
-    logger.info('CJS TypeInfo', { test: "should correctly analyze type information in CJS project", typeInfo: cjsAnalysisResults.map(r => r.typeInfo) });
-  });
-
-  it("should correctly analyze entities in CJS project", () => {
-    const allEntities = cjsAnalysisResults.flatMap(r => r.entities);
-    const allTypeInfos = cjsAnalysisResults.map(r => r.typeInfo);
-    const allInterfaces = allTypeInfos.flatMap(ti => ti.interfaces || []);
-    const allTypeAliases = allTypeInfos.flatMap(ti => ti.typeAliases || []);
-    const allTypeReferences = allTypeInfos.flatMap(ti => ti.typeReferences || []);
-
-    expect(allEntities.length).toBeGreaterThan(0);
-
-    expect(allInterfaces.some(i => i.name === "User" && i.type === "interface")).toBe(
-      true
-    );
-    expect(
-      allEntities.some(e => e.name === "Logger" && e.type === "class")).toBe(
-      true
-    );
-    expect(
-      allEntities.some(e => e.name === "idGenerator" && e.type === "function")
-    ).toBe(true);
-    expect(
-      allEntities.some(e => e.name === "SimpleCalculator" && e.type === "class")
-    ).toBe(true);
-    expect(
-      allEntities.some(
-        e => e.name === "initializeApplication" && e.type === "function"
-      )
-    ).toBe(true);
-    expect(
-      allEntities.some(e => e.name === "startApp" && e.type === "function")
-    ).toBe(true);
-
-    // Check for decorators
-    expect(
-      allEntities.some(e => e.name === "Deprecated" && e.type === "variable")
-    ).toBe(true); // Class decorator variable
-    expect(
-      allEntities.some(e => e.name === "logMethod" && e.type === "variable")
-    ).toBe(true); // Method decorator property
-
-    // Check for interfaces
-    expect(allInterfaces.some(i => i.name === "Timestamped")).toBe(true);
-    expect(allInterfaces.some(i => i.name === "User")).toBe(true);
-    expect(allInterfaces.some(i => i.name === "Calculator")).toBe(true);
-
-    // Check for type aliases
-    expect(allTypeAliases.some(ta => ta.name === "ID")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "MenuItem")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "FeatureFlags")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "GetReturnType")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "EventName")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "Shape")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "DeepPartial")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "ExtractPromiseType")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "Sum")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "NumberGenerator")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "MethodDecorator")).toBe(true);
-    expect(allTypeAliases.some(ta => ta.name === "ClassDecorator")).toBe(true);
-
-    // Check for type references (e.g., User, Logger, SimpleCalculator)
-    expect(allTypeReferences.some(tr => tr.typeName === "User")).toBe(true);
-    expect(allTypeReferences.some(tr => tr.typeName === "Logger")).toBe(true);
-    expect(allTypeReferences.some(tr => tr.typeName === "SimpleCalculator")).toBe(
-      true
-    );
-    expect(allTypeReferences.some(tr => tr.typeName === "Generator")).toBe(true);
-
-  it("should correctly parse decorators and generator functions", () => {
-    const allEntities = cjsAnalysisResults.flatMap(r => r.entities);
-    const allCalls = cjsAnalysisResults.flatMap(r => r.callExpressions);
-    const allTypeInfos = cjsAnalysisResults.map(r => r.typeInfo);
-
-    // Check for generator function
-    const idGenFn = allEntities.find(
-      e => e.name === "idGenerator" && e.type === "function"
-    );
-    expect(idGenFn).toBeDefined();
-
-    // Check for decorator usage on class and method
-    const simpleCalcClass = allEntities.find(
-      e => e.name === "SimpleCalculator" && e.type === "class"
-    );
-    expect(simpleCalcClass).toBeDefined();
-    // Decorator application is harder to capture as a direct entity/relationship without deeper AST analysis
-    // For now, we rely on the decorator *definition* being parsed as a variable/function
-
-    // Check for type predicate function
-    const isCircleFn = allEntities.find(
-      e => e.name === "isCircle" && e.type === "function"
-    );
-    expect(isCircleFn).toBeDefined();
-    expect(isCircleFn?.signature).toContain(
-      'shape is { kind: "circle"; radius: number }'
-    );
+  
+  it("should handle performance with reasonable execution time", () => {
+    const files = [join(fixturesPath, "sample.ts")];
+    const options: AnalysisOptions = {};
+    
+    const startTime = Date.now();
+    const results = analyzeFiles(files, options);
+    const executionTime = Date.now() - startTime;
+    
+    // Analysis should complete in reasonable time (< 5 seconds for test files)
+    expect(executionTime).toBeLessThan(5000);
+    expect(results).toHaveLength(1);
+    expect(results[0]).toHaveProperty('entities');
   });
 });

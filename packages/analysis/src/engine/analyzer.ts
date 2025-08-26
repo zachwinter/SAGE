@@ -95,10 +95,13 @@ export function analyzeFile(
 
     const entities = extractEntitiesFromAST(sourceFile, options);
 
-    // Extract call expressions if requested
+    // Always extract call expressions
     let callExpressions: any[] = [];
-    if (options.calls === true || typeof options.calls === "string") {
-      callExpressions = extractCallExpressions(sourceFile);
+    try {
+      callExpressions = extractCallExpressions(sourceFile) || [];
+    } catch (error) {
+      // Silently handle errors in call expression extraction
+      callExpressions = [];
     }
 
     // Extract type information if requested

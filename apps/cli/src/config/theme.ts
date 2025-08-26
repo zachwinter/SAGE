@@ -1,5 +1,5 @@
 export default {
-  padding: 2,
+  padding: 1,
   spinner: "dots",
   border: "single",
   primary: "magenta"

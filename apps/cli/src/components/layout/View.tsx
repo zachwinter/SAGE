@@ -1,9 +1,7 @@
 import { useInput } from "ink";
-import BigText from "ink-big-text";
-import Gradient from "ink-gradient";
 import type { FC } from "react";
 import { useCallback } from "react";
-import { Column, SearchableSelect } from "../../components";
+import { Column, Header, SearchableSelect } from "../../components";
 import { theme } from "../../config";
 import { cycleView } from "../../router/actions";
 
@@ -14,7 +12,7 @@ export interface KeyBinding {
 }
 
 interface ViewProps {
-  title: string;
+  title?: string;
   children?: React.ReactNode;
   onInput?: (input: string, key: any) => void;
   keyBindings?: KeyBinding[];
@@ -82,27 +80,7 @@ export const View: FC<ViewProps> = ({
       paddingLeft={theme.padding}
       paddingRight={theme.padding}
     >
-      {/**
-       *'cristal'
-       *'teen'
-       *'mind'
-       *'morning'
-       *'vice'
-       *'passion'
-       *'fruit'
-       *'instagram'
-       *'atlas'
-       *'retro'
-       *'summer'
-       *'pastel'
-       *'rainbow'
-       */}
-      <Gradient name="teen">
-        <BigText
-          text={title}
-          font="block"
-        />
-      </Gradient>
+      {title && <Header title={title} />}
       <Column>
         {children}
         {showSearch && (

@@ -6,7 +6,7 @@ import type {
 } from "../../types.js";
 
 // Check if a function is a built-in
-function isBuiltinFunction(funcName: string): boolean {
+export function isBuiltinFunction(funcName: string): boolean {
   const builtins = [
     "console.log",
     "console.error",

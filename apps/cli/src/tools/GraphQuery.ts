@@ -1,6 +1,8 @@
 import { tool } from "@lmstudio/sdk";
 import { z } from "zod";
-import { projectAnalysisService } from "@sage/analysis/project-analysis.service";
+import { RustKuzuIngestor } from "@sage/analysis";
+import { join } from "path";
+import { existsSync } from "fs";
 
 const SCHEMA_INFO = `
 GRAPH SCHEMA:
@@ -61,23 +63,34 @@ ${TIPS}`,
       .describe("Maximum number of results to return")
   },
   implementation: async ({ query, limit }) => {
-    if (!projectAnalysisService.isReady()) {
+    const dbPath = join(process.cwd(), '.sage', 'code.kuzu');
+    
+    // Check if the database exists
+    if (!existsSync(dbPath)) {
       return {
-        error:
-          "Project analysis not available. Make sure you're in a project directory with a package.json file."
+        error: "No code graph database found. Run 'sage ingest' first to analyze your codebase."
       };
     }
 
     try {
       let finalQuery = query;
-      if (limit && !query.toLowerCase().includes("limit"))
+      if (limit && !query.toLowerCase().includes("limit")) {
         finalQuery = `${query} LIMIT ${limit}`;
-      const result = await projectAnalysisService.query(finalQuery);
-      return result;
+      }
+      
+      const ingestor = new RustKuzuIngestor(dbPath);
+      const result = await ingestor.query(finalQuery);
+      
+      return {
+        success: true,
+        results: result,
+        query: finalQuery
+      };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message
+        error: error.message,
+        query: query
       };
     }
   }

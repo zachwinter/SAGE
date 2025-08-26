@@ -1,7 +1,6 @@
 // src/threads/streaming/actions.ts
 
 import { Logger } from "@sage/utils";
-import { batch } from "valtio";
 import { state, type StreamingToolCall } from "../state/state.js";
 
 const logger = new Logger("threads:streaming:actions");

@@ -1,15 +1,17 @@
 {
   "folders": [
-    {"path": "."},
-    {"path": "./packages/analysis"},
-    {"path": "./apps/cli"}
+    {
+      "path": "."
+    },
+    {
+      "path": "./packages/analysis"
+    },
+    {
+      "path": "./apps/cli"
+    }
   ],
   "extensions": {
-    "recommendations": [
-      "ms-vscode.vscode-typescript-next",
-      "esbenp.prettier-vscode",
-      "bradlc.vscode-tailwindcss"
-    ]
+    "recommendations": []
   },
   "settings": {
     "typescript.preferences.includePackageJsonAutoImports": "auto"

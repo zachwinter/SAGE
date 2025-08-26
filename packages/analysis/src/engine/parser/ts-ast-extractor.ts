@@ -11,6 +11,17 @@ export function extractEntitiesFromAST(
   options: AnalysisOptions = {}
 ): CodeEntity[] {
   const entities: CodeEntity[] = [];
+  const scopeStack: Array<{node: ts.Node, entityId: string}> = []; // Track scope hierarchy
+  
+  // Generate unique entity ID for scope tracking
+  function createEntityId(name: string, type: string, line: number): string {
+    return `${type}_${name}_${line}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+  
+  // Get current scope parent (if any)
+  function getCurrentScopeParent(): string | undefined {
+    return scopeStack.length > 0 ? scopeStack[scopeStack.length - 1].entityId : undefined;
+  }
 
   function visit(node: ts.Node) {
     // Get line number for the node
@@ -21,6 +32,9 @@ export function extractEntitiesFromAST(
     // Function declarations
     if (isFunctionDeclaration(node)) {
       const name = node.name?.text || "anonymous";
+      const entityId = createEntityId(name, "function", lineNumber);
+      const parentScopeId = getCurrentScopeParent();
+      
       entities.push({
         type: "function",
         name,
@@ -29,13 +43,21 @@ export function extractEntitiesFromAST(
         isAsync: !!node.modifiers?.some(m => m.kind === ts.SyntaxKind.AsyncKeyword),
         isExported: !!node.modifiers?.some(
           m => m.kind === ts.SyntaxKind.ExportKeyword
-        )
+        ),
+        id: entityId,
+        parentScopeId
       });
+      
+      // Push this function onto scope stack for nested entities
+      scopeStack.push({ node, entityId });
     }
 
     // Class declarations
     if (isClassDeclaration(node)) {
       const name = node.name?.text || "anonymous";
+      const entityId = createEntityId(name, "class", lineNumber);
+      const parentScopeId = getCurrentScopeParent();
+      
       entities.push({
         type: "class",
         name,
@@ -46,14 +68,22 @@ export function extractEntitiesFromAST(
         ),
         isExported: !!node.modifiers?.some(
           m => m.kind === ts.SyntaxKind.ExportKeyword
-        )
+        ),
+        id: entityId,
+        parentScopeId
       });
+      
+      // Push this class onto scope stack for methods/properties
+      scopeStack.push({ node, entityId });
     }
 
     // Method declarations
     if (node.kind === ts.SyntaxKind.MethodDeclaration) {
       const methodNode = node as ts.MethodDeclaration;
       const name = methodNode.name?.getText() || "anonymous";
+      const entityId = createEntityId(name, "method", lineNumber);
+      const parentScopeId = getCurrentScopeParent(); // Should be the containing class!
+      
       entities.push({
         type: "function",
         name,
@@ -62,13 +92,21 @@ export function extractEntitiesFromAST(
         isAsync: !!methodNode.modifiers?.some(
           m => m.kind === ts.SyntaxKind.AsyncKeyword
         ),
-        isExported: false // Methods are not directly exported
+        isExported: false, // Methods are not directly exported
+        id: entityId,
+        parentScopeId
       });
+      
+      // Push this method onto scope stack for nested entities
+      scopeStack.push({ node, entityId });
     }
 
     // Interface declarations
     if (isInterfaceDeclaration(node)) {
       const name = node.name?.text || "anonymous";
+      const entityId = createEntityId(name, "interface", lineNumber);
+      const parentScopeId = getCurrentScopeParent();
+      
       entities.push({
         type: "interface",
         name,
@@ -76,7 +114,9 @@ export function extractEntitiesFromAST(
         signature: node.getText().split("\n")[0].trim(),
         isExported: !!node.modifiers?.some(
           m => m.kind === ts.SyntaxKind.ExportKeyword
-        )
+        ),
+        id: entityId,
+        parentScopeId
       });
     }
 
@@ -96,8 +136,9 @@ export function extractEntitiesFromAST(
 
     // Import declarations
     if (isImportDeclaration(node)) {
-      const moduleSpecifier = node.moduleSpecifier?.text || "unknown";
-      const importClause = node.importClause;
+      const importDecl = node as ts.ImportDeclaration;
+      const moduleSpecifier = (importDecl.moduleSpecifier as ts.StringLiteral)?.text || "unknown";
+      const importClause = importDecl.importClause;
       let importedNames = [];
 
       if (importClause?.name) {
@@ -189,17 +230,36 @@ export function extractEntitiesFromAST(
     if (isVariableDeclaration(node)) {
       const name = node.name?.text;
       if (name) {
+        const entityId = createEntityId(name, "variable", lineNumber);
+        const parentScopeId = getCurrentScopeParent();
+        
         entities.push({
           type: "variable",
           name,
           line: lineNumber,
-          signature: node.getText().split("\n")[0].trim()
+          signature: node.getText().split("\n")[0].trim(),
+          id: entityId,
+          parentScopeId
         });
       }
     }
 
+    // Check if this node creates a new scope (before recursion)
+    const createsScope = isFunctionDeclaration(node) || 
+                        isClassDeclaration(node) || 
+                        node.kind === ts.SyntaxKind.MethodDeclaration;
+    
     // Recursively visit child nodes
     node.forEachChild(visit);
+    
+    // Clean up scope stack if this node created scope
+    if (createsScope) {
+      // Find and remove this node from scope stack
+      const stackIndex = scopeStack.findIndex(s => s.node === node);
+      if (stackIndex >= 0) {
+        scopeStack.splice(stackIndex, 1);
+      }
+    }
   }
 
   visit(sourceFile);
