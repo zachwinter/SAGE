@@ -1,23 +1,23 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach,
-  afterEach
-} from "vitest";
-import { toolRegistry } from "@/tools/registry.js";
 import { mcpClientManager } from "@/mcp/client/index.js";
 import { state } from "@/mcp/state/index.js";
+import type { McpServerConfig } from "@/mcp/types.js";
 import { Bash } from "@/tools/Bash.js";
-import { Read } from "@/tools/Read.js";
-import { Write } from "@/tools/Write.js";
 import { Edit } from "@/tools/Edit.js";
-import type { McpServerConfig, McpTool } from "@/mcp/types.js";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
-import { join } from "path";
+import { Read } from "@/tools/Read.js";
+import { toolRegistry } from "@/tools/registry.js";
+import { Write } from "@/tools/Write.js";
+import { existsSync, mkdirSync, rmSync } from "fs";
 import { tmpdir } from "os";
+import { join } from "path";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it
+} from "vitest";
 
 describe("MCP + Built-in Tools Integration Tests", () => {
   let tempDir: string;
@@ -82,7 +82,7 @@ describe("MCP + Built-in Tools Integration Tests", () => {
     it("should provide access to built-in tools", () => {
       const builtinTools = toolRegistry.getBuiltinTools();
 
-      expect(builtinTools).toHaveLength(4);
+      expect(builtinTools).toHaveLength(5);
 
       const toolNames = builtinTools.map(tool => tool.name);
       expect(toolNames).toContain("Bash");
@@ -127,7 +127,7 @@ describe("MCP + Built-in Tools Integration Tests", () => {
       expect(mcpTools[0].source).toBe("mcp");
       expect(mcpTools[0].serverId).toBe(mockServerConfig.id);
 
-      expect(allTools).toHaveLength(5); // 4 built-in + 1 MCP
+      expect(allTools).toHaveLength(6); // 4 built-in + 1 MCP
     });
 
     it("should handle tool name conflicts between MCP and built-in tools", async () => {
@@ -460,7 +460,7 @@ console.log("Mock MCP server starting...");
     it("should handle tool registry access during MCP server transitions", async () => {
       // Get initial tools
       const initialTools = toolRegistry.getAllTools();
-      expect(initialTools).toHaveLength(4); // Only built-in tools
+      expect(initialTools).toHaveLength(5); // Only built-in tools
 
       // Add MCP server
       await mcpClientManager.addServer(mockServerConfig);
@@ -476,7 +476,7 @@ console.log("Mock MCP server starting...");
 
       // Tools should include MCP tool
       const withMcpTools = toolRegistry.getAllTools();
-      expect(withMcpTools).toHaveLength(5);
+      expect(withMcpTools).toHaveLength(6);
 
       // Remove MCP server
       await mcpClientManager.removeServer(mockServerConfig.id);
@@ -484,7 +484,7 @@ console.log("Mock MCP server starting...");
 
       // Should return to built-in tools only
       const afterRemovalTools = toolRegistry.getAllTools();
-      expect(afterRemovalTools).toHaveLength(4);
+      expect(afterRemovalTools).toHaveLength(5);
 
       // Built-in tools should still work
       const bashResult = await Bash.implementation({
