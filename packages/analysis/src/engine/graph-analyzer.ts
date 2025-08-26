@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { relative, dirname, resolve } from "path";
+import { relative, extname, resolve } from "path";
 import { analyzeFiles } from "./analyzer.js";
 import { 
   parseProjectInfo, 
@@ -88,13 +88,40 @@ export function analyzeToGraph(
     }
   }
   
-  // First pass: Create SourceFile entities (for imports/entry points) and CodeEntity entities
+  // First pass: Create CodeEntity entities, then SourceFile entities with proper counts
   const fileEntities = new Map<string, GraphEntity>(); // Track SourceFile entities
+  const entityCache = new Map<string, GraphEntity[]>(); // Cache entities by file path for faster lookups
   
   for (const fileResult of fileResults) {
     const relativePath = relative(process.cwd(), fileResult.filePath);
     
-    // Create SourceFile entity (needed for imports and entry points)
+    // Convert code entities to graph entities first
+    const fileCodeEntities: GraphEntity[] = [];
+    for (const entity of fileResult.entities) {
+      const graphEntity: GraphEntity = {
+        id: entity.id || createEntityId(entity, relativePath), // Use entity's ID if available
+        kind: entity.type, 
+        name: entity.name,
+        text: entity.signature,
+        filePath: relativePath,
+        line: entity.line,
+        column: 0, // CodeEntity doesn't have column info, use default
+        pos: 0, // CodeEntity doesn't have pos info, use default
+        end: 0, // CodeEntity doesn't have end info, use default
+        flags: 0,
+        parentScopeId: entity.parentScopeId // Preserve scope information!
+      };
+      entities.push(graphEntity);
+      fileCodeEntities.push(graphEntity);
+    }
+    
+    // Get file extension and line count without expensive file system operations
+    const fileExtension = extname(relativePath).substring(1); // Remove the dot
+    const totalLines = fileResult.entities.length > 0 
+      ? Math.max(...fileResult.entities.map(e => e.line || 1))
+      : 1;
+    
+    // Create SourceFile entity with proper counts
     const sourceFileEntity: GraphEntity = {
       id: createSourceFileId(relativePath),
       kind: "SourceFile",
@@ -105,28 +132,17 @@ export function analyzeToGraph(
       column: 0,
       pos: 0,
       end: 0,
-      flags: 0
+      flags: 0,
+      extension: fileExtension,
+      entityCount: fileCodeEntities.length,
+      totalLines: totalLines,
+      relationshipCount: 0 // Will be calculated later
     };
     entities.push(sourceFileEntity);
     fileEntities.set(relativePath, sourceFileEntity);
     
-    // Convert code entities to graph entities
-    for (const entity of fileResult.entities) {
-      const graphEntity: GraphEntity = {
-        id: entity.id || createEntityId(entity, relativePath), // Use entity's ID if available
-        kind: entity.type, 
-        name: entity.name,
-        text: entity.signature,
-        filePath: relativePath,
-        line: entity.line,
-        column: entity.column ?? 0,
-        pos: entity.pos ?? 0, 
-        end: entity.end ?? 0,
-        flags: 0,
-        parentScopeId: entity.parentScopeId // Preserve scope information!
-      };
-      entities.push(graphEntity);
-    }
+    // Cache entities by file path for faster lookups
+    entityCache.set(relativePath, fileCodeEntities);
   }
   
   // Second pass: Create relationships between entities
@@ -137,22 +153,15 @@ export function analyzeToGraph(
     for (const callExpr of fileResult.callExpressions || []) {
       if (!callExpr.containingFunction) continue;
       
-      // Find the actual entity IDs from our entities list
-      const fromEntity = entities.find(e => 
-        e.name === callExpr.containingFunction && 
-        e.filePath === relativePath &&
-        e.kind !== "SourceFile"
-      );
+      // Use cached entities for faster lookups
+      const cachedFileEntities = entityCache.get(relativePath) || [];
+      const fromEntity = cachedFileEntities.find(e => e.name === callExpr.containingFunction);
       
-      // Try to find callee in same file first, then any file
-      let toEntity = entities.find(e => 
-        e.name === callExpr.callee && 
-        e.filePath === relativePath &&
-        e.kind !== "SourceFile"
-      );
+      // Try to find callee in same file first
+      let toEntity = cachedFileEntities.find(e => e.name === callExpr.callee);
       
       if (!toEntity) {
-        // Look for callee in other files (cross-file calls)
+        // Look for callee in other files (cross-file calls) - only if needed
         toEntity = entities.find(e => 
           e.name === callExpr.callee && 
           e.kind !== "SourceFile"
@@ -180,11 +189,8 @@ export function analyzeToGraph(
     for (const entity of fileResult.entities) {
       // Case 1: Separate export entities (export default, export { named })  
       if (entity.type === "export") {
-        const exportEntity = entities.find(e => 
-          e.name === entity.name && 
-          e.filePath === relativePath &&
-          e.kind === "export"
-        );
+        const cachedFileEntities = entityCache.get(relativePath) || [];
+        const exportEntity = cachedFileEntities.find(e => e.name === entity.name && e.kind === "export");
         
         if (exportEntity && !("isReExport" in entity && entity.isReExport)) {
           let exportedName = entity.name;
@@ -196,9 +202,8 @@ export function analyzeToGraph(
             continue; // Skip pure default exports for now
           }
           
-          const exportedEntity = entities.find(e => 
+          const exportedEntity = cachedFileEntities.find(e => 
             e.name === exportedName && 
-            e.filePath === relativePath &&
             e.kind !== "export" && e.kind !== "import"
           );
           
@@ -220,11 +225,8 @@ export function analyzeToGraph(
       
       // Case 2: Inline exports (export function foo, export class Bar)
       else if ("isExported" in entity && entity.isExported) {
-        const exportedEntity = entities.find(e => 
-          e.name === entity.name && 
-          e.filePath === relativePath &&
-          e.kind === entity.type
-        );
+        const cachedFileEntities = entityCache.get(relativePath) || [];
+        const exportedEntity = cachedFileEntities.find(e => e.name === entity.name && e.kind === entity.type);
         
         if (exportedEntity) {
           // Create a virtual export node for inline exports
@@ -264,9 +266,9 @@ export function analyzeToGraph(
       if (entity.parentScopeId) {
         // Find the parent entity by its ID
         const parentEntity = entities.find(e => e.id && e.id === entity.parentScopeId);
-        const childEntity = entities.find(e => 
+        const cachedFileEntities = entityCache.get(relativePath) || [];
+        const childEntity = cachedFileEntities.find(e => 
           e.name === entity.name && 
-          e.filePath === relativePath &&
           e.kind === entity.type &&
           e.line === entity.line
         );
@@ -284,6 +286,107 @@ export function analyzeToGraph(
               isLexicalScope: true
             }
           });
+        }
+      }
+    }
+    
+    // Create file-level CONTAINS relationships (SourceFile -> CodeEntity for top-level entities)
+    const sourceFileEntity = fileEntities.get(relativePath);
+    if (sourceFileEntity) {
+      for (const entity of fileResult.entities) {
+        // Only create CONTAINS for top-level entities (those without parentScopeId)
+        if (!entity.parentScopeId) {
+          const cachedFileEntities = entityCache.get(relativePath) || [];
+          const codeEntity = cachedFileEntities.find(e => 
+            e.name === entity.name && 
+            e.kind === entity.type &&
+            e.line === entity.line
+          );
+          
+          if (codeEntity) {
+            relationships.push({
+              from: sourceFileEntity.id,
+              to: codeEntity.id,
+              type: "CONTAINS",
+              evidence: `File ${relativePath} contains top-level ${entity.type} ${entity.name}`,
+              confidence: "high",
+              metadata: {
+                scopeType: "file",
+                containedType: entity.type,
+                isTopLevel: true
+              }
+            });
+          }
+        }
+      }
+    }
+    
+    // Create IMPORTS relationships from import statements
+    for (const entity of fileResult.entities) {
+      if (entity.type === "import" && "module" in entity && (entity as any).module) {
+        // Find the import entity we created using cached entities
+        const cachedFileEntities = entityCache.get(relativePath) || [];
+        const importEntity = cachedFileEntities.find(e => 
+          e.name === entity.name && 
+          e.kind === "import" &&
+          e.line === entity.line
+        );
+        
+        if (importEntity) {
+          const moduleSpecifier = (entity as any).module;
+          
+          // Store the module specifier in the import entity for later dependency matching
+          (importEntity as any).moduleSpecifier = moduleSpecifier;
+          
+          // Handle local vs external imports without expensive file system operations
+          if (moduleSpecifier.startsWith(".")) {
+            // Local import - create a simple local import relationship without path resolution
+            // The Rust analyzer can handle the actual path resolution more efficiently
+            relationships.push({
+              from: importEntity.id,
+              to: `local_import_${moduleSpecifier.replace(/[^a-zA-Z0-9]/g, '_')}`,
+              type: "IMPORTS",
+              evidence: `Local import statement: ${moduleSpecifier}`,
+              confidence: "medium",
+              metadata: {
+                module: moduleSpecifier,
+                importType: "local",
+                sourceFile: relativePath
+              }
+            });
+          } else {
+            // External import - create simple external module entity and IMPORTS relationship
+            const externalModuleId = `external_${moduleSpecifier.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            
+            // Create external module entity if not already added
+            if (!entities.find(e => e.id === externalModuleId)) {
+              const externalModuleEntity: GraphEntity = {
+                id: externalModuleId,
+                kind: "ExternalModule",
+                name: moduleSpecifier,
+                text: `External module: ${moduleSpecifier}`,
+                filePath: "<external>",
+                line: 0,
+                column: 0,
+                pos: 0,
+                end: 0,
+                flags: 0
+              };
+              entities.push(externalModuleEntity);
+            }
+            
+            relationships.push({
+              from: importEntity.id,
+              to: externalModuleId,
+              type: "IMPORTS",
+              evidence: `External import: ${moduleSpecifier}`,
+              confidence: "medium",
+              metadata: {
+                module: moduleSpecifier,
+                importType: "external"
+              }
+            });
+          }
         }
       }
     }
@@ -372,6 +475,34 @@ export function analyzeToGraph(
       console.log(`🔗 Created ${depRelationships.length} package dependency relationships`);
       console.log(`📤 Created ${usageRelationships.length} import usage relationships`);
     }
+  }
+  
+  // Final pass: Update SourceFile relationshipCount efficiently
+  // Create a map for fast entity ID to file path lookups
+  const entityIdToFilePath = new Map<string, string>();
+  for (const entity of entities) {
+    if (entity.filePath && entity.filePath !== "<external>") {
+      entityIdToFilePath.set(entity.id, entity.filePath);
+    }
+  }
+  
+  // Count relationships by file path
+  const fileRelationshipCounts = new Map<string, number>();
+  for (const rel of relationships) {
+    const fromFilePath = entityIdToFilePath.get(rel.from);
+    const toFilePath = entityIdToFilePath.get(rel.to);
+    
+    if (fromFilePath) {
+      fileRelationshipCounts.set(fromFilePath, (fileRelationshipCounts.get(fromFilePath) || 0) + 1);
+    }
+    if (toFilePath && toFilePath !== fromFilePath) {
+      fileRelationshipCounts.set(toFilePath, (fileRelationshipCounts.get(toFilePath) || 0) + 1);
+    }
+  }
+  
+  // Update SourceFile entities with their relationship counts
+  for (const [relativePath, sourceFileEntity] of fileEntities) {
+    sourceFileEntity.relationshipCount = fileRelationshipCounts.get(relativePath) || 0;
   }
   
   return {

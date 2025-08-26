@@ -13,6 +13,11 @@ export interface GraphEntity {
   end: number;
   flags: number;
   parentScopeId?: string; // For scope-based CONTAINS relationships
+  extension?: string; // File extension (only for SourceFile entities)
+  size?: number; // File size in bytes (only for SourceFile entities)
+  entityCount?: number; // Number of entities in file (only for SourceFile entities)
+  totalLines?: number; // Total lines in file (only for SourceFile entities)
+  relationshipCount?: number; // Number of relationships involving this file (only for SourceFile entities)
 }
 
 export interface GraphRelationship {

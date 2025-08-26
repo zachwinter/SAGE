@@ -8,6 +8,7 @@ import {
   setGlobalAbortController,
   state
 } from "../state/state.js";
+import { clearAllStreamingToolCalls } from "../streaming";
 const logger = new Logger("threads:utils:act", "debug.log");
 
 export async function act(chat: Chat, events: any) {
@@ -96,7 +97,8 @@ export async function act(chat: Chat, events: any) {
         );
 
         const decision =
-          controller.toolCallRequest.name === "GraphQuery"
+          controller.toolCallRequest.name === "GraphQuery" ||
+          controller.toolCallRequest.name === "Read"
             ? "approved"
             : await new Promise<"approved" | "denied">(resolve => {
                 state.resolveConfirmation = resolve;
@@ -135,5 +137,6 @@ export async function act(chat: Chat, events: any) {
     throw error;
   }
 
+  clearAllStreamingToolCalls();
   return true;
 }

@@ -1,4 +1,4 @@
-import type { MultiSelectOption } from "@/components/content/SearchableMultiSelect";
+import type { MultiSelectOption } from "../../components/content/SearchableMultiSelect";
 
 export function groupServersByRepo(option: MultiSelectOption): string {
   const colonIndex = option.label.indexOf(": ");

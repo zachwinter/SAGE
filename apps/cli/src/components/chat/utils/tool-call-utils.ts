@@ -36,7 +36,7 @@ export function generateToolCallKey(toolCall: UnifiedToolCall): string {
   
   // For streaming tool calls, use a combination approach
   if (toolCall.isStreaming && toolCall.streamingId !== undefined) {
-    return `streaming-${toolCall.streamingId}-${toolCall.name}`;
+    return `streaming-${toolCall.streamingId}`;
   }
   
   // Fallback to basic id

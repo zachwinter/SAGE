@@ -225,21 +225,24 @@ export function findUsedDependencies(
   const importEntities = entities.filter(e => e.kind === 'import');
   
   for (const importEntity of importEntities) {
-    // Check if this import is from an external package
-    // This is a heuristic - we look for imports that don't start with './' or '../'
-    const importName = importEntity.name;
+    // Get the module specifier that was stored during import processing
+    const moduleSpecifier = (importEntity as any).moduleSpecifier;
+    if (!moduleSpecifier || moduleSpecifier.startsWith('.')) {
+      // Skip local imports or imports without module specifiers
+      continue;
+    }
     
-    // Extract package name from import (handle scoped packages)
+    // Extract package name from module specifier (handle scoped packages)
     let packageName = '';
-    if (importName.startsWith('@')) {
+    if (moduleSpecifier.startsWith('@')) {
       // Scoped package: @scope/package or @scope/package/subpath
-      const parts = importName.split('/');
+      const parts = moduleSpecifier.split('/');
       if (parts.length >= 2) {
         packageName = `${parts[0]}/${parts[1]}`;
       }
     } else {
       // Regular package: package or package/subpath
-      packageName = importName.split('/')[0];
+      packageName = moduleSpecifier.split('/')[0];
     }
     
     if (dependencyNames.has(packageName)) {
@@ -256,9 +259,10 @@ export function findUsedDependencies(
           evidence: `Import statement references external package ${packageName}`,
           confidence: "high",
           metadata: {
-            importedModule: importName,
+            moduleSpecifier: moduleSpecifier,
             packageName: packageName,
-            isExternalDependency: true
+            isExternalDependency: true,
+            importedNames: importEntity.name
           }
         });
       }

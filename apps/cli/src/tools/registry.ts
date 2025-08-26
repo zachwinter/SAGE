@@ -2,16 +2,10 @@ import { tool as lmStudioTool } from "@lmstudio/sdk";
 import type { FC } from "react";
 import { z } from "zod";
 import { getAvailableMcpTools, mcpClientManager } from "../mcp";
-
 import { Bash } from "./Bash.js";
 import { Edit } from "./Edit.js";
 import { GraphQuery } from "./GraphQuery";
 import { Read } from "./Read.js";
-import { BashRenderer } from "./renderers/BashRenderer.js";
-import { EditRenderer } from "./renderers/EditRenderer.js";
-import { GraphQueryRenderer } from "./renderers/GraphQueryRenderer.js";
-import { ReadRenderer } from "./renderers/ReadRenderer.js";
-import { WriteRenderer } from "./renderers/WriteRenderer.js";
 import { Write } from "./Write.js";
 
 export type ToolSource = "builtin" | "mcp";
@@ -45,13 +39,7 @@ class ToolRegistry {
   }
 
   getBuiltinTools(): UnifiedTool[] {
-    const rendererMap: Record<string, FC<ToolRendererProps>> = {
-      Bash: BashRenderer,
-      Edit: EditRenderer,
-      Read: ReadRenderer,
-      Write: WriteRenderer,
-      GraphQuery: GraphQueryRenderer
-    };
+    const rendererMap: Record<string, FC<ToolRendererProps>> = {};
 
     return Array.from(this.builtinTools.entries()).map(([name, tool]) => ({
       name,

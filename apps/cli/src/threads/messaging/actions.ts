@@ -83,7 +83,6 @@ export async function sendMessage() {
 
         if (state.active) {
           state.active.append(message);
-          state.active = Chat.from(state.active);
           const completedRequests = message.getToolCallRequests();
           if (completedRequests && completedRequests.length > 0) {
             const completedToolCallIds = new Set(

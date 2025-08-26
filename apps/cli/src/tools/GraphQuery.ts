@@ -4,76 +4,86 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { z } from "zod";
 
-const TIPS = `
-NODES:
+const SCHEMA = `
+## Database Schema
 
-CodeEntity (id: 0)
-    - Properties: id, kind, name, text, filePath, lineNum, colNum, startPos, endPos, nodeFlags
+### Node Types (Tables):
+- **CodeEntity**: Functions, classes, variables, etc. (id, kind, name, text, filePath, lineNum, colNum, startPos, endPos, nodeFlags)
+- **SourceFile**: Source files (path, extension, size, totalLines, entityCount, relationshipCount)
+- **Project**: Project root (id, name, path, version, packageManager, totalFiles, totalEntities, totalPackages, totalApplications)
+- **Application**: Applications (id, name, path, version, main, types, applicationType, entryPointCount)
+- **Package**: Packages (id, name, path, version, packageType, main, types)
+- **Dependency**: Dependencies (id, name, version, dependencyType, isWorkspaceDependency, description, homepage)
+- **ExternalModule**: External modules (id, name)
+- **Module**: Modules (name, path, isExternal)
 
-SourceFile (id: 1)
-    - Properties: path, extension, size, totalLines, entityCount, relationshipCount
+### Relationship Types:
+**The Big 5 (Most Common):**
+- **REFERENCES**: Property access, variable usage
+- **CALLS**: Function/method calls
+- **DECLARES**: Variable/function declarations
+- **TYPE_OF**: Type references, generics
+- **DEFINES**: Variable assignments, initializers
 
-Module (id: 2)
-    - Properties: name, path, isExternal
+**Control Flow & Structure:**
+- **RETURNS**: Return statements
+- **AWAITS**: Async operations
+- **IMPORTS**: Local imports
+- **EXPORTS**: Export statements
+- **CONTAINS**: Lexical containment (parent-child scopes)
+- **BELONGS_TO**: Entity belongs to module
 
-Project (id: 3)
-    - Properties: id, name, path, version, packageManager, totalFiles, totalEntities, totalPackages, totalApplications
+**Type System:**
+- **CASTS_TO**: Type assertions
+- **UNION_WITH**: Union types
+- **EXTENDS**: Inheritance
+- **IMPLEMENTS**: Interface implementation
+- **INTERSECTS_WITH**: Intersection types
 
-Application (id: 4)
-    - Properties: id, name, path, version, main, types, applicationType, entryPointCount
+**Language Features:**
+- **DESTRUCTURES**: Destructuring patterns
+- **DECORATES**: Decorators
+- **SPREADS**: Spread syntax
+- **CATCHES**: Error handling
+- **THROWS**: Exception throwing
+- **BRANCHES_ON**: Conditional expressions
 
-Package (id: 5)
-    - Properties: id, name, path, version, packageType, main, types
+**External Dependencies:**
+- **IMPORTS_EXTERNAL**: External module imports
+- **DEPENDS_ON**: Package dependencies
+- **USES_DEPENDENCY**: Code entity uses dependency
+- **IMPORTS_FROM**: Import from dependency
 
-Dependency (id: 6)
-    - Properties: id, name, version, dependencyType, isWorkspaceDependency, description, homepage
+**Project Hierarchy:**
+- **HAS_APPLICATION**: Project has application
+- **HAS_PACKAGE**: Project has package
+- **HAS_ENTRYPOINT**: Application has entry point
 
-RELATIONSHIPS:
+### Common Query Patterns:
+\`\`\`cypher
+// Find all functions in a file
+MATCH (f:CodeEntity {kind: "function", filePath: "src/app.ts"}) RETURN f;
 
-REFERENCES (id: 8)
-CALLS (id: 10)
-DECLARES (id: 12)
-TYPE_OF (id: 14)
-DEFINES (id: 16)
-RETURNS (id: 18)
-AWAITS (id: 20)
-IMPORTS (id: 22)
-EXPORTS (id: 24)
-CASTS_TO (id: 26)
-UNION_WITH (id: 28)
-EXTENDS (id: 30)
-IMPLEMENTS (id: 32)
-INTERSECTS_WITH (id: 34)
-DESTRUCTURES (id: 36)
-DECORATES (id: 38)
-SPREADS (id: 40)
-CATCHES (id: 42)
-THROWS (id: 44)
-BRANCHES_ON (id: 46)
-CONTAINS (id: 48)
-BELONGS_TO (id: 50)
-HAS_APPLICATION (id: 52)
-HAS_PACKAGE (id: 54)
-HAS_ENTRYPOINT (id: 56)
-DEPENDS_ON (id: 58)
-USES_DEPENDENCY (id: 60)
+// Find all calls to a specific function
+MATCH (caller)-[:CALLS]->(f:CodeEntity {name: "myFunction"}) RETURN caller.name, caller.filePath;
 
-TIPS:
+// Find external dependencies
+MATCH (p:Package)-[:DEPENDS_ON]->(d:Dependency) RETURN p.name, d.name, d.version;
 
-1. Always specify node/relationship labels: MATCH (n:CodeEntity) not MATCH (n)
-2. Use RETURN COUNT(*) instead of FINISH for single record returns
-3. Use UNWIND instead of FOREACH
-4. Relationships cannot be omitted: use -[]-> not -->
-5. Variable length relationships need upper bounds: -[*1..10]-> not -[*]->
-6. For shortest paths: -[* SHORTEST 1..10]->
-7. Use SET n.prop = NULL instead of REMOVE
-8. No WHERE inside patterns: MATCH (n:CodeEntity) WHERE n.name = 'foo' RETURN n
-9. Use CALL show_functions() RETURN * instead of SHOW FUNCTIONS
-10. Kuzu uses walk semantics (allows repeated edges) by default
+// Find project structure
+MATCH (proj:Project)-[:HAS_APPLICATION]->(app:Application)-[:HAS_ENTRYPOINT]->(file:SourceFile) 
+RETURN proj.name, app.name, file.path;
+
+// Find most-called functions
+MATCH ()-[c:CALLS]->(f:CodeEntity) 
+RETURN f.name, f.filePath, COUNT(c) as call_count 
+ORDER BY call_count DESC;
+\`\`\`
 `;
+
 export const GraphQuery = tool({
   name: "GraphQuery",
-  description: `Execute custom Cypher queries against the project code graph.\n\n${TIPS}`,
+  description: `Execute custom Cypher queries against the project code graph.\n\n${SCHEMA}`,
   parameters: {
     query: z
       .string()
