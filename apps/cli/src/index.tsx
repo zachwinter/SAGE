@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { analyze } from "./commands/analyze.js";
 import { ask } from "./commands/ask.js";
 import { help } from "./commands/help.js";
 import { ingest } from "./commands/ingest.js";
@@ -18,8 +19,16 @@ import { version } from "./commands/version.js";
     process.exit(0);
   }
 
+  if (args[0] === "analyze") {
+    const debug = args.includes("--debug");
+    const format = args.includes("--json") ? "json" : "summary";
+    await analyze({ debug, format });
+    process.exit(0);
+  }
+
   if (args[0] === "ingest") {
-    await ingest();
+    const debug = args.includes("--debug");
+    await ingest({ debug });
     process.exit(0);
   }
 

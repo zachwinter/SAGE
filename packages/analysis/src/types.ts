@@ -175,6 +175,7 @@ export interface AnalysisOptions {
   callDepth?: number;
   flat?: boolean;
   includeDeps?: boolean; // NEW: Include external dependencies in graph
+  debug?: boolean; // NEW: Enable verbose debug logging
 }
 
 // Call Graph Types

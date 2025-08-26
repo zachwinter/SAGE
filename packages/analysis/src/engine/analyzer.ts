@@ -12,13 +12,29 @@ export function analyzeFiles(
   files: string[],
   options: AnalysisOptions = {}
 ): FileAnalysisResult[] {
+  const { debug = false } = options;
   const results: FileAnalysisResult[] = [];
+
+  if (debug) console.log(`🐛 Analyzing ${files.length} files...`);
 
   for (const filePath of files) {
     try {
+      // Check if path is a directory before attempting to read it
+      const stat = fs.statSync(filePath);
+      if (stat.isDirectory()) {
+        if (debug) console.log(`🐛 Skipping directory: ${filePath}`);
+        console.warn(`Warning: Skipping directory ${filePath} (expected file)`);
+        continue;
+      }
+      
+      if (debug) console.log(`🐛 Processing file: ${filePath}`);
       const content = fs.readFileSync(filePath, "utf8");
       const analysis = analyzeFile(filePath, content, options);
       results.push(analysis);
+      
+      if (debug) {
+        console.log(`🐛   Found ${analysis.entities.length} entities, ${analysis.callExpressions.length} calls`);
+      }
     } catch (error) {
       // Only catch file system errors (file not found, permission denied, etc.)
       // Let other errors bubble up so they can be properly tested
@@ -26,8 +42,10 @@ export function analyzeFiles(
         error instanceof Error &&
         (error.message.includes("ENOENT") ||
           error.message.includes("EACCES") ||
+          error.message.includes("EISDIR") ||
           error.message.includes("no such file"))
       ) {
+        if (debug) console.log(`🐛 Error reading file ${filePath}: ${error.message}`);
         console.warn(`Warning: Could not read file ${filePath}: ${error.message}`);
       } else {
         // Re-throw non-filesystem errors
@@ -36,6 +54,7 @@ export function analyzeFiles(
     }
   }
 
+  if (debug) console.log(`🐛 Analysis complete: ${results.length} files processed`);
   return results;
 }
 

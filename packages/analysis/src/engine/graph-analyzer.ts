@@ -26,11 +26,21 @@ export function analyzeToGraph(
   files: string[],
   options: AnalysisOptions = {}
 ): AnalysisData {
+  const { debug = false } = options;
+  
+  if (debug) console.log("🐛 Starting graph analysis...");
+  
   // Use existing analyzer to get file-based results
   const fileResults = analyzeFiles(files, options);
   
   const entities: GraphEntity[] = [];
   const relationships: GraphRelationship[] = [];
+  
+  if (debug) {
+    const totalEntities = fileResults.reduce((sum, fr) => sum + fr.entities.length, 0);
+    const totalCalls = fileResults.reduce((sum, fr) => sum + fr.callExpressions.length, 0);
+    console.log(`🐛 File analysis complete: ${totalEntities} total entities, ${totalCalls} total calls`);
+  }
   
   // Determine project root (assume all files are in same project)
   const projectRoot = process.cwd();
@@ -503,6 +513,15 @@ export function analyzeToGraph(
   // Update SourceFile entities with their relationship counts
   for (const [relativePath, sourceFileEntity] of fileEntities) {
     sourceFileEntity.relationshipCount = fileRelationshipCounts.get(relativePath) || 0;
+  }
+  
+  if (debug) {
+    console.log(`🐛 Graph analysis complete:`);
+    console.log(`🐛   - Total entities: ${entities.length}`);
+    console.log(`🐛   - Total relationships: ${relationships.length}`);
+    console.log(`🐛   - SourceFile entities: ${Array.from(fileEntities.values()).length}`);
+    console.log(`🐛   - Entity types: ${[...new Set(entities.map(e => e.kind))].join(', ')}`);
+    console.log(`🐛   - Relationship types: ${[...new Set(relationships.map(r => r.type))].join(', ')}`);
   }
   
   return {
