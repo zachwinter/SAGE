@@ -127,7 +127,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 ### V
 
 - **Vault-Warden Protocol**
-  A security protocol for Secure Value Injection. It ensures that sensitive values (secrets, API keys) are never stored in Chronicles, Plans, or LLM prompts. Instead, they are injected just-in-time at the tool execution layer and immediately redacted from any output. This allows the system to operate on the _intent_ to use a secret, not the secret itself. See [Principle of Secure Value Injection](./Principles.md#6-principle-of-secure-value-injection).
+  A security protocol for Secure Value Injection. It ensures that sensitive values (secrets, API keys) are never stored in Chronicles, Plans, or LLM prompts. Instead, they are injected just-in-time at the tool execution layer and immediately redacted from any output. This allows the system to operate on the _intent_ to use a secret, not the secret itself. See [Principle of Secrets](./Principles.md#6-principle-of-secrets).
 
 ### W
 

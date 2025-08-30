@@ -38,7 +38,7 @@ The system’s ground truth is sacred. Any contradiction between memory and real
 
 - **Enforced by:** Bullet Wound Invariant (see below).
 
-### 6. Principle of Secure Value Injection
+### 6. Principle of Secrets
 
 > _Mantra: "Secrets are for machines, not for minds."_
 
