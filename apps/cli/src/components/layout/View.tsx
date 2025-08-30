@@ -1,6 +1,6 @@
 import { useInput } from "ink";
 import type { FC } from "react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Column, Header, SearchableSelect } from "../../components";
 import { theme } from "../../config";
 import { cycleView } from "../../router/actions";
@@ -27,6 +27,7 @@ export const View: FC<ViewProps> = ({
   showKeyBindings
 }) => {
   const keys = keyBindings?.map?.(v => ({ label: v.label, value: v.key }));
+  const [textInputFocused, setTextInputFocused] = useState(false);
 
   const handleKeySelect = useCallback(
     (value: string) => {
@@ -47,10 +48,20 @@ export const View: FC<ViewProps> = ({
         tab: boolean;
         delete: boolean;
         return: boolean;
+        up: boolean;
+        down: boolean;
       }
     ) => {
+      // Check if we're in a text input (character keys without special modifiers)
+      const isTextInput = input.length === 1 && !key.escape && !key.tab && !key.delete && !key.return && !key.up && !key.down;
+      
       if (key.shift && key.tab) return cycleView();
-      findAndCallActionHandlers(input, key);
+      
+      // Only process key bindings for special keys or when not in text input
+      if (!isTextInput || key.escape) {
+        findAndCallActionHandlers(input, key);
+      }
+      
       onInput?.(input, key);
     },
     [onInput, keyBindings]
@@ -58,17 +69,22 @@ export const View: FC<ViewProps> = ({
 
   function findAndCallActionHandlers(
     input: string,
-    key: { escape: boolean; delete: boolean; return: boolean }
+    key: { escape: boolean; delete: boolean; shift: boolean; return: boolean; up: boolean; down: boolean }
   ) {
     if (!keyBindings) return;
     for (const binding of keyBindings) {
       const keyToMatch = binding.key.toLowerCase();
       const inputToMatch = input.toLowerCase();
       const isEscapeKey = binding.key === "escape" && key.escape;
-      const isBackspace = binding.key === "delete" && key.delete;
+      const isBackspace = binding.key === "delete" && key.delete && !key.shift;
+      const isShiftBackspace = binding.key === "shift+delete" && key.delete && key.shift;
       const isReturnKey = binding.key === "return" && key.return;
-      if (inputToMatch === keyToMatch || isEscapeKey || isBackspace || isReturnKey)
+      const isUpKey = binding.key === "up" && key.up;
+      const isDownKey = binding.key === "down" && key.down;
+      
+      if (inputToMatch === keyToMatch || isEscapeKey || isBackspace || isShiftBackspace || isReturnKey || isUpKey || isDownKey) {
         return binding.action();
+      }
     }
   }
 

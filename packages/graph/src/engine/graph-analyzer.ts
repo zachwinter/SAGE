@@ -459,7 +459,7 @@ export function analyzeToGraph(
         const cachedFileEntities = entityCache.get(relativePath) || [];
         const importEntity = cachedFileEntities.find(
           e =>
-            e.name === entity.name && e.kind === "import" && e.line === entity.line
+            e.name === entity.name && e.kind === "ImportAlias" && e.line === entity.line
         );
 
         if (importEntity) {

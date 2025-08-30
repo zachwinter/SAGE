@@ -13,7 +13,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
   and type-safely. See `packages/aql/README.md`.
 
 - **Archivist**
-  The project’s historiographer. One of the five canonical [Personas](#persona), it records the history of the codebase’s physical terrain—the lifecycle of its files and directories. Its [Chronicle](#chronicle) is the definitive record of lineage.
+  The project’s historiographer. One of the six canonical [Personas](#persona), it records the history of the codebase’s physical terrain—the lifecycle of its files and directories. Its [Chronicle](#chronicle) is the definitive record of lineage.
 
 ### B
 
@@ -54,7 +54,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
   Verifiable knowledge: the state achieved when beliefs are validated against an authoritative source, such as the filesystem structure ([Territorial Gnosis](#principle-of-territorial-gnosis)) or the [Code Graph](#code-graph). Opposite of assumption or hallucination.
 
 - **Guardian**
-  The soul of the code. One of the five canonical [Personas](#persona), it is a long-lived agent custodian of a single file. Maintains its Chronicle, defends architectural principles, and enforces the [Bullet Wound Invariant](#bullet-wound-invariant) when integrity is threatened.
+  The soul of the code. One of the six canonical [Personas](#persona), it is a long-lived agent custodian of a single file. Maintains its Chronicle, defends architectural principles, and enforces the [Bullet Wound Invariant](#bullet-wound-invariant) when integrity is threatened.
 
 ### I
 
@@ -67,7 +67,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 ### L
 
 - **Librarian**
-  The custodian of data models. One of the five canonical [Personas](#persona), it is a project-level agent responsible for database schemas, ORM models, and API contracts. Ensures coherence across all data layers.
+  The custodian of data models. One of the six canonical [Personas](#persona), it is a project-level agent responsible for database schemas, ORM models, and API contracts. Ensures coherence across all data layers.
 
 - **Living Codebase**
   The philosophy of SAGE: a codebase is not static text but a living society of collaborating, stateful agents.
@@ -75,7 +75,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 ### P
 
 - **Persona**
-  A specialized, declarative consciousness pattern within the [SAGE Valve](#sage-valve). Defined in a `valve.yml` file, a Persona specifies a set of file patterns (filters) and content patterns (triggers) that cause the Valve to notice a change and emit a `VALVE_PERSONA_TRIGGER` event. The five canonical Personas are [Guardian](#guardian), [Warden](#warden), [Librarian](#librarian), [Archivist](#archivist), and [Sage](#sage).
+  A specialized, declarative consciousness pattern within the [SAGE Valve](#sage-valve). Defined in a `valve.yml` file, a Persona specifies a set of file patterns (filters) and content patterns (triggers) that cause the Valve to notice a change and emit a `VALVE_PERSONA_TRIGGER` event. The six canonical Personas are [Guardian](#guardian), [Warden](#warden), [Librarian](#librarian), [Archivist](#archivist), and [Sage](#sage).
 
 - **Plan**
   The formal proposal for change. Drafted by [Sage](#sage), reviewed by Guardians and Wardens, and executed by the [Delegator](#delegator).
@@ -106,7 +106,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
   The system's configurable sensory apparatus, inspired by Aldous Huxley's "perceptual valve." It is an always-on process that watches the filesystem, but instead of treating all changes equally, it filters them through a set of configured [Personas](#persona). It is the tangible "nervous system" that makes the codebase truly "living."
 
 - **Sage**
-  The mind of the system. One of the five canonical [Personas](#persona), it is the creative partner that engages the developer, drafts Plans, mediates negotiation, and passes approved Plans to the Delegator.
+  The mind of the system. One of the six canonical [Personas](#persona), it is the creative partner that engages the developer, drafts Plans, mediates negotiation, and passes approved Plans to the Delegator.
 
 - **SecretProvider**
   An interface (defined in `@sage/utils`) that abstracts access to external secret stores (e.g., AWS Secrets Manager, HashiCorp Vault). It allows the Vault-Warden Protocol to fetch secret values just-in-time without the core SAGE system needing to know the backend implementation.
@@ -132,7 +132,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 ### W
 
 - **Warden**
-  The shield of the realm. One of the five canonical [Personas](#persona), it is the guardian of operational environments (dev, staging, prod). Custodian of infra/config files, deployments, and environment policies.
+  The shield of the realm. One of the six canonical [Personas](#persona), it is the guardian of operational environments (dev, staging, prod). Custodian of infra/config files, deployments, and environment policies.
 
 ---
 

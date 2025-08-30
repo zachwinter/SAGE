@@ -1,12 +1,21 @@
 import { View } from "../components/index";
 import type { KeyBinding } from "../components/layout/View";
-import { Home, setView } from "../router";
+import { setView } from "../router/actions";
+import { Home } from "../router/state";
+import { state as threadState } from "../threads/state/state";
 
 export const Threads = () => {
   const keyBindings: KeyBinding[] = [
     {
       key: "n",
-      action: () => setView(Home),
+      action: () => {
+        // Create a new thread by resetting the active thread state
+        threadState.active = null;
+        threadState.activeThreadId = null;
+
+        // Navigate to Home view to start the new thread
+        setView(Home);
+      },
       label: "Start New Thread"
     },
     {
