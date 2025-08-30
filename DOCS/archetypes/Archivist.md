@@ -13,11 +13,11 @@ The Archivist is the repository’s official historiographer. While [Guardians](
 ## Key Responsibilities
 
 - **Log file lifecycle.** Notice and record `FILE_ADDED`, `FILE_REMOVED`, `FILE_RENAMED`, `FILE_SPLIT`, and `FILE_MERGED` events.
-- **Maintain lineage in the [Code Graph](../Lexicon.md#code-graph).** Create/maintain ancestry edges such as `(:File)-[:WAS_RENAMED_TO]->(:File)` and merge/split relations, all **commit‑addressed**.
-- **Time‑travel queries.** Ensure every node/edge is versioned with a commit index so historical questions are answerable in context (see [Commit‑Addressable Graph](../Lexicon.md#commit-addressable-graph)).
-- **Record system‑wide integrity events.** Persist events like `DAEMON_OUTAGE_WINDOW`, `INCONSISTENCY_DETECTED`, and `PLAN_UNSAFE` with links to their causes (e.g., originating [Plan](../Lexicon.md#plan), [Guardian](../archetypes/Guardian.md), or [Warden](../archetypes/Warden.md)).
+- **Maintain lineage in the [Code Graph](../core-concepts/Lexicon.md#code-graph).** Create/maintain ancestry edges such as `(:File)-[:WAS_RENAMED_TO]->(:File)` and merge/split relations, all **commit‑addressed**.
+- **Time‑travel queries.** Ensure every node/edge is versioned with a commit index so historical questions are answerable in context (see [Commit‑Addressable Graph](../core-concepts/Lexicon.md#commit-addressable-graph)).
+- **Record system‑wide integrity events.** Persist events like `DAEMON_OUTAGE_WINDOW`, `INCONSISTENCY_DETECTED`, and `PLAN_UNSAFE` with links to their causes (e.g., originating [Plan](../core-concepts/Lexicon.md#plan), [Guardian](../archetypes/Guardian.md), or [Warden](../archetypes/Warden.md)).
 - **Serve as oracle of history.** Answer queries such as: “What file occupied this namespace at commit `abc123`?” or “Show the ancestors of `AuthService.ts`.”
-- **Support the [Genesis Thread](../Lexicon.md#genesis-thread).** Provide architectural context snapshots that other agents inherit at onboarding.
+- **Support the [Genesis Thread](../core-concepts/Lexicon.md#genesis-thread).** Provide architectural context snapshots that other agents inherit at onboarding.
 
 ## Guarantees
 
@@ -27,17 +27,17 @@ The Archivist is the repository’s official historiographer. While [Guardians](
 
 ## Protocols & Events
 
-- **Notice** (Principle of Noticing): The [Daemon](../Lexicon.md#daemon) streams filesystem/git events; the Archivist normalizes and records them.
+- **Notice** (Principle of Noticing): The [Daemon](../core-concepts/Lexicon.md#daemon) streams filesystem/git events; the Archivist normalizes and records them.
 - **Integrity bookkeeping** (Principle of Integrity): When `INCONSISTENCY_DETECTED` is raised (e.g., by a Guardian’s Bullet Wound response), the Archivist records the window, links artifacts (plans, diffs, CI runs), and marks affected lineage entries.
 - **Unsafe execution:** On `PLAN_UNSAFE`, record a permanent constitutional breach entry and link the impacted files/Guardians.
-- **Reconciliation hooks:** When a [Rogue Edit](../Lexicon.md#rogue-edit) is reconciled, append the justification reference and resulting diff pointer.
+- **Reconciliation hooks:** When a [Rogue Edit](../core-concepts/Lexicon.md#rogue-edit) is reconciled, append the justification reference and resulting diff pointer.
 
 ## Primary Data Sources
 
 - Git commit history.
-- Filesystem events from the [Daemon](../Lexicon.md#daemon).
+- Filesystem events from the [Daemon](../core-concepts/Lexicon.md#daemon).
 - Direct reports from agents (e.g., `PLAN_UNSAFE` from [Sage](../archetypes/Sage.md), integrity alerts from [Guardians](../archetypes/Guardian.md) and [Wardens](../archetypes/Warden.md)).
-- The current [Code Graph](../Lexicon.md#code-graph) for validation and back‑filling lineage.
+- The current [Code Graph](../core-concepts/Lexicon.md#code-graph) for validation and back‑filling lineage.
 
 ## Primary Artifacts
 
@@ -84,6 +84,6 @@ RETURN p;
 
 ## See also
 
-- [Principle of Noticing](../Principles.md#1-principle-of-noticing)
-- [Principle of Integrity](../Principles.md#4-principle-of-integrity)
-- [Reconciliation](../Principles.md#reconciliation)
+- [Principle of Noticing](../core-concepts/Principles.md#1-principle-of-noticing)
+- [Principle of Integrity](../core-concepts/Principles.md#4-principle-of-integrity)
+- [Reconciliation](../core-concepts/Principles.md#reconciliation)

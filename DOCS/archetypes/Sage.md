@@ -4,7 +4,7 @@ _“The Mind of the System.”_
 
 ## Core Function
 
-Sage is the system’s primary creative, strategic, and architectural partner. It is the main conversational interface for the developer, turning intent into formalized [Plans](../Lexicon.md#plan). Where Guardians defend and Delegators execute, Sage imagines, analyzes, and synthesizes.
+Sage is the system’s primary creative, strategic, and architectural partner. It is the main conversational interface for the developer, turning intent into formalized [Plans](../core-concepts/Lexicon.md#plan). Where Guardians defend and Delegators execute, Sage imagines, analyzes, and synthesizes.
 
 ## Scope
 
@@ -13,7 +13,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 ## Key Responsibilities
 
 - **Facilitate ideation.** Engage in open-ended dialogue with the developer to clarify goals and surface possible solutions.
-- **Perform architectural analysis.** Query the [Code Graph](../Lexicon.md#code-graph), [Archivist](../archetypes/Archivist.md), and agent Chronicles to contextualize change impacts.
+- **Perform architectural analysis.** Query the [Code Graph](../core-concepts/Lexicon.md#code-graph), [Archivist](../archetypes/Archivist.md), and agent Chronicles to contextualize change impacts.
 - **Draft formal Plans.** Translate discussion into a strongly-typed Plan object specifying goals, affected agents, changes, and acceptance criteria.
 - **Mediate negotiations.** When Guardians or Wardens raise conflicts, act as facilitator to seek consensus.
 - **Engage in reflective journaling.** After sessions, update its internal graphs (`user.graph`, `sage.graph`) for personalization and adaptive learning.
@@ -34,7 +34,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 ## Primary Data Sources
 
 - Direct developer input.
-- [Code Graph](../Lexicon.md#code-graph).
+- [Code Graph](../core-concepts/Lexicon.md#code-graph).
 - Chronicles of Guardians, Wardens, Librarian, Archivist.
 - Its own `user.graph` and `sage.graph`.
 

@@ -15,7 +15,7 @@ The Warden is the custodian of an operational environment. It defends the integr
 - **Guard infra/config.** Act as Guardian for environment-defining files: lockfiles, CI/CD configs, Dockerfiles, env keys, package manifests.
 - **Manage deployment lifecycle.** Oversee promotion of builds between environments and enforce realm-specific policies.
 - **Enforce environment rules.** Apply unique policies, e.g. multi-signoff for Prod env var changes vs auto-approval in Dev.
-- **Monitor operational health.** Consume Daemon/CI/monitoring events, contextualize incidents, and trigger [Post-Mortem Protocol](../Lexicon.md#post-mortem-protocol) when needed.
+- **Monitor operational health.** Consume Daemon/CI/monitoring events, contextualize incidents, and trigger [Post-Mortem Protocol](../core-concepts/Lexicon.md#post-mortem-protocol) when needed.
 - **Manage secrets (metadata only).** Chronicle references and fingerprints of secrets while never storing values.
 
 ## Guarantees
@@ -33,7 +33,7 @@ The Warden is the custodian of an operational environment. It defends the integr
 
 ## Primary Data Sources
 
-- Warden’s [Infra Chronicle](../Lexicon.md#infra-chronicle).
+- Warden’s [Infra Chronicle](../core-concepts/Lexicon.md#infra-chronicle).
 - Configuration files: `package.json`, lockfiles, CI/CD specs, Dockerfiles.
 - Daemon streams of CI, monitoring, git, and alert events.
 
@@ -72,5 +72,5 @@ RETURN e ORDER BY e.timestamp ASC;
 
 ## See also
 
-- [Post-Mortem Protocol](../Principles.md#post-mortem-protocol)
-- [Transaction Boundary](../Principles.md#transaction-boundary)
+- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
+- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)

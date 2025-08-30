@@ -40,7 +40,7 @@ The Librarian safeguards the project’s data ontology. While [Guardians](../arc
 ## Primary Data Sources
 
 - Librarian’s Chronicle (`.sage/librarian.sage`).
-- The [Code Graph](../Lexicon.md#code-graph), focusing on type and schema nodes.
+- The [Code Graph](../core-concepts/Lexicon.md#code-graph), focusing on type and schema nodes.
 - All schema/model/contract files.
 
 ## Primary Artifacts
@@ -78,5 +78,5 @@ RETURN f, t;
 
 ## See also
 
-- [Transaction Boundary](../Principles.md#transaction-boundary)
-- [Post-Mortem Protocol](../Principles.md#post-mortem-protocol)
+- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)

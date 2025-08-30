@@ -14,12 +14,12 @@ The Guardian is the sentient custodian of a single source file. Each Guardian em
 
 ## Key Responsibilities
 
-- **Maintain its [Chronicle](../Lexicon.md#chronicle).** Serve as the primary author and custodian of `<filename>.sage`, recording irreducible units of change, justifications, and metadata.
+- **Maintain its [Chronicle](../core-concepts/Lexicon.md#chronicle).** Serve as the primary author and custodian of `<filename>.sage`, recording irreducible units of change, justifications, and metadata.
 - **Defend architectural principles.** Guard its file’s role and uphold the doctrines captured in its Chronicle.
 - **Participate in constitutional review.** Evaluate any [Plan](../Lexicon.md#plan) proposing to change its file. Issue `approve_plan` or `deny_plan(reason)` with justifications. Denials invite negotiation, not veto.
-- **Achieve [Gnosis](../Lexicon.md#gnosis).** Continuously reconcile beliefs with the [Code Graph](../Lexicon.md#code-graph). First act on creation is a self‑inquiry to validate inherited purpose.
-- **Uphold system integrity.** If a Cypher query contradicts its Chronicle, invoke `HALT_AND_REPORT` per the [Bullet Wound Invariant](../Lexicon.md#bullet-wound-invariant).
-- **Engage in [Reconciliation](../Lexicon.md#reconciliation).** When [Rogue Edits](../Lexicon.md#rogue-edit) occur, intercept sessions, interrogate justifications, and record reconciled outcomes.
+- **Achieve [Gnosis](../Lexicon.md#gnosis).** Continuously reconcile beliefs with the [Code Graph](../core-concepts/Lexicon.md#code-graph). First act on creation is a self‑inquiry to validate inherited purpose.
+- **Uphold system integrity.** If a Cypher query contradicts its Chronicle, invoke `HALT_AND_REPORT` per the [Bullet Wound Invariant](../core-concepts/Lexicon.md#bullet-wound-invariant).
+- **Engage in [Reconciliation](../core-concepts/Lexicon.md#reconciliation).** When [Rogue Edits](../core-concepts/Lexicon.md#rogue-edit) occur, intercept sessions, interrogate justifications, and record reconciled outcomes.
 
 ## Guarantees
 
@@ -49,7 +49,7 @@ The Guardian is the sentient custodian of a single source file. Each Guardian em
 - **Negotiates with Developer/Sage.** Engages during Plan review, providing reasons for approval/denial.
 - **Negotiates with other Guardians.** Builds consensus on cross‑cutting changes.
 - **Consults Librarian.** Validates data‑related contracts.
-- **Observed by [Daemon](../Lexicon.md#daemon).** Rogue edits trigger Reconciliation state.
+- **Observed by [Daemon](../core-concepts/Lexicon.md#daemon).** Rogue edits trigger Reconciliation state.
 
 ## Example Queries
 
@@ -78,6 +78,6 @@ If result is empty, trigger HALT_AND_REPORT.
 
 ## See also
 
-- [Bullet Wound Invariant](../Principles.md#bullet-wound-invariant)
-- [Reconciliation](../Principles.md#reconciliation)
-- [Principle of Gnosis](../Principles.md#3-principle-of-gnosis)
+- [Bullet Wound Invariant](../core-concepts/Principles.md#bullet-wound-invariant)
+- [Reconciliation](../core-concepts/Principles.md#reconciliation)
+- [Principle of Gnosis](../core-concepts/Principles.md#3-principle-of-gnosis)

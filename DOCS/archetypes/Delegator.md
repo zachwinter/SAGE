@@ -4,7 +4,7 @@ _“The Will Made Manifest.”_
 
 ## Core Function
 
-The Delegator is a **compiler and transaction manager**. Its role is to convert an approved [Plan](../Lexicon.md#plan) into [AQL (Agent Query Language)](../../packages/aql/README.md) and ensure its atomic execution under a [Transaction Boundary](../Lexicon.md#transaction-boundary).
+The Delegator is a **compiler and transaction manager**. Its role is to convert an approved [Plan](../core-concepts/Lexicon.md#plan) into [AQL (Agent Query Language)](../../packages/aql/README.md) and ensure its atomic execution under a [Transaction Boundary](../core-concepts/Lexicon.md#transaction-boundary).
 
 **The Delegator does not design or orchestrate workflows; it enforces them.** Its hands are only translators: Plans are written in AQL, not TypeScript.
 
@@ -18,7 +18,7 @@ The Delegator is a **compiler and transaction manager**. Its role is to convert 
 - **Execute AQL:** Hand the compiled AQL to the `@sage/aql` engine for execution.
 - **Enforce Transaction Boundary:** Wrap the entire execution in a staging filesystem and mock tool adapters. No changes are committed to the actual workspace unless the AQL execution succeeds completely.
 - **Commit or Rollback:** If the AQL execution is successful, commit the changes from the staging area to the workspace. If it fails, discard the staging area, ensuring the workspace remains untouched.
-- **Emit Telemetry:** Record the outcome of the execution in the [Chronicle](../Lexicon.md#chronicle).
+- **Emit Telemetry:** Record the outcome of the execution in the [Chronicle](../core-concepts/Lexicon.md#chronicle).
 
 ## Guarantees
 
@@ -36,7 +36,7 @@ The Delegator emits a clean trace of its lifecycle:
 
 ## Primary Data Sources
 
-- A fully approved [Plan](../Lexicon.md#plan) object from Sage.
+- A fully approved [Plan](../core-concepts/Lexicon.md#plan) object from Sage.
 
 ## Primary Artifacts
 
@@ -48,7 +48,7 @@ The Delegator emits a clean trace of its lifecycle:
 - **Receives Plans from Sage.**
 - **Invokes the `@sage/agents/src/plan-to-aql.ts` compiler.**
 - **Invokes the `@sage/aql` execution engine.**
-- **Appends events to the [Chronicle](../Lexicon.md#chronicle).**
+- **Appends events to the [Chronicle](../core-concepts/Lexicon.md#chronicle).**
 
 ## Example Lifecycle
 
@@ -87,5 +87,5 @@ export interface ExecutionReport {
 
 ## See also
 
-- [Transaction Boundary](../Principles.md#transaction-boundary)
-- [Unsafe Protocol](../Principles.md#unsafe-protocol)
+- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Unsafe Protocol](../core-concepts/Principles.md#unsafe-protocol)
