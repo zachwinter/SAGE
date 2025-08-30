@@ -1,8 +1,8 @@
-import { analyzeToGraph, getCodeFiles } from "@sage/analysis";
-import { PrettyTask } from "../utils/prettyTask";
+import { analyzeToGraph, getCodeFiles } from "@sage/graph";
+import { PrettyTask } from "../../../../packages/utils/src/prettyTask";
 
 export async function runAnalysis(options: { debug?: boolean } = {}) {
-  const { debug } = { debug: false };
+  const { debug = false } = options;
 
   const allFiles = getCodeFiles(process.cwd());
   const task = new PrettyTask({
@@ -16,6 +16,7 @@ export async function runAnalysis(options: { debug?: boolean } = {}) {
     return null;
   }
 
+  // Implement analysis using @sage/graph functionality
   const analysisData = analyzeToGraph(allFiles, { debug });
 
   return { allFiles, analysisData, task };

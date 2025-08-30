@@ -1,0 +1,34 @@
+[package]
+name = "sage-valve"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+thiserror = "1"
+# async runtime
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "signal", "sync", "fs", "time", "net", "io-util"] }
+# file watching
+notify = "6"
+# path filtering
+globset = "0.4"
+ignore = "0.4"
+# config / serde
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1"
+# cli
+clap = { version = "4", features = ["derive"] }
+# logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+# dirs & locking
+directories = "5"
+fd-lock = "4"
+parking_lot = "0.12"
+uuid = { version = "1", features = ["v4", "serde"] }
+regex = "1"
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tempfile = "3"

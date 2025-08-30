@@ -1,0 +1,8 @@
+// Basic AQL query - Hello World
+query HelloWorld($name: String = "World") {
+  greeting: agent(model: "greeting-agent") {
+    prompt: "Generate a friendly greeting for {{name}}"
+    input: $name
+    temperature: 0.7
+  }
+}

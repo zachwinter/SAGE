@@ -1,0 +1,243 @@
+// Automated code review with multiple analysis dimensions
+query CodeReview($code: String!, $language: String!, $context: String = "") {
+  // Define structured output types
+  type SecurityIssue {
+    severity: String
+    line_number: Int
+    description: String
+    recommendation: String
+    cwe_id: String
+  }
+  
+  type PerformanceIssue {
+    type: String
+    impact: String
+    location: String
+    suggestion: String
+    complexity_increase: String
+  }
+  
+  type CodeQualityMetrics {
+    readability: Float
+    maintainability: Float
+    complexity: Float
+    test_coverage_estimate: Float
+    documentation_quality: Float
+    overall_score: Float
+  }
+  
+  // Phase 1: Language-specific Analysis
+  language_analysis: agent(model: "language-agent", role: "language_expert") {
+    prompt: "Analyze this {{language}} code for language-specific best practices and conventions: {{code}}"
+    input: [language, code]
+    temperature: 0.2
+    output: {
+      follows_conventions: Boolean,
+      convention_violations: [String],
+      language_specific_issues: [String],
+      modernization_opportunities: [String]
+    }
+  }
+  
+  // Phase 2: Multi-dimensional Parallel Analysis
+  detailed_analysis: parallel {
+    // Security analysis
+    security_review: agent(model: "security-agent", role: "security_expert") {
+      prompt: "Conduct comprehensive security analysis of this {{language}} code: {{code}}. Look for vulnerabilities, injection risks, authentication issues, and data exposure."
+      input: [language, code]
+      temperature: 0.1
+      output: {
+        security_score: Float,
+        critical_issues: [SecurityIssue],
+        warnings: [SecurityIssue],
+        security_recommendations: [String]
+      }
+    }
+    
+    // Performance analysis
+    performance_review: agent(model: "performance-agent", role: "performance_expert") {
+      prompt: "Analyze performance implications of this {{language}} code: {{code}}. Consider algorithmic complexity, memory usage, and optimization opportunities."
+      input: [language, code]
+      temperature: 0.2
+      output: {
+        performance_score: Float,
+        bottlenecks: [PerformanceIssue],
+        optimization_suggestions: [String],
+        complexity_analysis: String
+      }
+    }
+    
+    // Code quality analysis
+    quality_review: agent(model: "quality-agent", role: "code_quality_expert") {
+      prompt: "Evaluate code quality of this {{language}} code: {{code}}. Assess readability, maintainability, SOLID principles, and clean code practices."
+      input: [language, code]
+      temperature: 0.3
+      output: CodeQualityMetrics
+    }
+    
+    // Architecture analysis
+    architecture_review: agent(model: "architecture-agent", role: "software_architect") {
+      prompt: "Review architectural decisions in this {{language}} code: {{code}}. Consider design patterns, separation of concerns, and structural quality."
+      input: [language, code]
+      temperature: 0.2
+      output: {
+        architecture_score: Float,
+        design_patterns_used: [String],
+        architectural_issues: [String],
+        improvement_suggestions: [String]
+      }
+    }
+    
+    // Testing analysis
+    testing_review: agent(model: "testing-agent", role: "testing_expert") {
+      prompt: "Analyze testability and testing aspects of this {{language}} code: {{code}}. Consider unit testing, mocking, and test coverage."
+      input: [language, code]
+      temperature: 0.3
+      output: {
+        testability_score: Float,
+        testing_gaps: [String],
+        suggested_test_cases: [String],
+        mocking_opportunities: [String]
+      }
+    }
+  }
+  
+  // Phase 3: Documentation Analysis
+  documentation_review: agent(model: "documentation-agent", role: "documentation_expert") {
+    prompt: "Evaluate documentation quality in this {{language}} code: {{code}}. Check comments, docstrings, and self-documenting code practices."
+    input: [language, code]
+    temperature: 0.2
+    output: {
+      documentation_score: Float,
+      missing_documentation: [String],
+      unclear_sections: [String],
+      documentation_improvements: [String]
+    }
+  }
+  
+  // Phase 4: Contextual Analysis (if context provided)
+  contextual_analysis: if ($context != "") {
+    context_review: agent(model: "context-agent", role: "senior_developer") {
+      prompt: "Review this {{language}} code considering the context: {{context}}. Code: {{code}}"
+      input: [language, context, code]
+      temperature: 0.4
+      output: {
+        context_alignment: Float,
+        context_specific_issues: [String],
+        business_logic_correctness: String,
+        integration_concerns: [String]
+      }
+    }
+  } else {
+    no_context: {
+      context_alignment: null,
+      note: "No context provided for contextual analysis"
+    }
+  }
+  
+  // Phase 5: Priority Assessment
+  priority_assessment: agent(model: "priority-agent", role: "technical_lead") {
+    prompt: "Prioritize all identified issues based on: Security {{detailed_analysis.security_review}}, Performance {{detailed_analysis.performance_review}}, Quality {{detailed_analysis.quality_review}}, Architecture {{detailed_analysis.architecture_review}}, Testing {{detailed_analysis.testing_review}}"
+    input: detailed_analysis
+    temperature: 0.2
+    output: {
+      critical_issues: [String],
+      high_priority_issues: [String],
+      medium_priority_issues: [String],
+      low_priority_issues: [String],
+      quick_wins: [String]
+    }
+  }
+  
+  // Phase 6: Improvement Recommendations
+  improvement_plan: agent(model: "improvement-agent", role: "senior_engineer") {
+    prompt: "Create detailed improvement plan for this {{language}} code based on all analysis: Language {{language_analysis}}, Detailed {{detailed_analysis}}, Documentation {{documentation_review}}, Context {{contextual_analysis}}, Priorities {{priority_assessment}}"
+    input: [language_analysis, detailed_analysis, documentation_review, contextual_analysis, priority_assessment]
+    temperature: 0.4
+    output: {
+      immediate_actions: [String],
+      short_term_improvements: [String],
+      long_term_refactoring: [String],
+      estimated_effort: String,
+      risk_assessment: String
+    }
+  }
+  
+  // Phase 7: Code Examples and Fixes
+  code_examples: parallel {
+    // Security fixes
+    security_fixes: if (length(detailed_analysis.security_review.critical_issues) > 0) {
+      agent(model: "security-agent", role: "security_engineer") {
+        prompt: "Provide code examples fixing these security issues: {{detailed_analysis.security_review.critical_issues}} in this {{language}} code: {{code}}"
+        input: [detailed_analysis.security_review.critical_issues, language, code]
+        temperature: 0.3
+      }
+    } else null,
+    
+    // Performance optimizations
+    performance_optimizations: if (length(detailed_analysis.performance_review.bottlenecks) > 0) {
+      agent(model: "performance-agent", role: "performance_engineer") {
+        prompt: "Show optimized code examples for these performance issues: {{detailed_analysis.performance_review.bottlenecks}} in {{language}}: {{code}}"
+        input: [detailed_analysis.performance_review.bottlenecks, language, code]
+        temperature: 0.3
+      }
+    } else null,
+    
+    // Quality improvements
+    quality_improvements: agent(model: "quality-agent", role: "clean_code_expert") {
+      prompt: "Provide refactored code examples improving quality issues in this {{language}} code: {{code}}. Focus on top 3 quality concerns: {{detailed_analysis.quality_review}}"
+      input: [language, code, detailed_analysis.quality_review]
+      temperature: 0.4
+    }
+  }
+  
+  // Phase 8: Executive Summary
+  executive_summary: agent(model: "summary-agent", role: "technical_writer") {
+    prompt: "Create executive summary of code review findings. Include overall assessment, key risks, and recommended actions. Analysis: {{detailed_analysis}}, Priorities: {{priority_assessment}}, Plan: {{improvement_plan}}"
+    input: [detailed_analysis, priority_assessment, improvement_plan]
+    temperature: 0.3
+    output: {
+      overall_rating: String,
+      key_strengths: [String],
+      major_concerns: [String],
+      recommended_next_steps: [String],
+      deployment_readiness: String
+    }
+  }
+  
+  // Final Code Review Report
+  review_report: {
+    metadata: {
+      language: language,
+      context: context,
+      reviewed_at: now(),
+      review_id: generate_id()
+    },
+    
+    summary: executive_summary,
+    
+    detailed_findings: {
+      language_analysis: language_analysis,
+      security: detailed_analysis.security_review,
+      performance: detailed_analysis.performance_review,
+      quality: detailed_analysis.quality_review,
+      architecture: detailed_analysis.architecture_review,
+      testing: detailed_analysis.testing_review,
+      documentation: documentation_review,
+      contextual: contextual_analysis
+    },
+    
+    prioritized_issues: priority_assessment,
+    improvement_roadmap: improvement_plan,
+    code_examples: code_examples,
+    
+    scores: {
+      security: detailed_analysis.security_review.security_score,
+      performance: detailed_analysis.performance_review.performance_score,
+      quality: detailed_analysis.quality_review.overall_score,
+      architecture: detailed_analysis.architecture_review.architecture_score,
+      testing: detailed_analysis.testing_review.testability_score,
+      documentation: documentation_review.documentation_score
+    }
+  }
+}

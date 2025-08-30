@@ -1,0 +1,79 @@
+// Experiment: Testing effectiveness of small agents with strategic orchestration
+// Research Question: Can small agents achieve high-performance results through better coordination?
+
+query TinyModelEffectiveness($problem: String!, $complexity: String = "medium") {
+  
+  // Phase 1: Problem decomposition using small agent
+  decompose: agent(model: "small-agent", role: "problem_analyzer") {
+    prompt: "Break down this complex problem into smaller, manageable parts: {{problem}}"
+    input: $problem
+    temperature: 0.3
+  }
+  
+  // Phase 2: Parallel specialized analysis with different small agents
+  parallel {
+    // Logical reasoning specialist
+    logic: agent(model: "small-agent", role: "logic_specialist") {
+      prompt: "Focus ONLY on the logical reasoning aspects of these problem parts: {{decompose}}"
+      input: decompose
+      temperature: 0.2
+    }
+    
+    // Pattern recognition specialist  
+    patterns: agent(model: "small-agent", role: "pattern_specialist") {
+      prompt: "Identify patterns, similarities, and relationships in these problem components: {{decompose}}"
+      input: decompose
+      temperature: 0.4
+    }
+    
+    // Context and constraints specialist
+    constraints: agent(model: "small-agent", role: "constraints_specialist") {
+      prompt: "Identify all constraints, limitations, and contextual factors in: {{decompose}}"
+      input: decompose
+      temperature: 0.1
+    }
+    
+    // Creative solutions specialist
+    creative: agent(model: "small-agent", role: "creative_specialist") {
+      prompt: "Generate creative, unconventional approaches to these problem parts: {{decompose}}"
+      input: decompose
+      temperature: 0.9
+    }
+  }
+  
+  // Phase 3: Cross-verification between specialists
+  verification: parallel {
+    logic_check: agent(model: "small-agent", role: "logic_checker") {
+      prompt: "Verify the logical consistency between these analyses: Logic {{logic}}, Patterns {{patterns}}, Constraints {{constraints}}"
+      input: [logic, patterns, constraints]
+      temperature: 0.1
+    }
+    
+    feasibility_check: agent(model: "small-agent", role: "feasibility_checker") {
+      prompt: "Check if creative solutions {{creative}} are feasible given constraints {{constraints}}"
+      input: [creative, constraints]
+      temperature: 0.2
+    }
+  }
+  
+  // Phase 4: Iterative refinement based on verification
+  refined_analysis: agent(model: "small-agent", role: "synthesizer") {
+    prompt: "Refine the analysis by incorporating verification feedback. Original: Logic {{logic}}, Patterns {{patterns}}, Creative {{creative}}. Feedback: {{verification}}"
+    input: [logic, patterns, creative, verification]
+    temperature: 0.5
+  }
+  
+  // Phase 5: Final synthesis using medium agent for integration
+  final_solution: agent(model: "medium-agent", role: "senior_synthesizer") {
+    prompt: "Create final comprehensive solution by synthesizing: Decomposition {{decompose}}, Refined Analysis {{refined_analysis}}, Verification {{verification}}"
+    input: [decompose, refined_analysis, verification]
+    temperature: 0.4
+  }
+  
+  // Phase 6: Quality assessment
+  quality_assessment: agent(model: "evaluation-agent", role: "quality_assessor") {
+    prompt: "Rate the quality of this solution on completeness, accuracy, creativity, and feasibility (1-10 each): {{final_solution}}"
+    input: final_solution
+    temperature: 0.1
+  }
+}

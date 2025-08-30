@@ -1,0 +1,234 @@
+// Research synthesis from multiple sources with credibility assessment
+query ResearchSynthesis($research_topic: String!, $sources: [String]!, $research_depth: String = "comprehensive") {
+  // Define output types
+  type SourceAnalysis {
+    source: String
+    credibility_score: Float
+    bias_assessment: String
+    key_findings: [String]
+    methodology_quality: String
+    recency_score: Float
+  }
+  
+  type ResearchGap {
+    area: String
+    importance: String
+    suggested_research: String
+    potential_impact: String
+  }
+  
+  type Synthesis {
+    main_findings: [String]
+    consensus_areas: [String]
+    conflicting_evidence: [String]
+    confidence_levels: [String]
+    limitations: [String]
+  }
+  
+  // Phase 1: Individual Source Analysis
+  source_analyses: map(sources) {
+    agent(model: "analysis-agent", role: "research_analyst") {
+      prompt: "Analyze this research source about {{research_topic}}: {{item}}. Evaluate credibility, methodology, bias, and key findings."
+      input: [research_topic, item]
+      temperature: 0.2
+      output: SourceAnalysis
+    }
+  }
+  
+  // Phase 2: Credibility Assessment
+  credibility_evaluation: agent(model: "evaluation-agent", role: "research_methodologist") {
+    prompt: "Evaluate overall credibility of sources for {{research_topic}}. Source analyses: {{source_analyses}}"
+    input: [research_topic, source_analyses]
+    temperature: 0.1
+    output: {
+      high_credibility_sources: [String],
+      medium_credibility_sources: [String],
+      low_credibility_sources: [String],
+      overall_reliability: String,
+      methodological_concerns: [String]
+    }
+  }
+  
+  // Phase 3: Thematic Analysis
+  thematic_analysis: parallel {
+    // Extract key themes
+    theme_extraction: agent(model: "thematic-agent", role: "thematic_analyst") {
+      prompt: "Extract and categorize key themes from research about {{research_topic}}. Sources: {{source_analyses}}"
+      input: [research_topic, source_analyses]
+      temperature: 0.3
+      output: {
+        major_themes: [String],
+        sub_themes: [String],
+        emerging_themes: [String],
+        theme_frequencies: [String]
+      }
+    }
+    
+    // Identify patterns
+    pattern_identification: agent(model: "pattern-agent", role: "pattern_analyst") {
+      prompt: "Identify patterns and trends in research findings about {{research_topic}}. Analyses: {{source_analyses}}"
+      input: [research_topic, source_analyses]
+      temperature: 0.2
+      output: {
+        consistent_patterns: [String],
+        emerging_trends: [String],
+        contradictory_patterns: [String],
+        temporal_patterns: [String]
+      }
+    }
+    
+    // Find consensus and conflicts
+    consensus_analysis: agent(model: "consensus-agent", role: "consensus_analyst") {
+      prompt: "Identify areas of consensus and conflict in research about {{research_topic}}. Source analyses: {{source_analyses}}"
+      input: [research_topic, source_analyses]
+      temperature: 0.2
+      output: {
+        strong_consensus: [String],
+        moderate_consensus: [String],
+        major_conflicts: [String],
+        unresolved_questions: [String]
+      }
+    }
+  }
+  
+  // Phase 4: Gap Analysis
+  gap_analysis: agent(model: "gap-agent", role: "research_gap_analyst") {
+    prompt: "Identify research gaps and limitations in current knowledge about {{research_topic}}. Consider source quality {{credibility_evaluation}} and thematic analysis {{thematic_analysis}}"
+    input: [research_topic, credibility_evaluation, thematic_analysis]
+    temperature: 0.4
+    output: {
+      knowledge_gaps: [ResearchGap],
+      methodological_limitations: [String],
+      sample_size_issues: [String],
+      geographical_gaps: [String],
+      temporal_gaps: [String]
+    }
+  }
+  
+  // Phase 5: Evidence Quality Assessment
+  evidence_quality: agent(model: "quality-agent", role: "evidence_evaluator") {
+    prompt: "Assess the quality and strength of evidence for {{research_topic}}. Consider credibility {{credibility_evaluation}}, patterns {{thematic_analysis.pattern_identification}}, and consensus {{thematic_analysis.consensus_analysis}}"
+    input: [research_topic, credibility_evaluation, thematic_analysis]
+    temperature: 0.2
+    output: {
+      evidence_strength: String,
+      quality_indicators: [String],
+      confidence_levels: [String],
+      reliability_assessment: String,
+      generalizability: String
+    }
+  }
+  
+  // Phase 6: Synthesis Generation
+  synthesis: if ($research_depth == "comprehensive") {
+    comprehensive_synthesis: agent(model: "synthesis-agent", role: "senior_researcher") {
+      prompt: "Create comprehensive research synthesis for {{research_topic}}. Include: themes {{thematic_analysis.theme_extraction}}, patterns {{thematic_analysis.pattern_identification}}, consensus {{thematic_analysis.consensus_analysis}}, gaps {{gap_analysis}}, evidence quality {{evidence_quality}}"
+      input: [research_topic, thematic_analysis, gap_analysis, evidence_quality]
+      temperature: 0.4
+      maxTokens: 2000
+      output: Synthesis
+    }
+  } else if ($research_depth == "focused") {
+    focused_synthesis: agent(model: "synthesis-agent", role: "research_synthesizer") {
+      prompt: "Create focused research synthesis highlighting key findings for {{research_topic}}. Prioritize high-credibility sources and strong consensus areas."
+      input: [research_topic, thematic_analysis, credibility_evaluation]
+      temperature: 0.3
+      maxTokens: 1000
+      output: Synthesis
+    }
+  } else {
+    summary_synthesis: agent(model: "summary-agent", role: "research_summarizer") {
+      prompt: "Create concise research summary for {{research_topic}} with main findings and consensus areas."
+      input: [research_topic, thematic_analysis.consensus_analysis]
+      temperature: 0.2
+      maxTokens: 500
+      output: Synthesis
+    }
+  }
+  
+  // Phase 7: Implications and Applications
+  implications: parallel {
+    // Practical implications
+    practical_implications: agent(model: "application-agent", role: "application_analyst") {
+      prompt: "Identify practical implications of research findings about {{research_topic}}. Synthesis: {{synthesis}}"
+      input: [research_topic, synthesis]
+      temperature: 0.4
+      output: {
+        immediate_applications: [String],
+        long_term_implications: [String],
+        policy_implications: [String],
+        practice_recommendations: [String]
+      }
+    }
+    
+    // Future research directions
+    future_research: agent(model: "research-agent", role: "research_strategist") {
+      prompt: "Suggest future research directions based on gaps and findings for {{research_topic}}. Gaps: {{gap_analysis}}, Current state: {{synthesis}}"
+      input: [research_topic, gap_analysis, synthesis]
+      temperature: 0.5
+      output: {
+        priority_research_questions: [String],
+        methodological_improvements: [String],
+        interdisciplinary_opportunities: [String],
+        longitudinal_studies_needed: [String]
+      }
+    }
+  }
+  
+  // Phase 8: Quality Assurance
+  quality_assurance: agent(model: "qa-agent", role: "research_reviewer") {
+    prompt: "Review the quality and completeness of this research synthesis about {{research_topic}}. Synthesis: {{synthesis}}, Evidence quality: {{evidence_quality}}"
+    input: [research_topic, synthesis, evidence_quality]
+    temperature: 0.2
+    output: {
+      completeness_score: Float,
+      accuracy_assessment: String,
+      bias_check: String,
+      missing_perspectives: [String],
+      improvement_suggestions: [String]
+    }
+  }
+  
+  // Phase 9: Final Report Generation
+  final_report: agent(model: "writing-agent", role: "research_writer") {
+    prompt: "Create comprehensive research report for {{research_topic}} including: executive summary, methodology, findings, implications, and recommendations. All analysis: {{synthesis}}, {{implications}}, {{gap_analysis}}, {{quality_assurance}}"
+    input: [research_topic, synthesis, implications, gap_analysis, quality_assurance]
+    temperature: 0.3
+    maxTokens: 3000
+  }
+  
+  // Complete Research Package
+  research_package: {
+    metadata: {
+      topic: research_topic,
+      sources_analyzed: length(sources),
+      research_depth: research_depth,
+      completed_at: now(),
+      report_id: generate_id()
+    },
+    
+    executive_summary: {
+      key_findings: synthesis.main_findings,
+      confidence_level: evidence_quality.evidence_strength,
+      research_quality: credibility_evaluation.overall_reliability,
+      main_implications: implications.practical_implications.immediate_applications
+    },
+    
+    detailed_analysis: {
+      source_evaluations: source_analyses,
+      credibility_assessment: credibility_evaluation,
+      thematic_findings: thematic_analysis,
+      synthesis_results: synthesis,
+      evidence_quality: evidence_quality,
+      research_gaps: gap_analysis
+    },
+    
+    recommendations: {
+      practical_applications: implications.practical_implications,
+      future_research: implications.future_research,
+      quality_improvements: quality_assurance.improvement_suggestions
+    },
+    
+    full_report: final_report
+  }
+}

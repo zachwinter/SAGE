@@ -14,8 +14,8 @@ export default defineConfig({
       entries: [
         { find: "@", replacement: resolve(__dirname, "src") },
         {
-          find: "@sage/analysis",
-          replacement: resolve(__dirname, "../../packages/analysis/src")
+          find: "@sage/graph",
+          replacement: resolve(__dirname, "../../packages/graph/src")
         },
         {
           find: "@sage/utils",

@@ -17,6 +17,8 @@ export const Router: FC = () => {
         return <Views.Threads />;
       case app.SelectModel:
         return <Views.SelectModel />;
+      case app.SelectProvider:
+        return <Views.SelectProvider />;
       case app.MCPMenu:
         return <Views.MCPMenu />;
       case app.DiscoverMCP:

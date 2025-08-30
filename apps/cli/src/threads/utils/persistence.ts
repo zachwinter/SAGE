@@ -2,10 +2,20 @@ import { Chat, ChatMessageLike, type ChatHistoryData } from "@lmstudio/sdk";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { state as threadState } from "../../threads";
-import { threads } from "../../utils/directories";
 
-export const listThreads = (threadsDir: string) =>
-  readdirSync(threadsDir).filter(v => v.includes(".json"));
+export const listThreads = (threadsDir: string) => {
+  try {
+    return readdirSync(threadsDir).filter(v => v.includes(".json"));
+  } catch (error) {
+    // If the directory doesn't exist or we can't read it, return empty array
+    if ((error as any).code === 'ENOENT') {
+      // Directory doesn't exist, that's OK - return empty array
+      return [];
+    }
+    // Re-throw other errors
+    throw error;
+  }
+};
 
 export function getActiveThreadPath(threadsDir: string, threadId?: string) {
   const activeThreadId =
@@ -27,7 +37,14 @@ export function appendMessageToActiveThread(
 ) {
   const path = getActiveThreadPath(threadsDir);
   const chatHistory: ChatHistoryData = JSON.parse(readFileSync(path).toString());
-  chatHistory.messages.push(message as any);
+  
+  // Ensure consistent message format
+  const formattedMessage = {
+    role: (message as any).role || (message as any).data?.role,
+    content: (message as any).content || (message as any).data?.content
+  };
+  
+  chatHistory.messages.push(formattedMessage as any);
   writeFileSync(path, JSON.stringify(chatHistory, null, 2));
 }
 
@@ -52,14 +69,27 @@ export function hydrate(threadsDir: string) {
     let chatHistory: ChatHistoryData;
     if (Array.isArray(messages)) {
       chatHistory = {
-        messages: messages.map((msg: any) => ({
-          role: msg.data?.role || msg.role,
-          content: msg.data?.content || msg.content
-        }))
+        messages: messages.map((msg: any) => {
+          // Handle different message formats consistently
+          const role = msg.data?.role || msg.role || 'assistant';
+          let content = msg.data?.content || msg.content || '';
+          
+          // Ensure content is in the correct format
+          if (typeof content === 'string') {
+            content = [{ type: 'text', text: content }];
+          } else if (Array.isArray(content) && content.length === 0) {
+            content = [{ type: 'text', text: '' }];
+          }
+          
+          return {
+            role,
+            content
+          };
+        })
       };
       writeFileSync(path, JSON.stringify(chatHistory, null, 2));
     } else {
-      chatHistory = { messages };
+      chatHistory = { messages: [] };
     }
 
     threadState.active = Chat.from(chatHistory);
@@ -67,10 +97,13 @@ export function hydrate(threadsDir: string) {
 }
 
 // Convenience wrappers that use the default threads directory
-export const listCurrentThreads = () => listThreads(threads);
-export const getCurrentActiveThreadPath = () => getActiveThreadPath(threads);
-export const appendMessageToCurrentActiveThread = (message: ChatMessageLike) =>
-  appendMessageToActiveThread(threads, message);
-export const removeLastMessageFromCurrentActiveThread = () =>
-  removeLastMessageFromActiveThread(threads);
-export const hydrateCurrentThread = () => hydrate(threads);
+export const listCurrentThreads = (threadsDir: string) => listThreads(threadsDir);
+export const getCurrentActiveThreadPath = (threadsDir: string) =>
+  getActiveThreadPath(threadsDir);
+export const appendMessageToCurrentActiveThread = (
+  threadsDir: string,
+  message: ChatMessageLike
+) => appendMessageToActiveThread(threadsDir, message);
+export const removeLastMessageFromCurrentActiveThread = (threadsDir: string) =>
+  removeLastMessageFromActiveThread(threadsDir);
+export const hydrateCurrentThread = (threadsDir: string) => hydrate(threadsDir);

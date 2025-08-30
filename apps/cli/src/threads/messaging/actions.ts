@@ -3,7 +3,7 @@ import {
   ChatMessage,
   type LLMPredictionFragmentWithRoundIndex
 } from "@lmstudio/sdk";
-import { Logger } from "@sage/utils";
+import { Logger, createDirectoryManager } from "@sage/utils";
 import {
   getGlobalAbortController,
   setGlobalAbortController,
@@ -26,6 +26,9 @@ import {
 } from "../utils/persistence.js";
 
 const logger = new Logger("threads:messaging:actions", "debug.log");
+
+// Create directory manager but don't hardcode threadsDir
+const directoryManager = createDirectoryManager();
 
 export function setMessage(message: string) {
   if (state.turn === "user") {
@@ -57,7 +60,9 @@ export async function sendMessage() {
 
   state.active.append("user", state.message);
 
-  appendMessageToCurrentActiveThread({
+  // Get threads directory dynamically
+  const threadsDir = directoryManager.getUserDataDir() + "/threads";
+  appendMessageToCurrentActiveThread(threadsDir, {
     role: "user",
     content: [{ type: "text", text: state.message }]
   });
@@ -79,7 +84,9 @@ export async function sendMessage() {
         state.response += fragment.content;
       },
       onMessage(message: ChatMessage) {
-        appendMessageToCurrentActiveThread(message);
+        // Get threads directory dynamically for each message
+        const threadsDir = directoryManager.getUserDataDir() + "/threads";
+        appendMessageToCurrentActiveThread(threadsDir, message);
 
         if (state.active) {
           state.active.append(message);
@@ -146,14 +153,21 @@ export async function sendMessage() {
       logger.error("Error in sendMessage:", e instanceof Error ? e : String(e));
     clearAllStreamingToolCalls();
   } finally {
-    setGlobalAbortController(null);
     logger.info(`🔄 Turn changed from assistant back to user (act completed)`);
     state.turn = "user";
   }
 }
 
 export function refreshThreadList() {
-  state.saved = listCurrentThreads();
+  try {
+    const directoryManager = createDirectoryManager();
+    const threadsDir = directoryManager.getUserDataDir() + "/threads";
+    state.saved = listCurrentThreads(threadsDir);
+  } catch (error) {
+    // If we can't read the threads directory, set saved to empty array
+    console.warn(`Failed to refresh thread list: ${error}`);
+    state.saved = [];
+  }
 }
 
 export function interruptGeneration() {
@@ -171,7 +185,11 @@ export function removeLastMessage() {
   try {
     state.active.pop();
     state.active = Chat.from(state.active);
-    removeLastMessageFromCurrentActiveThread();
+    
+    // Get threads directory dynamically
+    const directoryManager = createDirectoryManager();
+    const threadsDir = directoryManager.getUserDataDir() + "/threads";
+    removeLastMessageFromCurrentActiveThread(threadsDir);
   } catch (error) {
     logger.error(
       "Failed to remove last message:",
@@ -206,3 +224,4 @@ export function denyToolCall() {
 export function setTurn(turn: "user" | "assistant") {
   state.turn = turn;
 }
+

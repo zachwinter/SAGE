@@ -1,0 +1,52 @@
+{
+  "name": "@sage/ui",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Renderer-agnostic UI primitives for SAGE CLI and Web",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli/index.d.ts",
+      "default": "./dist/cli/index.js"
+    },
+    "./web": {
+      "types": "./dist/web/index.d.ts",
+      "default": "./dist/web/index.js"
+    },
+    "./adapters/cli": {
+      "types": "./dist/adapters/cli/index.d.ts",
+      "default": "./dist/adapters/cli/index.js"
+    },
+    "./adapters/web": {
+      "types": "./dist/adapters/web/index.d.ts",
+      "default": "./dist/adapters/web/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts src/cli.ts src/web.ts src/adapters/cli/index.ts src/adapters/web/index.ts src/examples/cli-example.tsx src/examples/comprehensive-example.tsx",
+    "test": "vitest",
+    "example:cli": "node dist/examples/cli-example.js",
+    "example:comprehensive": "node dist/examples/comprehensive-example.js"
+  },
+  "files": [
+    "dist/"
+  ],
+  "peerDependencies": {
+    "ink": "^6.2.3",
+    "react": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.10",
+    "jsdom": "^26.1.0",
+    "react": "^19.1.1",
+    "tsdown": "^0.14.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

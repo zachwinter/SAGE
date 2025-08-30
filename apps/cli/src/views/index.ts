@@ -5,4 +5,5 @@ export { MCPMenu } from "./mcp/MCPMenu.js";
 export { MCPTools } from "./mcp/MCPTools.js";
 export { Menu } from "./Menu.js";
 export { SelectModel } from "./SelectModel.js";
+export { SelectProvider } from "./SelectProvider.js";
 export { Threads } from "./Threads.js";

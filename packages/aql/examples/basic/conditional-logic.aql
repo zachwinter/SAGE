@@ -1,0 +1,42 @@
+// Conditional execution based on results
+query ConditionalLogic($content: String!, $quality_threshold: Float = 0.7) {
+  // Initial quality assessment
+  quality_check: agent(model: "assessment-agent", role: "quality_assessor") {
+    prompt: "Rate the quality of this content on a scale of 0.0 to 1.0: {{content}}"
+    input: $content
+    temperature: 0.1
+    output: { score: Float, feedback: String }
+  }
+  
+  // Conditional processing based on quality score
+  result: if (quality_check.score >= $quality_threshold) {
+    // High quality - just polish
+    polish: agent(model: "editing-agent", role: "editor") {
+      prompt: "Polish this high-quality content: {{content}}"
+      input: $content
+      temperature: 0.3
+    }
+  } else if (quality_check.score >= 0.5) {
+    // Medium quality - improve
+    improve: agent(model: "improvement-agent", role: "content_improver") {
+      prompt: "Improve this content based on feedback: {{quality_check.feedback}}. Original content: {{content}}"
+      input: [content, quality_check.feedback]
+      temperature: 0.7
+    }
+  } else {
+    // Low quality - rewrite
+    rewrite: agent(model: "writing-agent", role: "writer") {
+      prompt: "Completely rewrite this content to be high quality. Issues to address: {{quality_check.feedback}}. Original: {{content}}"
+      input: [content, quality_check.feedback]
+      temperature: 0.8
+    }
+  }
+  
+  // Final quality verification
+  final_check: agent(model: "assessment-agent", role: "quality_assessor") {
+    prompt: "Rate the final quality of this content (0.0 to 1.0): {{result}}"
+    input: result
+    temperature: 0.1
+    output: { score: Float, notes: String }
+  }
+}

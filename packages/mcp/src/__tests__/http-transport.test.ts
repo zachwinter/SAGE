@@ -109,11 +109,9 @@ describe("HTTP Transport Support", () => {
       listTools: vi.fn().mockResolvedValue({ tools: [] }),
       listResources: vi.fn().mockResolvedValue({ resources: [] }),
       listPrompts: vi.fn().mockResolvedValue({ prompts: [] }),
-      callTool: vi
-        .fn()
-        .mockResolvedValue({
-          content: [{ type: "text", text: "HTTP tool result" }]
-        }),
+      callTool: vi.fn().mockResolvedValue({
+        content: [{ type: "text", text: "HTTP tool result" }]
+      }),
       readResource: vi
         .fn()
         .mockResolvedValue({ contents: [{ type: "text", text: "HTTP resource" }] }),

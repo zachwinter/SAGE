@@ -1,0 +1,11 @@
+personas:
+  TestWatcher:
+    filters: ["**/*.txt"]
+    triggers: ["test"]
+    response: "test-response"
+    severity: "low"
+  AnotherWatcher:
+    filters: ["**/*.rs", "**/*.toml"]
+    triggers: ["fn\\s+main", "println!"]
+    response: "rust-code-detected"
+    severity: "medium"

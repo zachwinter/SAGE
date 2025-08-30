@@ -13,11 +13,11 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@sage/analysis": [
-        "packages/analysis/src/index"
+      "@sage/graph": [
+        "packages/graph/src/index"
       ],
-      "@sage/analysis/*": [
-        "packages/analysis/src/*"
+      "@sage/graph/*": [
+        "packages/graph/src/*"
       ],
       "@sage/utils": [
         "packages/utils/src/index.ts"

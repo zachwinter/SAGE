@@ -1,0 +1,166 @@
+// Customer support automation with escalation logic
+query CustomerSupport($customer_message: String!, $customer_history: [String], $priority: String = "normal") {
+  // Define structured types
+  type SupportTicket {
+    category: String
+    priority: String
+    sentiment: String
+    complexity: String
+    requires_human: Boolean
+    suggested_actions: [String]
+  }
+  
+  type CustomerProfile {
+    tier: String
+    satisfaction_score: Float
+    issue_history: [String]
+    preferred_contact: String
+  }
+  
+  // Phase 1: Initial Analysis
+  initial_analysis: parallel {
+    // Classify the issue
+    classification: agent(model: "classification-agent", role: "support_classifier") {
+      prompt: "Classify this customer support request: {{customer_message}}. Consider customer history: {{customer_history}}"
+      input: [customer_message, customer_history]
+      temperature: 0.2
+      output: {
+        category: String,
+        subcategory: String,
+        urgency: String,
+        technical_level: String
+      }
+    }
+    
+    // Analyze sentiment
+    sentiment_analysis: agent(model: "sentiment-agent", role: "sentiment_analyst") {
+      prompt: "Analyze customer sentiment in this message: {{customer_message}}"
+      input: customer_message
+      temperature: 0.1
+      output: { sentiment: String, emotion: String, frustration_level: Int }
+    }
+    
+    // Assess complexity
+    complexity_assessment: agent(model: "assessment-agent", role: "complexity_assessor") {
+      prompt: "Rate the complexity of this support request (1-10): {{customer_message}}"
+      input: customer_message
+      temperature: 0.1
+      output: { complexity_score: Int, reasoning: String }
+    }
+  }
+  
+  // Phase 2: Customer Profile Analysis
+  customer_profile: agent(model: "profile-agent", role: "customer_analyst") {
+    prompt: "Analyze customer profile based on history: {{customer_history}} and current issue: {{customer_message}}"
+    input: [customer_history, customer_message]
+    temperature: 0.3
+    output: CustomerProfile
+  }
+  
+  // Phase 3: Response Strategy
+  response_strategy: agent(model: "strategy-agent", role: "support_strategist") {
+    prompt: "Determine response strategy based on: Classification {{initial_analysis.classification}}, Sentiment {{initial_analysis.sentiment_analysis}}, Complexity {{initial_analysis.complexity_assessment}}, Customer Profile {{customer_profile}}"
+    input: [initial_analysis, customer_profile]
+    temperature: 0.4
+    output: {
+      approach: String,
+      tone: String,
+      escalation_needed: Boolean,
+      estimated_resolution_time: String
+    }
+  }
+  
+  // Phase 4: Knowledge Base Search
+  knowledge_search: agent(model: "knowledge-agent", role: "knowledge_retriever") {
+    prompt: "Search for relevant solutions for category: {{initial_analysis.classification.category}} and issue: {{customer_message}}"
+    input: [initial_analysis.classification, customer_message]
+    temperature: 0.2
+    output: {
+      relevant_articles: [String],
+      suggested_solutions: [String],
+      similar_cases: [String]
+    }
+  }
+  
+  // Phase 5: Conditional Response Generation
+  response: if (response_strategy.escalation_needed || initial_analysis.complexity_assessment.complexity_score >= 8) {
+    // High complexity - human escalation
+    escalation: agent(model: "escalation-agent", role: "escalation_specialist") {
+      prompt: "Create escalation summary for human agent. Customer message: {{customer_message}}, Analysis: {{initial_analysis}}, Strategy: {{response_strategy}}, Solutions: {{knowledge_search}}"
+      input: [customer_message, initial_analysis, response_strategy, knowledge_search]
+      temperature: 0.3
+      output: {
+        escalation_summary: String,
+        priority_level: String,
+        recommended_agent: String,
+        context_for_human: String
+      }
+    }
+  } else if (initial_analysis.sentiment_analysis.frustration_level >= 7) {
+    // High frustration - empathetic response
+    empathetic_response: agent(model: "empathy-agent", role: "empathy_specialist") {
+      prompt: "Craft an empathetic response for frustrated customer. Message: {{customer_message}}, Sentiment: {{initial_analysis.sentiment_analysis}}, Solutions: {{knowledge_search}}"
+      input: [customer_message, initial_analysis.sentiment_analysis, knowledge_search]
+      temperature: 0.6
+      output: {
+        response_text: String,
+        tone_notes: String,
+        follow_up_actions: [String]
+      }
+    }
+  } else {
+    // Standard response
+    standard_response: agent(model: "support-agent", role: "support_agent") {
+      prompt: "Create professional support response for: {{customer_message}}. Use strategy: {{response_strategy}} and solutions: {{knowledge_search}}"
+      input: [customer_message, response_strategy, knowledge_search]
+      temperature: 0.5
+      output: {
+        response_text: String,
+        resolution_steps: [String],
+        additional_resources: [String]
+      }
+    }
+  }
+  
+  // Phase 6: Quality Assurance
+  quality_check: agent(model: "qa-agent", role: "qa_specialist") {
+    prompt: "Review support response for quality, accuracy, and tone. Response: {{response}}, Original issue: {{customer_message}}"
+    input: [response, customer_message]
+    temperature: 0.2
+    output: {
+      quality_score: Float,
+      tone_appropriate: Boolean,
+      addresses_issue: Boolean,
+      suggestions: [String]
+    }
+  }
+  
+  // Phase 7: Follow-up Planning
+  follow_up: agent(model: "planning-agent", role: "follow_up_planner") {
+    prompt: "Plan follow-up actions based on: Customer profile {{customer_profile}}, Response {{response}}, Issue complexity {{initial_analysis.complexity_assessment}}"
+    input: [customer_profile, response, initial_analysis.complexity_assessment]
+    temperature: 0.3
+    output: {
+      follow_up_needed: Boolean,
+      follow_up_timing: String,
+      follow_up_method: String,
+      success_metrics: [String]
+    }
+  }
+  
+  // Final Support Ticket
+  support_ticket: {
+    ticket_id: generate_id(),
+    customer_message: customer_message,
+    analysis: initial_analysis,
+    customer_profile: customer_profile,
+    response_strategy: response_strategy,
+    knowledge_used: knowledge_search,
+    final_response: response,
+    quality_metrics: quality_check,
+    follow_up_plan: follow_up,
+    status: if (response_strategy.escalation_needed) "escalated" else "resolved",
+    created_at: now(),
+    priority: priority
+  }
+}

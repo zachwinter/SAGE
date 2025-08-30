@@ -1,0 +1,13 @@
+{
+  "type": "FUNCTION_ADDED",
+  "timestamp": "2024-01-01T12:00:00.000Z",
+  "actor": {
+    "agent": "sage",
+    "id": "user-123"
+  },
+  "planHash": "abc123def456",
+  "graphCommit": "commit-789",
+  "tags": ["refactor", "typescript"],
+  "functionName": "calculateTotal",
+  "filePath": "src/utils/math.ts"
+}

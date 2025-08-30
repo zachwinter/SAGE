@@ -1,0 +1,1 @@
+{"type":"FUNCTION_ADDED","eventId":"1f29f743225dd7d8ff70f0f1f5ffbb8ad13e536e18c54d0f9aa9d26853da0a4f","timestamp":"2024-01-01T12:00:00.000Z","actor":{"agent":"sage","id":"user-123"},"planHash":"abc123def456","graphCommit":"commit-789","tags":["refactor","typescript"],"functionName":"calculateTotal","filePath":"src/utils/math.ts"}

@@ -2,9 +2,8 @@ import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import { McpServerConfig } from "..";
-import { sage } from "../utils/directories.js";
-
-const SERVERS_DIR = path.join(sage, "servers");
+import { DirectoryManager } from "@sage/utils";
+import { getSageDirDI } from "../utils/directories.js";
 
 export interface ServerMetadata {
   name: string;
@@ -17,20 +16,32 @@ export interface ServerMetadata {
 }
 
 /**
+ * Get the servers directory path
+ */
+function getServersDir(directoryManager: DirectoryManager): string {
+  return path.join(getSageDirDI(directoryManager), "servers");
+}
+
+/**
  * Ensure the servers directory exists
  */
-export function ensureServersDirectory(): void {
-  if (!fs.existsSync(SERVERS_DIR)) {
-    fs.mkdirSync(SERVERS_DIR, { recursive: true });
+export function ensureServersDirectory(directoryManager: DirectoryManager): void {
+  const serversDir = getServersDir(directoryManager);
+  if (!fs.existsSync(serversDir)) {
+    fs.mkdirSync(serversDir, { recursive: true });
   }
 }
 
 /**
  * Get the local path for a server based on its GitHub URL
  */
-export function getServerPath(githubUrl: string): string {
+export function getServerPath(
+  directoryManager: DirectoryManager,
+  githubUrl: string
+): string {
+  const serversDir = getServersDir(directoryManager);
   const repoName = extractRepoName(githubUrl);
-  return path.join(SERVERS_DIR, repoName);
+  return path.join(serversDir, repoName);
 }
 
 /**
@@ -47,20 +58,27 @@ function extractRepoName(githubUrl: string): string {
 /**
  * Check if a server is already installed
  */
-export function isServerInstalled(githubUrl: string): boolean {
-  const serverPath = getServerPath(githubUrl);
+export function isServerInstalled(
+  directoryManager: DirectoryManager,
+  githubUrl: string
+): boolean {
+  const serverPath = getServerPath(directoryManager, githubUrl);
   return fs.existsSync(serverPath) && fs.existsSync(path.join(serverPath, ".git"));
 }
 
 /**
  * Clone a server from GitHub
  */
-export async function cloneServer(githubUrl: string, name: string): Promise<string> {
-  ensureServersDirectory();
+export async function cloneServer(
+  directoryManager: DirectoryManager,
+  githubUrl: string,
+  name: string
+): Promise<string> {
+  ensureServersDirectory(directoryManager);
 
-  const serverPath = getServerPath(githubUrl);
+  const serverPath = getServerPath(directoryManager, githubUrl);
 
-  if (isServerInstalled(githubUrl)) {
+  if (isServerInstalled(directoryManager, githubUrl)) {
     throw new Error(`Server already installed at ${serverPath}`);
   }
 
@@ -97,8 +115,11 @@ export async function cloneServer(githubUrl: string, name: string): Promise<stri
 /**
  * Remove an installed server
  */
-export async function removeServer(githubUrl: string): Promise<void> {
-  const serverPath = getServerPath(githubUrl);
+export async function removeServer(
+  directoryManager: DirectoryManager,
+  githubUrl: string
+): Promise<void> {
+  const serverPath = getServerPath(directoryManager, githubUrl);
 
   if (!fs.existsSync(serverPath)) {
     return; // Already removed
@@ -297,21 +318,24 @@ export function detectServerEntryPoint(serverPath: string): {
 /**
  * Scan the servers directory and return metadata for all installed servers
  */
-export function scanInstalledServers(): ServerMetadata[] {
-  ensureServersDirectory();
+export function scanInstalledServers(
+  directoryManager: DirectoryManager
+): ServerMetadata[] {
+  ensureServersDirectory(directoryManager);
 
   const servers: ServerMetadata[] = [];
+  const serversDir = getServersDir(directoryManager);
 
-  if (!fs.existsSync(SERVERS_DIR)) {
+  if (!fs.existsSync(serversDir)) {
     return servers;
   }
 
-  const entries = fs.readdirSync(SERVERS_DIR, { withFileTypes: true });
+  const entries = fs.readdirSync(serversDir, { withFileTypes: true });
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
 
-    const serverPath = path.join(SERVERS_DIR, entry.name);
+    const serverPath = path.join(serversDir, entry.name);
     const gitPath = path.join(serverPath, ".git");
 
     // Only include if it's a git repository
@@ -352,6 +376,7 @@ export function scanInstalledServers(): ServerMetadata[] {
  * Generate multiple server configs from a single repository
  */
 export function generateServerConfigs(
+  directoryManager: DirectoryManager,
   repoPath: string,
   repoName: string,
   githubUrl: string
@@ -370,7 +395,7 @@ export function generateServerConfigs(
         type: "stdio",
         command: process.platform === "win32" ? "python" : "python3",
         args: [server.entryPoint],
-        enabled: false,
+        enabled: false, // Disabled by default until user enables
         env: {
           // --> THIS IS THE CRUCIAL PART <--
           // It needs to point to the root of the cloned repo.
@@ -398,7 +423,9 @@ export function generateServerConfigs(
           command: "node",
           args: [server.entryPoint],
           enabled: false,
-          env: {}
+          env: {
+            NODE_PATH: repoPath
+          }
         });
       }
     }
@@ -468,10 +495,13 @@ export function serverMetadataToConfig(
 /**
  * Update server (git pull)
  */
-export async function updateServer(githubUrl: string): Promise<void> {
-  const serverPath = getServerPath(githubUrl);
+export async function updateServer(
+  directoryManager: DirectoryManager,
+  githubUrl: string
+): Promise<void> {
+  const serverPath = getServerPath(directoryManager, githubUrl);
 
-  if (!isServerInstalled(githubUrl)) {
+  if (!isServerInstalled(directoryManager, githubUrl)) {
     throw new Error("Server not installed");
   }
 

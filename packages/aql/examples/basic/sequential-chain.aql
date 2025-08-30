@@ -1,0 +1,31 @@
+// Sequential operations - each step builds on the previous
+query SequentialChain($topic: String!) {
+  // Step 1: Research the topic
+  research: agent(model: "research-agent", role: "researcher") {
+    prompt: "Research key facts about {{topic}}"
+    input: $topic
+    maxTokens: 800
+  }
+  
+  // Step 2: Create an outline based on research
+  outline: agent(model: "outline-agent", role: "writer") {
+    prompt: "Create a structured outline based on this research: {{research}}"
+    input: research
+    temperature: 0.5
+  }
+  
+  // Step 3: Write content following the outline
+  content: agent(model: "writing-agent", role: "writer") {
+    prompt: "Write engaging content following this outline: {{outline}}"
+    input: outline
+    temperature: 0.8
+    maxTokens: 1500
+  }
+  
+  // Step 4: Review and polish
+  final: agent(model: "editing-agent", role: "editor") {
+    prompt: "Review and polish this content for clarity and engagement: {{content}}"
+    input: content
+    temperature: 0.3
+  }
+}

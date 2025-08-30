@@ -1,0 +1,172 @@
+// Advanced content creation pipeline with quality control
+query ContentPipeline($topic: String!, $target_audience: String!, $content_type: String!) {
+  // Define custom types for structured outputs
+  type QualityMetrics {
+    grammar: Float
+    clarity: Float
+    engagement: Float
+    accuracy: Float
+    seo_score: Float
+    overall: Float
+  }
+  
+  type ContentAnalysis {
+    word_count: Int
+    readability_level: String
+    key_themes: [String]
+    tone: String
+    suggestions: [String]
+  }
+  
+  // Phase 1: Research and Planning
+  research: parallel {
+    // Market research
+    market_analysis: agent(model: "research-agent", role: "market_researcher") {
+      prompt: "Research current trends and insights about {{topic}} for {{target_audience}}"
+      input: [$topic, $target_audience]
+      temperature: 0.4
+    }
+    
+    // Competitive analysis
+    competitive_analysis: agent(model: "analysis-agent", role: "competitive_analyst") {
+      prompt: "Analyze what competitors are saying about {{topic}} and identify content gaps"
+      input: $topic
+      temperature: 0.3
+    }
+    
+    // SEO research
+    seo_research: agent(model: "seo-agent", role: "seo_specialist") {
+      prompt: "Identify key SEO opportunities and keywords for {{topic}} targeting {{target_audience}}"
+      input: [$topic, $target_audience]
+      temperature: 0.2
+    }
+  }
+  
+  // Phase 2: Content Strategy
+  strategy: agent(model: "strategy-agent", role: "content_strategist") {
+    prompt: "Create a comprehensive content strategy for {{content_type}} about {{topic}}. Consider: market analysis {{research.market_analysis}}, competitive landscape {{research.competitive_analysis}}, and SEO opportunities {{research.seo_research}}"
+    input: [content_type, topic, research]
+    temperature: 0.6
+  }
+  
+  // Phase 3: Content Creation
+  draft: agent(model: "writing-agent", role: "content_writer") {
+    prompt: "Write a {{content_type}} about {{topic}} for {{target_audience}}. Follow this strategy: {{strategy}}"
+    input: [content_type, topic, target_audience, strategy]
+    temperature: 0.8
+    maxTokens: 2000
+  }
+  
+  // Phase 4: Multi-dimensional Quality Review
+  quality_review: parallel {
+    // Grammar and style check
+    grammar_check: agent(model: "editing-agent", role: "grammar_editor") {
+      prompt: "Check grammar, spelling, and style in this content: {{draft}}"
+      input: draft
+      temperature: 0.1
+      output: { score: Float, issues: [String], suggestions: [String] }
+    }
+    
+    // Fact verification
+    fact_check: agent(model: "verification-agent", role: "fact_checker") {
+      prompt: "Verify factual accuracy of claims in this content: {{draft}}"
+      input: draft
+      temperature: 0.2
+      output: { accuracy_score: Float, questionable_claims: [String] }
+    }
+    
+    // SEO optimization
+    seo_analysis: agent(model: "seo-agent", role: "seo_optimizer") {
+      prompt: "Analyze SEO optimization of this content: {{draft}}. Consider target keywords from research: {{research.seo_research}}"
+      input: [draft, research.seo_research]
+      temperature: 0.3
+      output: { seo_score: Float, improvements: [String] }
+    }
+    
+    // Audience alignment
+    audience_check: agent(model: "analysis-agent", role: "audience_analyst") {
+      prompt: "Evaluate how well this content resonates with {{target_audience}}: {{draft}}"
+      input: [draft, target_audience]
+      temperature: 0.4
+      output: { alignment_score: Float, tone_feedback: String }
+    }
+    
+    // Engagement potential
+    engagement_analysis: agent(model: "engagement-agent", role: "engagement_expert") {
+      prompt: "Assess the engagement potential of this content: {{draft}}"
+      input: draft
+      temperature: 0.3
+      output: { engagement_score: Float, hooks: [String], improvements: [String] }
+    }
+  }
+  
+  // Phase 5: Quality Scoring
+  overall_quality: agent(model: "assessment-agent", role: "quality_assessor") {
+    prompt: "Calculate overall quality score based on: Grammar {{quality_review.grammar_check}}, Facts {{quality_review.fact_check}}, SEO {{quality_review.seo_analysis}}, Audience fit {{quality_review.audience_check}}, Engagement {{quality_review.engagement_analysis}}"
+    input: quality_review
+    temperature: 0.1
+    output: QualityMetrics
+  }
+  
+  // Phase 6: Conditional Improvement
+  final_content: if (overall_quality.overall >= 0.8) {
+    // High quality - minor polish only
+    polish: agent(model: "editing-agent", role: "copy_editor") {
+      prompt: "Apply final polish to this high-quality content: {{draft}}"
+      input: draft
+      temperature: 0.2
+    }
+  } else if (overall_quality.overall >= 0.6) {
+    // Medium quality - targeted improvements
+    improve: agent(model: "improvement-agent", role: "content_improver") {
+      prompt: "Improve this content based on quality review feedback: {{quality_review}}. Original content: {{draft}}"
+      input: [draft, quality_review]
+      temperature: 0.7
+    }
+  } else {
+    // Low quality - major revision
+    revise: agent(model: "writing-agent", role: "senior_writer") {
+      prompt: "Major revision needed. Rewrite this content addressing all quality issues: {{quality_review}}. Original: {{draft}}. Strategy: {{strategy}}"
+      input: [draft, quality_review, strategy]
+      temperature: 0.8
+    }
+  }
+  
+  // Phase 7: Final Analysis
+  final_analysis: agent(model: "analysis-agent", role: "content_analyst") {
+    prompt: "Provide final content analysis for: {{final_content}}"
+    input: final_content
+    temperature: 0.2
+    output: ContentAnalysis
+  }
+  
+  // Phase 8: Meta Tags and Social Media
+  meta_content: parallel {
+    // SEO meta tags
+    meta_tags: agent(model: "seo-agent", role: "seo_specialist") {
+      prompt: "Generate SEO meta title, description, and keywords for: {{final_content}}"
+      input: final_content
+      temperature: 0.3
+      output: { title: String, description: String, keywords: [String] }
+    }
+    
+    // Social media posts
+    social_posts: agent(model: "social-agent", role: "social_media_manager") {
+      prompt: "Create social media posts (Twitter, LinkedIn, Facebook) to promote this content: {{final_content}}"
+      input: final_content
+      temperature: 0.7
+      output: { twitter: String, linkedin: String, facebook: String }
+    }
+  }
+  
+  // Final deliverable package
+  deliverable: {
+    content: final_content,
+    quality_metrics: overall_quality,
+    analysis: final_analysis,
+    meta_data: meta_content.meta_tags,
+    social_media: meta_content.social_posts,
+    research_summary: research,
+    strategy_used: strategy
+  }
+}

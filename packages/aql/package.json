@@ -1,0 +1,65 @@
+{
+  "name": "@sage/aql",
+  "version": "0.1.0",
+  "description": "Agent/Action Query Language - A declarative language for orchestrating agent workflows",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "aql",
+    "agent",
+    "workflow",
+    "orchestration",
+    "query-language",
+    "declarative",
+    "multi-agent",
+    "automation"
+  ],
+  "author": "Sage Team <team@wearesage.ai>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wearesage/aql"
+  },
+  "bugs": {
+    "url": "https://github.com/wearesage/aql/issues"
+  },
+  "homepage": "https://github.com/wearesage/aql#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/uuid": "^9.0.6",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^8.50.0",
+    "typescript": "^5.2.2",
+    "typedoc": "^0.25.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
+  },
+  "files": [
+    "dist/",
+    "examples/",
+    "docs/",
+    "README.md",
+    "LICENSE"
+  ]
+}

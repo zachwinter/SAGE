@@ -1,7 +1,7 @@
 import { Chat } from "@lmstudio/sdk";
 import { Logger } from "@sage/utils";
 import { getSelectedModel } from "../../models";
-import { toolRegistry } from "../../tools/registry";
+import { toolRegistry } from "@sage/tools";
 import { setPendingToolCall } from "../messaging/actions.js";
 import {
   getGlobalAbortController,

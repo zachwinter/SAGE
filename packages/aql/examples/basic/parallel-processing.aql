@@ -1,0 +1,41 @@
+// Parallel operations - multiple agents working simultaneously
+query ParallelProcessing($document: String!) {
+  // Process the document in parallel with different perspectives
+  analysis: parallel {
+    // Analyze sentiment
+    sentiment: agent(model: "sentiment-agent", role: "sentiment_analyst") {
+      prompt: "Analyze the sentiment of this document: {{document}}"
+      input: $document
+      temperature: 0.2
+    }
+    
+    // Extract key topics
+    topics: agent(model: "topic-agent", role: "topic_extractor") {
+      prompt: "Extract the main topics and themes from: {{document}}"
+      input: $document
+      temperature: 0.3
+    }
+    
+    // Summarize content
+    summary: agent(model: "summary-agent", role: "summarizer") {
+      prompt: "Create a concise summary of: {{document}}"
+      input: $document
+      temperature: 0.4
+      maxTokens: 200
+    }
+    
+    // Check readability
+    readability: agent(model: "readability-agent", role: "readability_expert") {
+      prompt: "Assess the readability level of this document: {{document}}"
+      input: $document
+      temperature: 0.1
+    }
+  }
+  
+  // Combine all analyses into a comprehensive report
+  report: agent(model: "reporting-agent", role: "report_writer") {
+    prompt: "Create a comprehensive analysis report combining these insights: Sentiment: {{analysis.sentiment}}, Topics: {{analysis.topics}}, Summary: {{analysis.summary}}, Readability: {{analysis.readability}}"
+    input: analysis
+    temperature: 0.6
+  }
+}

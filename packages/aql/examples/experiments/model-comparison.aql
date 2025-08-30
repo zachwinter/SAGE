@@ -1,0 +1,168 @@
+// Experiment: Direct comparison of different agent orchestration strategies
+// Research Question: What's the optimal way to combine different agent capabilities?
+
+query ModelComparisonExperiment($task: String!, $evaluation_criteria: [String]!) {
+  
+  // Strategy 1: Single large agent approach (baseline)
+  single_large: agent(model: "large-agent", role: "generalist") {
+    prompt: "Solve this task comprehensively: {{task}}"
+    input: $task
+    temperature: 0.7
+  }
+  
+  // Strategy 2: Cascade approach (small → medium → large)
+  cascade_approach: {
+    initial: agent(model: "small-agent", role: "initial_processor") {
+      prompt: "Provide initial analysis of: {{task}}"
+      input: $task
+      temperature: 0.5
+    }
+    
+    refinement: agent(model: "medium-agent", role: "refiner") {
+      prompt: "Refine and improve this initial analysis: {{initial}}"
+      input: initial
+      temperature: 0.4
+    }
+    
+    final: agent(model: "large-agent", role: "finalizer") {
+      prompt: "Finalize and perfect this analysis: {{refinement}}"
+      input: refinement
+      temperature: 0.3
+    }
+  }
+  
+  // Strategy 3: Ensemble voting
+  ensemble_voting: {
+    parallel {
+      small_1: agent(model: "small-agent", role: "voter_1") {
+        prompt: "Your perspective on: {{task}}"
+        input: $task
+        temperature: 0.6
+      }
+      
+      small_2: agent(model: "small-agent", role: "voter_2") {
+        prompt: "Your independent analysis of: {{task}}"
+        input: $task
+        temperature: 0.8
+      }
+      
+      medium: agent(model: "medium-agent", role: "voter_3") {
+        prompt: "Your considered opinion on: {{task}}"
+        input: $task
+        temperature: 0.5
+      }
+    }
+    
+    consensus: agent(model: "medium-agent", role: "consensus_builder") {
+      prompt: "Build consensus from these perspectives: {{small_1}}, {{small_2}}, {{medium}}"
+      input: [small_1, small_2, medium]
+      temperature: 0.3
+    }
+  }
+  
+  // Strategy 4: Specialized agents with coordination
+  specialized_coordination: {
+    parallel {
+      analyst: agent(model: "small-agent", role: "data_analyst") {
+        prompt: "Analyze the data/information aspects of: {{task}}"
+        input: $task
+        temperature: 0.2
+      }
+      
+      strategist: agent(model: "small-agent", role: "strategist") {
+        prompt: "Develop strategic approaches for: {{task}}"
+        input: $task
+        temperature: 0.7
+      }
+      
+      implementer: agent(model: "small-agent", role: "implementer") {
+        prompt: "Focus on practical implementation of: {{task}}"
+        input: $task
+        temperature: 0.4
+      }
+    }
+    
+    coordinator: agent(model: "medium-agent", role: "coordinator") {
+      prompt: "Coordinate these specialized perspectives into a unified solution: Analysis {{analyst}}, Strategy {{strategist}}, Implementation {{implementer}}"
+      input: [analyst, strategist, implementer]
+      temperature: 0.4
+    }
+  }
+  
+  // Strategy 5: Debate and refinement
+  debate_refinement: {
+    round_1: {
+      advocate: agent(model: "small-agent", role: "advocate") {
+        prompt: "Argue for the best approach to: {{task}}"
+        input: $task
+        temperature: 0.7
+      }
+      
+      critic: agent(model: "small-agent", role: "critic") {
+        prompt: "Find flaws and alternatives to this approach: {{advocate}}"
+        input: advocate
+        temperature: 0.6
+      }
+    }
+    
+    round_2: {
+      advocate_response: agent(model: "small-agent", role: "advocate") {
+        prompt: "Respond to criticisms and strengthen your approach: Original {{round_1.advocate}}, Criticisms {{round_1.critic}}"
+        input: [round_1.advocate, round_1.critic]
+        temperature: 0.6
+      }
+      
+      final_critique: agent(model: "small-agent", role: "critic") {
+        prompt: "Final evaluation of the refined approach: {{advocate_response}}"
+        input: advocate_response
+        temperature: 0.4
+      }
+    }
+    
+    synthesis: agent(model: "medium-agent", role: "debate_synthesizer") {
+      prompt: "Synthesize the best insights from this debate into a final solution: {{round_1}}, {{round_2}}"
+      input: [round_1, round_2]
+      temperature: 0.3
+    }
+  }
+  
+  // Evaluation phase: Compare all strategies
+  parallel {
+    evaluate_single: agent(model: "evaluation-agent", role: "evaluator") {
+      prompt: "Evaluate this solution against criteria {{evaluation_criteria}}: {{single_large}}"
+      input: [single_large, evaluation_criteria]
+      temperature: 0.1
+    }
+    
+    evaluate_cascade: agent(model: "evaluation-agent", role: "evaluator") {
+      prompt: "Evaluate this solution against criteria {{evaluation_criteria}}: {{cascade_approach.final}}"
+      input: [cascade_approach.final, evaluation_criteria]
+      temperature: 0.1
+    }
+    
+    evaluate_ensemble: agent(model: "evaluation-agent", role: "evaluator") {
+      prompt: "Evaluate this solution against criteria {{evaluation_criteria}}: {{ensemble_voting.consensus}}"
+      input: [ensemble_voting.consensus, evaluation_criteria]
+      temperature: 0.1
+    }
+    
+    evaluate_specialized: agent(model: "evaluation-agent", role: "evaluator") {
+      prompt: "Evaluate this solution against criteria {{evaluation_criteria}}: {{specialized_coordination.coordinator}}"
+      input: [specialized_coordination.coordinator, evaluation_criteria]
+      temperature: 0.1
+    }
+    
+    evaluate_debate: agent(model: "evaluation-agent", role: "evaluator") {
+      prompt: "Evaluate this solution against criteria {{evaluation_criteria}}: {{debate_refinement.synthesis}}"
+      input: [debate_refinement.synthesis, evaluation_criteria]
+      temperature: 0.1
+    }
+  }
+  
+  // Final comparative analysis
+  final_comparison: agent(model: "analysis-agent", role: "research_analyst") {
+    prompt: "Compare all strategies and determine which performed best. Evaluations: Single {{evaluate_single}}, Cascade {{evaluate_cascade}}, Ensemble {{evaluate_ensemble}}, Specialized {{evaluate_specialized}}, Debate {{evaluate_debate}}"
+    input: [evaluate_single, evaluate_cascade, evaluate_ensemble, evaluate_specialized, evaluate_debate]
+    temperature: 0.2
+  }
+}

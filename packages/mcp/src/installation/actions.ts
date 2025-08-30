@@ -52,6 +52,16 @@ const defaultProcessSpawner: ProcessSpawner = { spawn };
 const defaultPathOps: PathOps = path;
 const defaultOsOps: OsOps = os;
 
+// DirectoryManager instance for this module
+let directoryManager: any = null;
+
+/**
+ * Set the DirectoryManager for this module
+ */
+export function setDirectoryManager(dm: any) {
+  directoryManager = dm;
+}
+
 async function installServerDependencies(
   repoPath: string,
   deps: {
@@ -207,6 +217,10 @@ export async function syncFilesystemServers(
     osOps?: OsOps;
   } = {}
 ): Promise<void> {
+  if (!directoryManager) {
+    throw new Error("DirectoryManager not set. Call setDirectoryManager() first.");
+  }
+
   const fs = deps.fileSystem || defaultFileSystemOps;
   const pathOps = deps.pathOps || defaultPathOps;
   const os = deps.osOps || defaultOsOps;
@@ -224,6 +238,7 @@ export async function syncFilesystemServers(
     for (const serverDir of serverDirs) {
       const serverPath = path.join(SERVERS_DIR, serverDir);
       const configs = generateServerConfigs(
+        directoryManager,
         serverPath,
         serverDir,
         `filesystem:${serverDir}`
@@ -272,14 +287,27 @@ export async function installServerFromRegistry(
     processSpawner?: ProcessSpawner;
   } = {}
 ): Promise<import("../types.js").McpServerConfig[]> {
-  if (isServerInstalled(server.github)) {
+  if (!directoryManager) {
+    throw new Error("DirectoryManager not set. Call setDirectoryManager() first.");
+  }
+
+  if (isServerInstalled(directoryManager, server.github)) {
     throw new Error(`Server ${server.name} is already installed`);
   }
 
   try {
-    const serverPath = await cloneServer(server.github, server.name);
+    const serverPath = await cloneServer(
+      directoryManager,
+      server.github,
+      server.name
+    );
     await installServerDependencies(serverPath, deps);
-    const configs = generateServerConfigs(serverPath, server.name, server.github);
+    const configs = generateServerConfigs(
+      directoryManager,
+      serverPath,
+      server.name,
+      server.github
+    );
 
     for (const config of configs) {
       mcpState.serverConfigs[config.id] = config;
@@ -295,6 +323,10 @@ export async function installServerFromRegistry(
 }
 
 export async function uninstallServer(repoName: string): Promise<void> {
+  if (!directoryManager) {
+    throw new Error("DirectoryManager not set. Call setDirectoryManager() first.");
+  }
+
   const values = Object.values(mcpState.serverConfigs);
 
   const repoConfigs = values.filter(config => {
@@ -307,7 +339,7 @@ export async function uninstallServer(repoName: string): Promise<void> {
   }
 
   try {
-    const installedServers = scanInstalledServers();
+    const installedServers = scanInstalledServers(directoryManager);
     const serverMetadata = installedServers.find(meta => meta.name === repoName);
 
     if (serverMetadata && serverMetadata.github) {
@@ -327,7 +359,7 @@ export async function uninstallServer(repoName: string): Promise<void> {
           );
         }
       }
-      await removeServer(serverMetadata.github);
+      await removeServer(directoryManager, serverMetadata.github);
       await saveServerConfigs();
     } else {
       throw new Error(
@@ -340,16 +372,23 @@ export async function uninstallServer(repoName: string): Promise<void> {
 }
 
 export function isRegistryServerInstalled(server: { github: string }): boolean {
-  return isServerInstalled(server.github);
+  if (!directoryManager) {
+    throw new Error("DirectoryManager not set. Call setDirectoryManager() first.");
+  }
+  return isServerInstalled(directoryManager, server.github);
 }
 
 export function getRegistryInstallationStatus(
   registry: Array<{ name: string; github: string }>
 ): Record<string, boolean> {
+  if (!directoryManager) {
+    throw new Error("DirectoryManager not set. Call setDirectoryManager() first.");
+  }
+
   const status: Record<string, boolean> = {};
 
   for (const server of registry) {
-    status[server.name] = isServerInstalled(server.github);
+    status[server.name] = isServerInstalled(directoryManager, server.github);
   }
 
   return status;

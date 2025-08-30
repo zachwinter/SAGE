@@ -5,9 +5,12 @@ import { ask } from "./commands/ask.js";
 import { help } from "./commands/help.js";
 import { ingest } from "./commands/ingest.js";
 import { version } from "./commands/version.js";
+import { createDirectoryManager } from "@sage/utils";
 
 (async () => {
   const args = process.argv.slice(2);
+  // Get the directory manager for this environment
+  const directoryManager = createDirectoryManager();
 
   if (args.includes("--help") || args.includes("-h") || !args.length) {
     help();
@@ -33,6 +36,6 @@ import { version } from "./commands/version.js";
   }
 
   if (args[0] === "ask") {
-    await ask();
+    await ask(directoryManager);
   }
 })();

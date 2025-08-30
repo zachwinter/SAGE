@@ -2,47 +2,46 @@ import { Logger } from "@sage/utils";
 import { ChildProcess, spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import { sage } from "../utils/directories.js";
+import { getSageDirDI } from "../utils/directories.js";
 
 const logger = new Logger("MCP Process Manager");
 
-const PIDS_DIR = path.join(sage, "pids");
-
-export interface ServerProcess {
-  serverId: string;
-  pid: number;
-  startTime: Date;
-  command: string;
-  args: string[];
-  process?: ChildProcess;
+/**
+ * Get the PIDs directory path for a given DirectoryManager
+ */
+function getPidsDir(directoryManager: any): string {
+  return path.join(getSageDirDI(directoryManager), "pids");
 }
 
 /**
  * Ensure the PIDs directory exists
  */
-function ensurePidsDirectory(): void {
-  if (!fs.existsSync(PIDS_DIR)) {
-    fs.mkdirSync(PIDS_DIR, { recursive: true });
+function ensurePidsDirectory(directoryManager: any): void {
+  const pidsDir = getPidsDir(directoryManager);
+  if (!fs.existsSync(pidsDir)) {
+    fs.mkdirSync(pidsDir, { recursive: true });
   }
 }
 
 /**
  * Get the PID file path for a server
  */
-function getPidFilePath(serverId: string): string {
-  return path.join(PIDS_DIR, `${serverId}.pid`);
+function getPidFilePath(directoryManager: any, serverId: string): string {
+  const pidsDir = getPidsDir(directoryManager);
+  return path.join(pidsDir, `${serverId}.pid`);
 }
 
 /**
  * Write PID file for a server
  */
 function writePidFile(
+  directoryManager: any,
   serverId: string,
   pid: number,
   command: string,
   args: string[]
 ): void {
-  ensurePidsDirectory();
+  ensurePidsDirectory(directoryManager);
 
   const pidData = {
     pid,
@@ -51,7 +50,7 @@ function writePidFile(
     args
   };
 
-  const pidFilePath = getPidFilePath(serverId);
+  const pidFilePath = getPidFilePath(directoryManager, serverId);
   fs.writeFileSync(pidFilePath, JSON.stringify(pidData, null, 2));
 }
 
@@ -59,9 +58,10 @@ function writePidFile(
  * Read PID file for a server
  */
 function readPidFile(
+  directoryManager: any,
   serverId: string
 ): { pid: number; startTime: string; command: string; args: string[] } | null {
-  const pidFilePath = getPidFilePath(serverId);
+  const pidFilePath = getPidFilePath(directoryManager, serverId);
 
   if (!fs.existsSync(pidFilePath)) {
     return null;
@@ -79,8 +79,8 @@ function readPidFile(
 /**
  * Remove PID file for a server
  */
-function removePidFile(serverId: string): void {
-  const pidFilePath = getPidFilePath(serverId);
+function removePidFile(directoryManager: any, serverId: string): void {
+  const pidFilePath = getPidFilePath(directoryManager, serverId);
 
   if (fs.existsSync(pidFilePath)) {
     fs.unlinkSync(pidFilePath);
@@ -103,20 +103,21 @@ function isProcessRunning(pid: number): boolean {
 /**
  * Get all running server processes from PID files
  */
-export function getRunningServers(): ServerProcess[] {
-  ensurePidsDirectory();
+export function getRunningServers(directoryManager: any): ServerProcess[] {
+  ensurePidsDirectory(directoryManager);
 
   const processes: ServerProcess[] = [];
 
-  if (!fs.existsSync(PIDS_DIR)) {
+  const pidsDir = getPidsDir(directoryManager);
+  if (!fs.existsSync(pidsDir)) {
     return processes;
   }
 
-  const pidFiles = fs.readdirSync(PIDS_DIR).filter(file => file.endsWith(".pid"));
+  const pidFiles = fs.readdirSync(pidsDir).filter(file => file.endsWith(".pid"));
 
   for (const pidFile of pidFiles) {
     const serverId = pidFile.replace(".pid", "");
-    const pidData = readPidFile(serverId);
+    const pidData = readPidFile(directoryManager, serverId);
 
     if (!pidData) continue;
 
@@ -131,7 +132,7 @@ export function getRunningServers(): ServerProcess[] {
       });
     } else {
       // Clean up stale PID file
-      removePidFile(serverId);
+      removePidFile(directoryManager, serverId);
     }
   }
 
@@ -141,8 +142,8 @@ export function getRunningServers(): ServerProcess[] {
 /**
  * Check if a specific server is running
  */
-export function isServerRunning(serverId: string): boolean {
-  const pidData = readPidFile(serverId);
+export function isServerRunning(directoryManager: any, serverId: string): boolean {
+  const pidData = readPidFile(directoryManager, serverId);
 
   if (!pidData) {
     return false;
@@ -152,7 +153,7 @@ export function isServerRunning(serverId: string): boolean {
     return true;
   } else {
     // Clean up stale PID file
-    removePidFile(serverId);
+    removePidFile(directoryManager, serverId);
     return false;
   }
 }
@@ -160,6 +161,7 @@ export function isServerRunning(serverId: string): boolean {
 const processes: Record<string, ChildProcess> = {};
 
 export async function startServerProcess(
+  directoryManager: any,
   id: string,
   command: string,
   args: string[],
@@ -173,7 +175,7 @@ export async function startServerProcess(
     processExecPath: process.execPath
   });
 
-  if (isServerRunning(id)) {
+  if (isServerRunning(directoryManager, id)) {
     throw new Error(`Server ${id} is already running`);
   }
 
@@ -255,7 +257,7 @@ export async function startServerProcess(
 
     const cleanup = () => {
       clearTimeout(startupTimeout);
-      removePidFile(id);
+      removePidFile(directoryManager, id);
       delete processes[id];
     };
 
@@ -301,14 +303,14 @@ export async function startServerProcess(
 
         // Write PID file ONLY after we know it's ready
         try {
-          writePidFile(id, child.pid!, cmd, spawnArgs);
+          writePidFile(directoryManager, id, child.pid!, cmd, spawnArgs);
           processes[id] = child;
 
           // Now that it's ready, re-attach a simple exit listener for long-term cleanup
           child.removeAllListeners("exit"); // remove premature exit listener
           child.once("exit", (code, signal) => {
             logger.debug(`Process ${id} exited`, { code, signal, pid: child.pid });
-            removePidFile(id);
+            removePidFile(directoryManager, id);
             delete processes[id];
           });
 
@@ -325,9 +327,12 @@ export async function startServerProcess(
   });
 }
 
-export async function stopServerProcess(id: string): Promise<void> {
+export async function stopServerProcess(
+  directoryManager: any,
+  id: string
+): Promise<void> {
   // First check if there's a PID file
-  const pidData = readPidFile(id);
+  const pidData = readPidFile(directoryManager, id);
   if (!pidData) {
     // Clean up in-memory process if it exists
     delete processes[id];
@@ -339,7 +344,7 @@ export async function stopServerProcess(id: string): Promise<void> {
   // Check if process is still running
   if (!isProcessRunning(pid)) {
     // Process already dead, just cleanup
-    removePidFile(id);
+    removePidFile(directoryManager, id);
     delete processes[id];
     return;
   }
@@ -379,7 +384,7 @@ export async function stopServerProcess(id: string): Promise<void> {
   }
 
   // Clean up
-  removePidFile(id);
+  removePidFile(directoryManager, id);
   delete processes[id];
 }
 
@@ -387,27 +392,34 @@ export async function stopServerProcess(id: string): Promise<void> {
  * Restart a server process
  */
 export async function restartServerProcess(
+  directoryManager: any,
   serverId: string,
   command: string,
   args: string[] = [],
   cwd?: string
 ): Promise<ChildProcess> {
-  await stopServerProcess(serverId);
+  await stopServerProcess(directoryManager, serverId);
 
   // Wait a bit before restarting
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  return startServerProcess(serverId, command, args, cwd || process.cwd());
+  return startServerProcess(
+    directoryManager,
+    serverId,
+    command,
+    args,
+    cwd || process.cwd()
+  );
 }
 
 /**
  * Stop all running servers
  */
-export async function stopAllServers(): Promise<void> {
-  const runningServers = getRunningServers();
+export async function stopAllServers(directoryManager: any): Promise<void> {
+  const runningServers = getRunningServers(directoryManager);
 
   const stopPromises = runningServers.map(server =>
-    stopServerProcess(server.serverId)
+    stopServerProcess(directoryManager, server.serverId)
   );
 
   await Promise.all(stopPromises);
@@ -416,22 +428,23 @@ export async function stopAllServers(): Promise<void> {
 /**
  * Clean up stale PID files (for servers that aren't actually running)
  */
-export function cleanupStalePidFiles(): number {
-  ensurePidsDirectory();
+export function cleanupStalePidFiles(directoryManager: any): number {
+  ensurePidsDirectory(directoryManager);
 
-  if (!fs.existsSync(PIDS_DIR)) {
+  const pidsDir = getPidsDir(directoryManager);
+  if (!fs.existsSync(pidsDir)) {
     return 0;
   }
 
-  const pidFiles = fs.readdirSync(PIDS_DIR).filter(file => file.endsWith(".pid"));
+  const pidFiles = fs.readdirSync(pidsDir).filter(file => file.endsWith(".pid"));
   let cleaned = 0;
 
   for (const pidFile of pidFiles) {
     const serverId = pidFile.replace(".pid", "");
-    const pidData = readPidFile(serverId);
+    const pidData = readPidFile(directoryManager, serverId);
 
     if (pidData && !isProcessRunning(pidData.pid)) {
-      removePidFile(serverId);
+      removePidFile(directoryManager, serverId);
       cleaned++;
     }
   }
@@ -442,8 +455,11 @@ export function cleanupStalePidFiles(): number {
 /**
  * Get process information for a specific server
  */
-export function getServerProcess(serverId: string): ServerProcess | null {
-  const pidData = readPidFile(serverId);
+export function getServerProcess(
+  directoryManager: any,
+  serverId: string
+): ServerProcess | null {
+  const pidData = readPidFile(directoryManager, serverId);
 
   if (!pidData) {
     return null;
@@ -458,7 +474,16 @@ export function getServerProcess(serverId: string): ServerProcess | null {
       args: pidData.args
     };
   } else {
-    removePidFile(serverId);
+    removePidFile(directoryManager, serverId);
     return null;
   }
+}
+
+export interface ServerProcess {
+  serverId: string;
+  pid: number;
+  startTime: Date;
+  command: string;
+  args: string[];
+  process?: ChildProcess;
 }

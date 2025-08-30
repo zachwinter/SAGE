@@ -1,7 +1,14 @@
 import { useSnapshot } from "valtio";
 import { View, type KeyBinding } from "../components/layout/View";
 import * as models from "../models";
-import { Home, MCPMenu, SelectModel, setView, Threads } from "../router";
+import {
+  Home,
+  MCPMenu,
+  SelectModel,
+  SelectProvider,
+  setView,
+  Threads
+} from "../router";
 import * as threads from "../threads";
 
 export const Menu = () => {
@@ -13,6 +20,11 @@ export const Menu = () => {
       key: "s",
       action: () => setView(SelectModel),
       label: `Select Model ${currentModel}`
+    },
+    {
+      key: "p",
+      action: () => setView(SelectProvider),
+      label: "Providers"
     },
     {
       key: "t",

@@ -4,6 +4,7 @@ export const Home = "Home";
 export const Menu = "Menu";
 export const Threads = "Threads";
 export const SelectModel = "SelectModel";
+export const SelectProvider = "SelectProvider";
 export const MCPMenu = "MCPMenu";
 export const AddMCP = "AddMCP";
 export const ManageMCP = "ManageMCP";
@@ -15,6 +16,7 @@ export const Views = [
   Menu,
   Threads,
   SelectModel,
+  SelectProvider,
   MCPMenu,
   AddMCP,
   DiscoverMCP,

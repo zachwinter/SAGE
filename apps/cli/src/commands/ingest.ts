@@ -1,42 +1,48 @@
-import { RustKuzuIngestor, analyzeToGraph, getCodeFiles } from "@sage/analysis";
-import { rmSync } from "fs";
-import { join } from "path";
-import { PrettyTask, PrettyTaskList } from "../utils/prettyTask";
+import { analyzeToGraph, getCodeFiles, RustKuzuIngestor } from "@sage/graph";
+import { mkdirSync, rmSync } from "fs";
+import { dirname, join } from "path";
+import {
+  PrettyTask,
+  PrettyTaskList
+} from "../../../../packages/utils/src/prettyTask";
 
-export async function ingest(options: { debug?: boolean } = {}) {
-  const { debug = false } = options;
+type IngestOptions = { debug?: boolean; batchSize?: number };
+
+export async function ingest(options: IngestOptions = {}) {
+  const { debug = false, batchSize = 10_000 } = options;
 
   try {
-    const allFiles = getCodeFiles(process.cwd());
-    const dbPath = join(process.cwd(), ".sage", "code.kuzu");
+    const cwd = process.cwd();
+    const allFiles = getCodeFiles(cwd);
+    const dbPath = join(cwd, ".sage", "code.kuzu");
+    const dbDir = dirname(dbPath);
 
-    const taskList = new PrettyTaskList("Ingesting", process.cwd())
+    const taskList = new PrettyTaskList("Ingesting", cwd)
       .addTask({
         title: "analyzing",
         subtitle: `${allFiles.length} files`,
-        fn: async (task, taskList) => {
+        fn: async task => {
           if (allFiles.length === 0) {
             task.log("No TypeScript or Rust files found in current directory.");
-            return null;
+            return { analysisData: null, summary: "no files" as const };
           }
 
           const analysisData = analyzeToGraph(allFiles, { debug });
 
-          // Show analysis results
-          const entityCounts = analysisData.entities.reduce(
-            (counts, entity) => {
-              counts[entity.kind] = (counts[entity.kind] || 0) + 1;
-              return counts;
-            },
-            {} as Record<string, number>
-          );
+          const countBy = <T extends string>(
+            items: Array<{ [K in T]: string }>,
+            key: T
+          ) =>
+            items.reduce<Record<string, number>>((acc, item) => {
+              const k = item[key] as unknown as string;
+              acc[k] = (acc[k] || 0) + 1;
+              return acc;
+            }, {});
 
-          const relationshipCounts = analysisData.relationships.reduce(
-            (counts, rel) => {
-              counts[rel.type] = (counts[rel.type] || 0) + 1;
-              return counts;
-            },
-            {} as Record<string, number>
+          const entityCounts = countBy(analysisData.entities as any, "kind");
+          const relationshipCounts = countBy(
+            analysisData.relationships as any,
+            "type"
           );
 
           task.logDim("Nodes");
@@ -47,9 +53,7 @@ export async function ingest(options: { debug?: boolean } = {}) {
           task.logDim("Relationships");
           Object.entries(relationshipCounts)
             .sort(([, a], [, b]) => b - a)
-            .forEach(([type, count]) => {
-              task.logKeyValue(type, count, "[:", "]");
-            });
+            .forEach(([type, count]) => task.logKeyValue(type, count, "[:", "]"));
 
           const nodes = PrettyTask.formatCount(
             analysisData.entities.length,
@@ -65,44 +69,84 @@ export async function ingest(options: { debug?: boolean } = {}) {
       })
       .addTask({
         title: "populating",
-        subtitle: `${dbPath.replace(process.cwd() + "/", "")}`,
-        fn: async (task, taskList) => {
-          const result = taskList.results[0]; // Get analysis result from previous task
-          if (!result) throw new Error("Analysis failed");
+        subtitle: dbPath.replace(cwd + "/", ""),
+        fn: async (task, tl) => {
+          const prev = tl.results[0] as {
+            analysisData: any;
+            summary: string;
+          } | null;
 
-          const { analysisData } = result;
+          if (!prev || !prev.analysisData) {
+            throw new Error("Analysis failed or returned no data");
+          }
 
-          if (debug) task.log("Cleaning existing database...");
-          rmSync(dbPath, { force: true });
+          const { analysisData } = prev;
 
-          if (debug) task.log("Initializing Kuzu database...");
+          // Fresh DB dir
+          if (debug) task.log("Resetting Kùzu database directory...");
+          try {
+            rmSync(dbDir, { recursive: true, force: true });
+            mkdirSync(dbDir, { recursive: true });
+          } catch (err) {
+            if (debug) task.log(`Database cleanup warning: ${err}`);
+          }
+
           const ingestor = new RustKuzuIngestor(dbPath);
-          await ingestor.initialize();
+          const startedAt = Date.now();
 
-          if (debug) task.log("Ingesting data into database...");
-          const { entities, relationships } =
-            await ingestor.ingestStream(analysisData);
+          try {
+            if (debug) task.log("Initializing Kùzu database...");
+            await ingestor.initialize();
 
-          if (debug) task.log("Closing database connection...");
-          await ingestor.close();
+            if (debug) task.log("Starting Kùzu ingestion server...");
+            // await ingestor.startServer();
 
-          const entitiesFormatted = PrettyTask.formatCount(entities, "entities");
-          const relationshipsFormatted = PrettyTask.formatCount(
-            relationships,
-            "relationships"
-          );
+            if (debug)
+              task.log(
+                `Ingesting via server mode (batchSize=${batchSize.toLocaleString()})...`
+              );
 
-          return {
-            entities,
-            relationships,
-            summary: `${entitiesFormatted} & ${relationshipsFormatted}`
-          };
+            const stats = await ingestor.ingestStream(analysisData);
+
+            const duration =
+              typeof stats?.duration === "number"
+                ? stats.duration
+                : Date.now() - startedAt;
+
+            task.log(
+              `Ingested ${stats.entities} entities and ${stats.relationships} relationships in ${duration}ms`
+            );
+
+            const entitiesFormatted = PrettyTask.formatCount(
+              stats.entities,
+              "entities"
+            );
+            const relationshipsFormatted = PrettyTask.formatCount(
+              stats.relationships,
+              "relationships"
+            );
+
+            return {
+              entities: stats.entities,
+              relationships: stats.relationships,
+              summary: `${entitiesFormatted} & ${relationshipsFormatted}`
+            };
+          } finally {
+            // Always attempt to stop the server
+            try {
+              if (debug) task.log("Stopping Kùzu ingestion server...");
+              await ingestor.stopServer();
+            } catch (err) {
+              if (debug) task.log(`Server shutdown warning: ${err}`);
+            }
+          }
         }
       });
 
     await taskList.execute();
   } catch (error) {
     console.error("❌ Ingest failed:", error);
-    process.exit(1);
+    // Let callers decide how to handle failures (don’t exit in library code)
+    throw error;
   }
 }

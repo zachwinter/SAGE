@@ -1,0 +1,83 @@
+// Multi-agent debate system with iterative rounds
+query MultiAgentDebate($topic: String!, $rounds: Int = 3) {
+  // Set up the debate context
+  context: agent(model: "moderation-agent", role: "moderator") {
+    prompt: "Set up a balanced debate context for the topic: {{topic}}. Provide background information and key points to consider."
+    input: $topic
+    temperature: 0.5
+  }
+  
+  // Initialize debate history
+  debate_history: []
+  
+  // Conduct multiple rounds of debate
+  rounds: for (round in 1..$rounds) {
+    // Advocate position
+    advocate: agent(model: "advocate-agent", role: "advocate") {
+      prompt: "As an advocate for {{topic}}, present strong arguments in favor. Consider the debate context: {{context}} and previous rounds: {{debate_history}}"
+      input: [context, debate_history]
+      temperature: 0.8
+      maxTokens: 400
+    }
+    
+    // Present counter-arguments
+    critic: agent(model: "critic-agent", role: "critic") {
+      prompt: "As a critic of {{topic}}, present compelling counter-arguments to the advocate's position: {{advocate}}. Consider context: {{context}} and previous rounds: {{debate_history}}"
+      input: [context, advocate, debate_history]
+      temperature: 0.8
+      maxTokens: 400
+    }
+    
+    // Moderate the round
+    moderation: agent(model: "moderation-agent", role: "moderator") {
+      prompt: "Moderate this debate round. Summarize key points from advocate: {{advocate}} and critic: {{critic}}. Identify strongest arguments from each side."
+      input: [advocate, critic]
+      temperature: 0.3
+      maxTokens: 300
+    }
+    
+    // Judge the round
+    round_judgment: agent(model: "judging-agent", role: "judge") {
+      prompt: "Judge this debate round. Evaluate the strength of arguments from advocate: {{advocate}} vs critic: {{critic}}. Rate each side 1-10 and explain reasoning."
+      input: [advocate, critic]
+      temperature: 0.2
+      output: { 
+        advocate_score: Int, 
+        critic_score: Int, 
+        reasoning: String,
+        winner: String
+      }
+    }
+    
+    // Update debate history
+    debate_history: append(debate_history, {
+      round: round,
+      advocate: advocate,
+      critic: critic,
+      moderation: moderation,
+      judgment: round_judgment
+    })
+  }
+  
+  // Final verdict after all rounds
+  final_verdict: agent(model: "chief-judge-agent", role: "chief_judge") {
+    prompt: "Provide a final verdict on the debate about {{topic}}. Consider all rounds: {{debate_history}}. Which side presented the stronger overall case?"
+    input: [topic, debate_history]
+    temperature: 0.1
+    output: {
+      winner: String,
+      total_advocate_score: Int,
+      total_critic_score: Int,
+      key_arguments: [String],
+      verdict_reasoning: String
+    }
+  }
+  
+  // Generate comprehensive debate report
+  debate_report: agent(model: "reporting-agent", role: "debate_reporter") {
+    prompt: "Create a comprehensive debate report for {{topic}}. Include: final verdict {{final_verdict}}, key moments from each round, strongest arguments from both sides, and overall analysis. Debate history: {{debate_history}}"
+    input: [topic, final_verdict, debate_history]
+    temperature: 0.6
+    maxTokens: 1000
+  }
+}

@@ -1,7 +1,7 @@
 import { render } from "ink";
+import { getVersion } from "../../../../packages/utils/src/version";
 import { Row, Text, View } from "../components";
 import { theme } from "../config";
-import { getVersion } from "../utils/version";
 
 export function version() {
   render(
