@@ -81,17 +81,27 @@ export async function* normalizeEventStream(
 
   for await (const rawEvent of rawStream) {
     try {
-      const normalizedEvents = normalizer.normalizeEvent(rawEvent, context);
-      
-      if (normalizedEvents === null) {
-        continue; // Skip this event
-      }
-      
-      // Handle both single events and arrays of events
-      const events = Array.isArray(normalizedEvents) ? normalizedEvents : [normalizedEvents];
-      
-      for (const event of events) {
-        yield event;
+      // Check if the normalizer recognizes this event
+      if (normalizer.isProviderEvent(rawEvent)) {
+        const normalizedEvents = normalizer.normalizeEvent(rawEvent, context);
+        
+        if (normalizedEvents === null) {
+          continue; // Skip this event
+        }
+        
+        // Handle both single events and arrays of events
+        const events = Array.isArray(normalizedEvents) ? normalizedEvents : [normalizedEvents];
+        
+        for (const event of events) {
+          yield event;
+        }
+      } else {
+        // Fallback: if normalizer doesn't recognize the event, treat as already normalized
+        if (isValidStreamEvent(rawEvent)) {
+          yield rawEvent;
+        } else {
+          console.warn(`Unknown event format from provider ${context.provider}:`, rawEvent);
+        }
       }
     } catch (error) {
       console.error(`Event normalization error for provider ${context.provider}:`, error);

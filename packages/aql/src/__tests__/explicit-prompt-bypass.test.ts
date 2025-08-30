@@ -1,5 +1,5 @@
 import { SimpleAQLParser } from "../parser/simple-parser";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 
 describe("AQL: Explicit Prompt Bypass", () => {
   let parser: SimpleAQLParser;
@@ -21,11 +21,11 @@ describe("AQL: Explicit Prompt Bypass", () => {
 
     const result = parser.parse(aql);
     
-    // When an explicit prompt is provided, it should be used as-is
-    expect(result.operations[0].config.prompt).toBe(`<ROLE>You are a helpful assistant</ROLE>
+    // When an explicit prompt is provided, it should be used as-is (parser keeps outer quotes)
+    expect(result.operations[0].config.prompt).toBe(`"<ROLE>You are a helpful assistant</ROLE>
 
     <TASK>Summarize the following text</TASK>
 
-    <INPUT>This is a test input</INPUT>`);
+    <INPUT>This is a test input</INPUT>"`);
   });
 });

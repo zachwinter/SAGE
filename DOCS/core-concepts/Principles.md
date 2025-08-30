@@ -10,7 +10,6 @@ SAGE's foundational beliefs that guide its behavior and decision-making.
 
 - **[Principle of Territorial Gnosis](../principles/Territorial-Gnosis.md)** — The filesystem hierarchy is a deliberate act of semantic organization.
 - **[Principle of Noticing](../principles/Noticing.md)** — The system must filter reality through a lens of purpose.
-
 - **[Principle of Remembering](../principles/Remembering.md)** — Every noticed event must be immortalized.
 - **[Principle of Gnosis](../principles/Gnosis.md)** — Belief must always be anchored to verifiable knowledge.
 - **[Principle of Integrity](../principles/Integrity.md)** — The system’s ground truth is sacred.

@@ -10,12 +10,14 @@ describe("AQL: Cyclic Dependencies", () => {
     // Create a query with cyclic dependencies
     const aql = `query CyclicTest {
   op1: agent(model: "test") {
-    prompt: "Test prompt 1"
+    role: "Test role 1"
+    task: "Test task 1"
     input: op2
   }
   
   op2: agent(model: "test") {
-    prompt: "Test prompt 2"
+    role: "Test role 2"
+    task: "Test task 2"
     input: op1
   }
 }`;
@@ -32,17 +34,20 @@ describe("AQL: Cyclic Dependencies", () => {
     // Create a query with complex cyclic dependencies
     const aql = `query ComplexCyclicTest {
   op1: agent(model: "test") {
-    prompt: "Test prompt 1"
+    role: "Test role 1"
+    task: "Test task 1"
     input: op3
   }
   
   op2: agent(model: "test") {
-    prompt: "Test prompt 2"
+    role: "Test role 2"
+    task: "Test task 2"
     input: op1
   }
   
   op3: agent(model: "test") {
-    prompt: "Test prompt 3"
+    role: "Test role 3"
+    task: "Test task 3"
     input: op2
   }
 }`;

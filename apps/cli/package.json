@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "tsx src/index.tsx",
-    "test": "vitest",
+    "test": "vitest run",
     "build": "tsdown"
   },
   "dependencies": {

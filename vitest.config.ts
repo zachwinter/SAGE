@@ -5,6 +5,8 @@ import path from "path";
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    watch: false,
+    reporters: ["default"],
     globals: true,
     environment: "jsdom",
     setupFiles: ["./__tests__/setup.ts"],

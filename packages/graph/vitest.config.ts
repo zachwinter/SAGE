@@ -2,6 +2,8 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    watch: false,
+    reporters: ['default'],
     environment: 'node',
     testTimeout: 30000, // Graph operations can be slower
     globals: true,

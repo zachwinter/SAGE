@@ -226,4 +226,78 @@ describe("stream-utils", () => {
       expect(results).toEqual([2]);
     });
   });
+  
+  describe("withErrorBoundary", () => {
+    it("should catch and handle errors in streams", async () => {
+      async function* errorStream() {
+        yield 1;
+        yield 2;
+        throw new Error("Stream error");
+      }
+      
+      const results: number[] = [];
+      const errors: string[] = [];
+      
+      const boundedStream = withErrorBoundary(errorStream(), (error) => {
+        errors.push(error.message);
+        return -1; // fallback value
+      });
+      
+      try {
+        for await (const value of boundedStream) {
+          results.push(value);
+        }
+      } catch (error) {
+        // Should still propagate error after fallback
+        expect(error).toBeInstanceOf(Error);
+      }
+      
+      expect(results).toEqual([1, 2, -1]);
+      expect(errors).toEqual(['Stream error']);
+    });
+  });
+  
+  describe("withTimeout", () => {
+    it("should timeout slow streams", async () => {
+      async function* slowStream() {
+        yield 1;
+        await new Promise(resolve => setTimeout(resolve, 100)); // Longer than timeout
+        yield 2;
+      }
+      
+      const results = [];
+      const timedStream = withTimeout(slowStream(), 50, () => 'timeout' as any);
+      
+      for await (const value of timedStream) {
+        results.push(value);
+      }
+      
+      expect(results).toEqual([1, 'timeout']);
+    });
+  });
+  
+  describe("bufferStream", () => {
+    it("should buffer stream events into batches", async () => {
+      async function* source() {
+        for (let i = 1; i <= 5; i++) {
+          yield i;
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+      }
+      
+      const results = [];
+      const buffered = bufferStream(source(), 3, 100);
+      
+      for await (const batch of buffered) {
+        results.push(batch);
+      }
+      
+      expect(results.length).toBeGreaterThan(0);
+      expect(results[0].length).toBeGreaterThan(0);
+      
+      // Should have batched the items
+      const flattened = results.flat();
+      expect(flattened).toEqual([1, 2, 3, 4, 5]);
+    });
+  });
 });

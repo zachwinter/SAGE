@@ -2,7 +2,7 @@
 // Main API implementation for @sage/llm
 
 import type { ChatOptions, StreamEvent, StreamOptions, ToolCallInfo, ToolSchema } from "./types.js";
-import { getProvider } from "./registry.js";
+import { getProvider, setProvider as _setProvider, listModels as _listModels } from "./registry.js";
 import { AsyncQueue, withErrorBoundary } from "./stream-utils.js";
 import { ToolCallManager } from "./tool-lifecycle.js";
 import { ToolValidator } from "./tool-validation.js";
@@ -109,14 +109,30 @@ async function callProviderWithTimeout(
     
     const result = await provider.chat(chatOpts as ChatOptions);
     
-    // Clear timeout if it exists
-    if (timeoutId) {
-      clearTimeout(timeoutId);
+    // DON'T clear the timeout - let it stay active during streaming
+    // The abort controller will stay active and the stream processing will respect it
+    
+    // Wrap streaming result with timeout cleanup and error boundaries
+    async function* streamWithCleanup() {
+      try {
+        for await (const event of enhanceStreamWithRounds(result, normalizedStreamOpts)) {
+          yield event;
+          // Clear timeout on successful end event
+          if (event.type === 'end' && timeoutId) {
+            clearTimeout(timeoutId);
+          }
+        }
+      } catch (error) {
+        // Clear timeout on any error
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        throw error;
+      }
     }
     
-    // Wrap streaming result with error boundaries and resource management
     return withErrorBoundary(
-      enhanceStreamWithRounds(result, normalizedStreamOpts),
+      streamWithCleanup(),
       (error) => {
         console.error(`Stream error from provider ${provider.name}:`, error);
         return { type: "error", error: error.message, recoverable: false } as StreamEvent;
@@ -359,3 +375,9 @@ export function configureCache(options: {
 function isAsyncIterable<T>(value: any): value is AsyncIterable<T> {
   return value && typeof value[Symbol.asyncIterator] === 'function';
 }
+
+/**
+ * Re-export registry functions for convenience
+ */
+export const setProvider = _setProvider;
+export const listModels = _listModels;

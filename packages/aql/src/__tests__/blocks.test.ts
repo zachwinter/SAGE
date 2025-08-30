@@ -1,6 +1,6 @@
 import { ExecutionEngine } from "../execution/engine";
 import { Operation } from "../types";
-import { parsePromptBlocks } from "../parser/prompt-parser";
+import * as PromptParser from "../parser/prompt-parser";
 import { describe, it, expect, vi } from "vitest";
 
 describe("Agent Prompt Block Expansion", () => {
@@ -19,7 +19,7 @@ describe("Agent Prompt Block Expansion", () => {
 
     const engine = new ExecutionEngine();
     await engine.initialize();
-    const spy = vi.spyOn(engine as any, "parsePromptBlocks");
+    const spy = vi.spyOn(PromptParser, "parsePromptBlocks");
 
     await engine["executeSingleOperation"](op);
 
@@ -53,7 +53,7 @@ ripe bananas
 
     const engine = new ExecutionEngine();
     await engine.initialize();
-    const spy = vi.spyOn(engine as any, "parsePromptBlocks");
+    const spy = vi.spyOn(PromptParser, "parsePromptBlocks");
 
     await engine["executeSingleOperation"](op);
 

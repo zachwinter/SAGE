@@ -1,5 +1,5 @@
 import { SimpleAQLParser } from "../parser/simple-parser";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 
 describe("AQL: Trailing Semicolons", () => {
   let parser: SimpleAQLParser;
@@ -18,7 +18,7 @@ describe("AQL: Trailing Semicolons", () => {
 
     const result = parser.parse(aql);
     
-    // The parser currently includes the semicolon in the value
+    // The parser keeps quotes and semicolons in values
     expect(result.operations[0].config.prompt).toBe('"Test prompt";');
     expect(result.operations[0].config.input).toBe('"test";');
   });
@@ -33,7 +33,7 @@ describe("AQL: Trailing Semicolons", () => {
 
     const result = parser.parse(aql);
     
-    // The parser currently includes the semicolon in the value
+    // The parser keeps quotes and semicolons in values
     expect(result.operations[0].config.prompt).toBe('"Test prompt";');
     expect(result.operations[0].config.input).toBe('"test"');
   });

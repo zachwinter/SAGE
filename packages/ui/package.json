@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "tsdown src/index.ts src/cli.ts src/web.ts src/adapters/cli/index.ts src/adapters/web/index.ts src/examples/cli-example.tsx src/examples/comprehensive-example.tsx",
-    "test": "vitest",
+    "test": "vitest run",
     "example:cli": "node dist/examples/cli-example.js",
     "example:comprehensive": "node dist/examples/comprehensive-example.js"
   },

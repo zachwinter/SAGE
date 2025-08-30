@@ -250,8 +250,8 @@ export class AnthropicAdapter extends BaseAdapter {
             yield {
               type: 'end',
               usage: event.usage ? {
-                prompt: event.usage.input_tokens || 0,
-                completion: event.usage.output_tokens
+                prompt: (event.usage as any).input_tokens || 0,
+                completion: (event.usage as any).output_tokens || 0
               } : undefined
             };
           }

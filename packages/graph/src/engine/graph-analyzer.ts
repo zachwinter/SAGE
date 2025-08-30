@@ -507,22 +507,23 @@ export function analyzeToGraph(
                 );
               }
             } else {
-              // Could not resolve, create placeholder
-              relationships.push({
-                from: importEntity.id,
-                to: `unresolved_local_import_${moduleSpecifier.replace(/[^a-zA-Z0-9]/g, "_")}`,
-                fromKind: importEntity.kind,
-                toKind: "SourceFile", // Assume it's a source file
-                type: "IMPORTS",
-                evidence: `Unresolved local import: ${moduleSpecifier}`,
-                confidence: "low",
-                metadata: {
-                  module: moduleSpecifier,
-                  importType: "local",
-                  unresolved: true,
-                  sourceFile: relativePath
-                }
-              });
+              // Could not resolve, skip creating relationship to avoid schema violations
+              // TODO: Create placeholder SourceFile entities for unresolved imports
+              // relationships.push({
+              //   from: importEntity.id,
+              //   to: `unresolved_local_import_${moduleSpecifier.replace(/[^a-zA-Z0-9]/g, "_")}`,
+              //   fromKind: importEntity.kind,
+              //   toKind: "SourceFile", // Assume it's a source file
+              //   type: "IMPORTS",
+              //   evidence: `Unresolved local import: ${moduleSpecifier}`,
+              //   confidence: "low",
+              //   metadata: {
+              //     module: moduleSpecifier,
+              //     importType: "local",
+              //     unresolved: true,
+              //     sourceFile: relativePath
+              //   }
+              // });
             }
           } else {
             // External import - create simple external module entity and IMPORTS relationship
@@ -550,7 +551,7 @@ export function analyzeToGraph(
               to: externalModuleId,
               fromKind: importEntity.kind,
               toKind: "ExternalModule",
-              type: "IMPORTS",
+              type: "IMPORTS_EXTERNAL",
               evidence: `External import: ${moduleSpecifier}`,
               confidence: "medium",
               metadata: {

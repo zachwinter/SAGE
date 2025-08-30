@@ -134,7 +134,7 @@ describe('Provider Adapters', () => {
     });
 
     it('should support streaming with delays', async () => {
-      const provider = TestProviderFactory.streaming('Hello World', 10);
+      const provider = TestProviderFactory.streaming('Hello World with more text to create multiple chunks', 25);
       
       const startTime = Date.now();
       const events = [];
@@ -152,6 +152,7 @@ describe('Provider Adapters', () => {
       const duration = endTime - startTime;
       
       // Should have taken some time due to delays
+      // With 8-char chunks and 25ms delays, we expect multiple chunks and meaningful delay
       expect(duration).toBeGreaterThan(50);
       expect(events.some(e => e.type === 'text')).toBe(true);
     });

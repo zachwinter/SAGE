@@ -81,7 +81,6 @@ export interface LLMProvider {
 - **OpenAI**: GPT-4, streaming, tool calling
 - **Anthropic**: Claude, streaming, tool calling  
 - **LM Studio**: For direct connection to local LM Studio instances.
-- **@sage/mcp**: For connecting to any MCP-compliant server, providing enterprise-grade server management.
 - **Test/Fake**: Deterministic providers for testing
 
 ## Integration with @sage/aql
@@ -89,28 +88,8 @@ export interface LLMProvider {
 - Must support complex multi-step, multi-agent workflows
 - Tool calls routed through @sage/tools registry
 
-## Integration with @sage/mcp
-
-The `@sage/llm` package integrates with `@sage/mcp` via a dedicated `MCPProvider`. This allows `@sage/llm` to communicate with any server that adheres to the Model Context Protocol (MCP), leveraging `@sage/mcp`'s robust server lifecycle management.
-
-### MCPProvider Interface
-
-The `MCPProvider` will implement the standard `LLMProvider` interface, taking an instance of `@sage/mcp`'s `MCPClientManager` in its constructor.
-
-```ts
-import { MCPClientManager } from '@sage/mcp';
-import { LLMProvider } from '@sage/llm';
-
-// Simplified constructor
-class MCPProvider implements LLMProvider {
-  constructor(private mcpManager: MCPClientManager) {}
-  // ... implementation ...
-}
-```
-
-This pattern separates the concerns of the unified LLM interface (`@sage/llm`) from the specifics of the MCP protocol implementation (`@sage/mcp`).
-
 ## Dependencies
+
 - `@sage/utils` for canonicalization, hashing, error handling
 - `@sage/tools` for tool schema integration (optional)
 - Provider-specific SDKs (OpenAI, Anthropic, etc.)

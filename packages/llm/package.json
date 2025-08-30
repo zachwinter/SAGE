@@ -8,7 +8,6 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
   "keywords": [
@@ -31,7 +30,8 @@
   "devDependencies": {
     "typescript": "^5.9.2",
     "vitest": "^3.2.4",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@sage/test-utils": "workspace:*"
   },
   "files": [
     "dist/"

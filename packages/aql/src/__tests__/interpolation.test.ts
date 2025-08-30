@@ -1,5 +1,6 @@
 import { ExecutionEngine } from "../execution/engine";
 import { Operation } from "../types";
+import * as PromptUtils from "../utils/prompt";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 describe("AQL: Interpolation", () => {
@@ -18,18 +19,18 @@ describe("AQL: Interpolation", () => {
       config: {
         model: "test",
         role: "Test role",
-        task: "Test task with {{name}}",
+        task: "Test task with variable",
         input: "test input"
       }
     };
 
-    // Mock the executeSingleOperation to test interpolation
-    const spy = vi.spyOn(engine as any, "interpolatePrompt");
+    // Spy on buildAgentPrompt which is actually called during execution
+    const spy = vi.spyOn(PromptUtils, "buildAgentPrompt");
     
     try {
       await (engine as any).executeSingleOperation(op);
     } catch (e) {
-      // Expected to fail due to missing required blocks, but interpolation should still be called
+      // Expected to fail due to missing required blocks, but prompt building should still be called
     }
 
     expect(spy).toHaveBeenCalled();

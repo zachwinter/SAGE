@@ -83,15 +83,15 @@ export class AsyncQueue<T> {
   [Symbol.asyncIterator](): AsyncIterator<T> {
     return {
       next: (): Promise<IteratorResult<T>> => {
-        // If we already have an error, reject immediately
-        if (this.error) {
-          return Promise.reject(this.error);
-        }
-        
-        // If we have values in the queue, return the next one
+        // If we have values in the queue, return the next one first
         if (this.queue.length > 0) {
           const value = this.queue.shift()!;
           return Promise.resolve({ value, done: false });
+        }
+        
+        // If we have an error after processing all queued values, reject
+        if (this.error) {
+          return Promise.reject(this.error);
         }
         
         // If stream is finished, return done
@@ -155,29 +155,33 @@ export async function* mergeStreams<T>(...streams: Array<AsyncIterable<T>>): Asy
   
   // Continue until all iterators are done
   while (active.size > 0) {
+    // Create a map of promises to iterators for easier lookup
+    const promiseToIterator = new Map();
+    for (const [iterator, promise] of promises) {
+      promiseToIterator.set(promise, iterator);
+    }
+    
     // Wait for the first promise to resolve
     const promiseArray = Array.from(promises.values());
-    const result = await Promise.race(promiseArray);
+    const winningPromise = await Promise.race(promiseArray.map(async (promise, index) => ({ promise, result: await promise, index })));
     
     // Find which iterator this result came from
-    for (const [iterator, promise] of promises) {
-      if (promise === promiseArray[promiseArray.indexOf(result)]) {
-        // Remove the promise from tracking
-        promises.delete(iterator);
-        
-        // Handle the result
-        if (result.done) {
-          // Iterator is finished
-          active.delete(iterator);
-        } else {
-          // Yield the value
-          yield result.value;
-          
-          // Schedule the next read from this iterator
-          promises.set(iterator, iterator.next());
-        }
-        break;
-      }
+    const iterator = promiseToIterator.get(winningPromise.promise);
+    if (!iterator) continue; // Safety check
+    
+    // Remove the promise from tracking
+    promises.delete(iterator);
+    
+    // Handle the result
+    if (winningPromise.result.done) {
+      // Iterator is finished
+      active.delete(iterator);
+    } else {
+      // Yield the value
+      yield winningPromise.result.value;
+      
+      // Schedule the next read from this iterator
+      promises.set(iterator, iterator.next());
     }
   }
 }

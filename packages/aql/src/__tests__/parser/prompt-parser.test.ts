@@ -1,1 +1,69 @@
-import { parsePromptBlocks } from "../parser/prompt-parser";\nimport { describe, it, expect } from \"vitest\";\n\ndescribe(\"parsePromptBlocks\", () => {\n  it(\"should parse basic prompt blocks\", () => {\n    const prompt = `<ROLE>\nYou are a helpful assistant\n</ROLE>\n\n<TASK>\nSummarize the following text\n</TASK>\n\n<INPUT>\nThis is a long text that needs summarization.\n</INPUT>`;\n\n    const result = parsePromptBlocks(prompt);\n    \n    expect(result.ROLE).toBe(\"You are a helpful assistant\");\n    expect(result.TASK).toBe(\"Summarize the following text\");\n    expect(result.INPUT).toBe(\"This is a long text that needs summarization.\");\n  });\n\n  it(\"should handle custom blocks\", () => {\n    const prompt = `<ROLE>\nYou are a helpful assistant\n</ROLE>\n\n<TASK>\nSummarize the following text\n</TASK>\n\n<EXAMPLES>\nExample 1: ...\nExample 2: ...\n</EXAMPLES>`;\n\n    const result = parsePromptBlocks(prompt);\n    \n    expect(result.ROLE).toBe(\"You are a helpful assistant\");\n    expect(result.TASK).toBe(\"Summarize the following text\");\n    expect(result.EXAMPLES).toBe(\"Example 1: ...\\nExample 2: ...\");\n  });\n\n  it(\"should handle blocks with no newlines\", () => {\n    const prompt = `<ROLE>You are a helpful assistant</ROLE>\n<TASK>Summarize the following text</TASK>`;\n\n    const result = parsePromptBlocks(prompt);\n    \n    expect(result.ROLE).toBe(\"You are a helpful assistant\");\n    expect(result.TASK).toBe(\"Summarize the following text\");\n  });\n\n  it(\"should handle empty blocks\", () => {\n    const prompt = `<ROLE>\n</ROLE>\n\n<TASK>\nSummarize the following text\n</TASK>`;\n\n    const result = parsePromptBlocks(prompt);\n    \n    expect(result.ROLE).toBe(\"\");\n    expect(result.TASK).toBe(\"Summarize the following text\");\n  });\n});
+import { parsePromptBlocks } from "../../parser/prompt-parser";
+import { describe, it, expect } from "vitest";
+
+describe("parsePromptBlocks", () => {
+  it("should parse basic prompt blocks", () => {
+    const prompt = `<ROLE>
+You are a helpful assistant
+</ROLE>
+
+<TASK>
+Summarize the following text
+</TASK>
+
+<INPUT>
+This is a long text that needs summarization.
+</INPUT>`;
+
+    const result = parsePromptBlocks(prompt);
+    
+    expect(result.ROLE).toBe("You are a helpful assistant");
+    expect(result.TASK).toBe("Summarize the following text");
+    expect(result.INPUT).toBe("This is a long text that needs summarization.");
+  });
+
+  it("should handle custom blocks", () => {
+    const prompt = `<ROLE>
+You are a helpful assistant
+</ROLE>
+
+<TASK>
+Summarize the following text
+</TASK>
+
+<EXAMPLES>
+Example 1: ...
+Example 2: ...
+</EXAMPLES>`;
+
+    const result = parsePromptBlocks(prompt);
+    
+    expect(result.ROLE).toBe("You are a helpful assistant");
+    expect(result.TASK).toBe("Summarize the following text");
+    expect(result.EXAMPLES).toBe("Example 1: ...\nExample 2: ...");
+  });
+
+  it("should handle blocks with no newlines", () => {
+    const prompt = `<ROLE>You are a helpful assistant</ROLE>
+<TASK>Summarize the following text</TASK>`;
+
+    const result = parsePromptBlocks(prompt);
+    
+    expect(result.ROLE).toBe("You are a helpful assistant");
+    expect(result.TASK).toBe("Summarize the following text");
+  });
+
+  it("should handle empty blocks", () => {
+    const prompt = `<ROLE>
+</ROLE>
+
+<TASK>
+Summarize the following text
+</TASK>`;
+
+    const result = parsePromptBlocks(prompt);
+    
+    expect(result.ROLE).toBe("");
+    expect(result.TASK).toBe("Summarize the following text");
+  });
+});

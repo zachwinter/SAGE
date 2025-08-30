@@ -166,4 +166,52 @@ describe("Story 1: Temp FS & Workspace Harnesses", () => {
       }
     });
   });
+
+  describe("Golden Snapshot Integration", () => {
+    it("works with golden snapshot testing for complete workspace", async () => {
+      const ws = await createTempWorkspace();
+      
+      // Create a realistic project structure
+      await ws.file("package.json", JSON.stringify({
+        name: "test-project",
+        version: "1.0.0",
+        scripts: { test: "vitest" }
+      }, null, 2));
+      
+      await ws.file("src/index.ts", [
+        "export class Calculator {",
+        "  add(a: number, b: number): number {",
+        "    return a + b;",
+        "  }",
+        "}"
+      ].join('\n'));
+      
+      await ws.file("src/utils.ts", "export const PI = 3.14159;");
+      
+      await ws.file("README.md", [
+        "# Test Project",
+        "",
+        "A simple calculator project for testing golden snapshots.",
+        "",
+        "## Usage",
+        "```ts",
+        "import { Calculator } from './src/index';",
+        "const calc = new Calculator();",
+        "console.log(calc.add(2, 3)); // 5",
+        "```"
+      ].join('\n'));
+
+      // This should work without throwing (snapshot creation or validation)
+      await expect(golden(ws, "calculator-project")).resolves.not.toThrow();
+      
+      // Verify the workspace tree is what we expect
+      const tree = await ws.tree();
+      expect(Object.keys(tree).sort()).toEqual([
+        "README.md",
+        "package.json", 
+        "src/index.ts",
+        "src/utils.ts"
+      ]);
+    });
+  });
 });

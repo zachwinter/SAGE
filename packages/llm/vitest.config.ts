@@ -7,6 +7,8 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     testTimeout: 30000,
+    setupFiles: ['src/__tests__/setup.ts'],
+    // Pool options for better isolation with streaming tests
     pool: 'forks',
     poolOptions: {
       forks: {
