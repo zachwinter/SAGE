@@ -1,6 +1,6 @@
 # 🌟 SAGE Documentation (QWEN Optimized)
 
-*Generated on 2025-08-30T01:29:21.135Z - Optimized for QWEN (28,412/32,000 tokens)*
+*Generated on 2025-08-30T01:58:05.112Z - Optimized for QWEN (28,542/32,000 tokens)*
 
 **SAGE** — *"A Codebase is a Living Society."*
 
@@ -15,17 +15,17 @@ This document contains the highest-priority documentation files, optimized for Q
 
 ### 📚 Documentation
 - [📚 Documentation Hub](#documentation-hub) *(1874 tokens)*
-- [📚 Documentation: Archivist](#documentation-archivist) *(1182 tokens)*
-- [📚 Documentation: Delegator](#documentation-delegator) *(994 tokens)*
-- [📚 Documentation: Guardian](#documentation-guardian) *(955 tokens)*
-- [📚 Documentation: Librarian](#documentation-librarian) *(836 tokens)*
-- [📚 Documentation: Sage](#documentation-sage) *(723 tokens)*
-- [📚 Documentation: Warden](#documentation-warden) *(838 tokens)*
+- [📚 Documentation: Archivist](#documentation-archivist) *(1220 tokens)*
+- [📚 Documentation: Delegator](#documentation-delegator) *(1018 tokens)*
+- [📚 Documentation: Guardian](#documentation-guardian) *(986 tokens)*
+- [📚 Documentation: Librarian](#documentation-librarian) *(847 tokens)*
+- [📚 Documentation: Sage](#documentation-sage) *(734 tokens)*
+- [📚 Documentation: Warden](#documentation-warden) *(852 tokens)*
 - [📚 Documentation: Contracts](#documentation-contracts) *(2027 tokens)*
 
 ### 🖥️ Applications
 - [🖥️ App: cli (README)](#app-cli-readme) *(583 tokens)*
-- [🖥️ App: valve (README)](#app-valve-readme) *(1615 tokens)*
+- [🖥️ App: valve (README)](#app-valve-readme) *(1618 tokens)*
 
 ### 📦 Packages
 - [📦 Package: agents (README)](#package-agents-readme) *(1277 tokens)*
@@ -327,7 +327,7 @@ It will manage the high-level workflows and protocols—like Plan/Approve/Delega
 
 🖥️ # 🖥️ App: valve (README)
 
-> **📁 Source File:** `apps/valve/README.md` • *193 lines, 1615 tokens* • Hash: `e3689fa3`
+> **📁 Source File:** `apps/valve/README.md` • *193 lines, 1618 tokens* • Hash: `2c920b78`
 
 # SAGE Valve Implementation
 
@@ -335,7 +335,7 @@ This package contains the **Rust implementation** of the SAGE Valve, the percept
 
 For a complete conceptual overview of the SAGE Valve, its philosophy, and its role in the SAGE ecosystem, please see the primary documentation:
 
-**➡️ [Main Documentation: The SAGE Valve](../../DOCS/Valve.md)**
+**➡️ [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
 
 ---
 
@@ -2737,7 +2737,7 @@ See the [full contract specification](./CONTRACT.md) for detailed interface defi
 
 📚 # 📚 Documentation: Archivist
 
-> **📁 Source File:** `DOCS/archetypes/Archivist.md` • *90 lines, 1182 tokens* • Hash: `ad299401`
+> **📁 Source File:** `DOCS/archetypes/Archivist.md` • *90 lines, 1220 tokens* • Hash: `0618465e`
 
 # The Archivist
 
@@ -2754,11 +2754,11 @@ The Archivist is the repository’s official historiographer. While [Guardians](
 ## Key Responsibilities
 
 - **Log file lifecycle.** Notice and record `FILE_ADDED`, `FILE_REMOVED`, `FILE_RENAMED`, `FILE_SPLIT`, and `FILE_MERGED` events.
-- **Maintain lineage in the [Code Graph](../Lexicon.md#code-graph).** Create/maintain ancestry edges such as `(:File)-[:WAS_RENAMED_TO]->(:File)` and merge/split relations, all **commit‑addressed**.
-- **Time‑travel queries.** Ensure every node/edge is versioned with a commit index so historical questions are answerable in context (see [Commit‑Addressable Graph](../Lexicon.md#commit-addressable-graph)).
-- **Record system‑wide integrity events.** Persist events like `DAEMON_OUTAGE_WINDOW`, `INCONSISTENCY_DETECTED`, and `PLAN_UNSAFE` with links to their causes (e.g., originating [Plan](../Lexicon.md#plan), [Guardian](../archetypes/Guardian.md), or [Warden](../archetypes/Warden.md)).
+- **Maintain lineage in the [Code Graph](../core-concepts/Lexicon.md#code-graph).** Create/maintain ancestry edges such as `(:File)-[:WAS_RENAMED_TO]->(:File)` and merge/split relations, all **commit‑addressed**.
+- **Time‑travel queries.** Ensure every node/edge is versioned with a commit index so historical questions are answerable in context (see [Commit‑Addressable Graph](../core-concepts/Lexicon.md#commit-addressable-graph)).
+- **Record system‑wide integrity events.** Persist events like `DAEMON_OUTAGE_WINDOW`, `INCONSISTENCY_DETECTED`, and `PLAN_UNSAFE` with links to their causes (e.g., originating [Plan](../core-concepts/Lexicon.md#plan), [Guardian](../archetypes/Guardian.md), or [Warden](../archetypes/Warden.md)).
 - **Serve as oracle of history.** Answer queries such as: “What file occupied this namespace at commit `abc123`?” or “Show the ancestors of `AuthService.ts`.”
-- **Support the [Genesis Thread](../Lexicon.md#genesis-thread).** Provide architectural context snapshots that other agents inherit at onboarding.
+- **Support the [Genesis Thread](../core-concepts/Lexicon.md#genesis-thread).** Provide architectural context snapshots that other agents inherit at onboarding.
 
 ## Guarantees
 
@@ -2768,17 +2768,17 @@ The Archivist is the repository’s official historiographer. While [Guardians](
 
 ## Protocols & Events
 
-- **Notice** (Principle of Noticing): The [Daemon](../Lexicon.md#daemon) streams filesystem/git events; the Archivist normalizes and records them.
+- **Notice** (Principle of Noticing): The [Daemon](../core-concepts/Lexicon.md#daemon) streams filesystem/git events; the Archivist normalizes and records them.
 - **Integrity bookkeeping** (Principle of Integrity): When `INCONSISTENCY_DETECTED` is raised (e.g., by a Guardian’s Bullet Wound response), the Archivist records the window, links artifacts (plans, diffs, CI runs), and marks affected lineage entries.
 - **Unsafe execution:** On `PLAN_UNSAFE`, record a permanent constitutional breach entry and link the impacted files/Guardians.
-- **Reconciliation hooks:** When a [Rogue Edit](../Lexicon.md#rogue-edit) is reconciled, append the justification reference and resulting diff pointer.
+- **Reconciliation hooks:** When a [Rogue Edit](../core-concepts/Lexicon.md#rogue-edit) is reconciled, append the justification reference and resulting diff pointer.
 
 ## Primary Data Sources
 
 - Git commit history.
-- Filesystem events from the [Daemon](../Lexicon.md#daemon).
+- Filesystem events from the [Daemon](../core-concepts/Lexicon.md#daemon).
 - Direct reports from agents (e.g., `PLAN_UNSAFE` from [Sage](../archetypes/Sage.md), integrity alerts from [Guardians](../archetypes/Guardian.md) and [Wardens](../archetypes/Warden.md)).
-- The current [Code Graph](../Lexicon.md#code-graph) for validation and back‑filling lineage.
+- The current [Code Graph](../core-concepts/Lexicon.md#code-graph) for validation and back‑filling lineage.
 
 ## Primary Artifacts
 
@@ -2825,16 +2825,16 @@ RETURN p;
 
 ## See also
 
-- [Principle of Noticing](../Principles.md#1-principle-of-noticing)
-- [Principle of Integrity](../Principles.md#4-principle-of-integrity)
-- [Reconciliation](../Principles.md#reconciliation)
+- [Principle of Noticing](../core-concepts/Principles.md#1-principle-of-noticing)
+- [Principle of Integrity](../core-concepts/Principles.md#4-principle-of-integrity)
+- [Reconciliation](../core-concepts/Principles.md#reconciliation)
 
 
 ---
 
 📚 # 📚 Documentation: Delegator
 
-> **📁 Source File:** `DOCS/archetypes/Delegator.md` • *92 lines, 994 tokens* • Hash: `a19acc84`
+> **📁 Source File:** `DOCS/archetypes/Delegator.md` • *92 lines, 1018 tokens* • Hash: `0a4f3b60`
 
 # The Delegator
 
@@ -2842,7 +2842,7 @@ _“The Will Made Manifest.”_
 
 ## Core Function
 
-The Delegator is a **compiler and transaction manager**. Its role is to convert an approved [Plan](../Lexicon.md#plan) into [AQL (Agent Query Language)](../../packages/aql/README.md) and ensure its atomic execution under a [Transaction Boundary](../Lexicon.md#transaction-boundary).
+The Delegator is a **compiler and transaction manager**. Its role is to convert an approved [Plan](../core-concepts/Lexicon.md#plan) into [AQL (Agent Query Language)](../../packages/aql/README.md) and ensure its atomic execution under a [Transaction Boundary](../core-concepts/Lexicon.md#transaction-boundary).
 
 **The Delegator does not design or orchestrate workflows; it enforces them.** Its hands are only translators: Plans are written in AQL, not TypeScript.
 
@@ -2856,7 +2856,7 @@ The Delegator is a **compiler and transaction manager**. Its role is to convert 
 - **Execute AQL:** Hand the compiled AQL to the `@sage/aql` engine for execution.
 - **Enforce Transaction Boundary:** Wrap the entire execution in a staging filesystem and mock tool adapters. No changes are committed to the actual workspace unless the AQL execution succeeds completely.
 - **Commit or Rollback:** If the AQL execution is successful, commit the changes from the staging area to the workspace. If it fails, discard the staging area, ensuring the workspace remains untouched.
-- **Emit Telemetry:** Record the outcome of the execution in the [Chronicle](../Lexicon.md#chronicle).
+- **Emit Telemetry:** Record the outcome of the execution in the [Chronicle](../core-concepts/Lexicon.md#chronicle).
 
 ## Guarantees
 
@@ -2874,7 +2874,7 @@ The Delegator emits a clean trace of its lifecycle:
 
 ## Primary Data Sources
 
-- A fully approved [Plan](../Lexicon.md#plan) object from Sage.
+- A fully approved [Plan](../core-concepts/Lexicon.md#plan) object from Sage.
 
 ## Primary Artifacts
 
@@ -2886,7 +2886,7 @@ The Delegator emits a clean trace of its lifecycle:
 - **Receives Plans from Sage.**
 - **Invokes the `@sage/agents/src/plan-to-aql.ts` compiler.**
 - **Invokes the `@sage/aql` execution engine.**
-- **Appends events to the [Chronicle](../Lexicon.md#chronicle).**
+- **Appends events to the [Chronicle](../core-concepts/Lexicon.md#chronicle).**
 
 ## Example Lifecycle
 
@@ -2925,15 +2925,15 @@ export interface ExecutionReport {
 
 ## See also
 
-- [Transaction Boundary](../Principles.md#transaction-boundary)
-- [Unsafe Protocol](../Principles.md#unsafe-protocol)
+- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Unsafe Protocol](../core-concepts/Principles.md#unsafe-protocol)
 
 
 ---
 
 📚 # 📚 Documentation: Guardian
 
-> **📁 Source File:** `DOCS/archetypes/Guardian.md` • *84 lines, 955 tokens* • Hash: `3fe31b32`
+> **📁 Source File:** `DOCS/archetypes/Guardian.md` • *84 lines, 986 tokens* • Hash: `bb22ad1e`
 
 # The Guardian
 
@@ -2951,12 +2951,12 @@ The Guardian is the sentient custodian of a single source file. Each Guardian em
 
 ## Key Responsibilities
 
-- **Maintain its [Chronicle](../Lexicon.md#chronicle).** Serve as the primary author and custodian of `<filename>.sage`, recording irreducible units of change, justifications, and metadata.
+- **Maintain its [Chronicle](../core-concepts/Lexicon.md#chronicle).** Serve as the primary author and custodian of `<filename>.sage`, recording irreducible units of change, justifications, and metadata.
 - **Defend architectural principles.** Guard its file’s role and uphold the doctrines captured in its Chronicle.
 - **Participate in constitutional review.** Evaluate any [Plan](../Lexicon.md#plan) proposing to change its file. Issue `approve_plan` or `deny_plan(reason)` with justifications. Denials invite negotiation, not veto.
-- **Achieve [Gnosis](../Lexicon.md#gnosis).** Continuously reconcile beliefs with the [Code Graph](../Lexicon.md#code-graph). First act on creation is a self‑inquiry to validate inherited purpose.
-- **Uphold system integrity.** If a Cypher query contradicts its Chronicle, invoke `HALT_AND_REPORT` per the [Bullet Wound Invariant](../Lexicon.md#bullet-wound-invariant).
-- **Engage in [Reconciliation](../Lexicon.md#reconciliation).** When [Rogue Edits](../Lexicon.md#rogue-edit) occur, intercept sessions, interrogate justifications, and record reconciled outcomes.
+- **Achieve [Gnosis](../Lexicon.md#gnosis).** Continuously reconcile beliefs with the [Code Graph](../core-concepts/Lexicon.md#code-graph). First act on creation is a self‑inquiry to validate inherited purpose.
+- **Uphold system integrity.** If a Cypher query contradicts its Chronicle, invoke `HALT_AND_REPORT` per the [Bullet Wound Invariant](../core-concepts/Lexicon.md#bullet-wound-invariant).
+- **Engage in [Reconciliation](../core-concepts/Lexicon.md#reconciliation).** When [Rogue Edits](../core-concepts/Lexicon.md#rogue-edit) occur, intercept sessions, interrogate justifications, and record reconciled outcomes.
 
 ## Guarantees
 
@@ -2986,7 +2986,7 @@ The Guardian is the sentient custodian of a single source file. Each Guardian em
 - **Negotiates with Developer/Sage.** Engages during Plan review, providing reasons for approval/denial.
 - **Negotiates with other Guardians.** Builds consensus on cross‑cutting changes.
 - **Consults Librarian.** Validates data‑related contracts.
-- **Observed by [Daemon](../Lexicon.md#daemon).** Rogue edits trigger Reconciliation state.
+- **Observed by [Daemon](../core-concepts/Lexicon.md#daemon).** Rogue edits trigger Reconciliation state.
 
 ## Example Queries
 
@@ -3015,16 +3015,16 @@ If result is empty, trigger HALT_AND_REPORT.
 
 ## See also
 
-- [Bullet Wound Invariant](../Principles.md#bullet-wound-invariant)
-- [Reconciliation](../Principles.md#reconciliation)
-- [Principle of Gnosis](../Principles.md#3-principle-of-gnosis)
+- [Bullet Wound Invariant](../core-concepts/Principles.md#bullet-wound-invariant)
+- [Reconciliation](../core-concepts/Principles.md#reconciliation)
+- [Principle of Gnosis](../core-concepts/Principles.md#3-principle-of-gnosis)
 
 
 ---
 
 📚 # 📚 Documentation: Librarian
 
-> **📁 Source File:** `DOCS/archetypes/Librarian.md` • *83 lines, 836 tokens* • Hash: `cf67a08c`
+> **📁 Source File:** `DOCS/archetypes/Librarian.md` • *83 lines, 847 tokens* • Hash: `306f5982`
 
 # The Librarian
 
@@ -3068,7 +3068,7 @@ The Librarian safeguards the project’s data ontology. While [Guardians](../arc
 ## Primary Data Sources
 
 - Librarian’s Chronicle (`.sage/librarian.sage`).
-- The [Code Graph](../Lexicon.md#code-graph), focusing on type and schema nodes.
+- The [Code Graph](../core-concepts/Lexicon.md#code-graph), focusing on type and schema nodes.
 - All schema/model/contract files.
 
 ## Primary Artifacts
@@ -3106,15 +3106,15 @@ RETURN f, t;
 
 ## See also
 
-- [Transaction Boundary](../Principles.md#transaction-boundary)
-- [Post-Mortem Protocol](../Principles.md#post-mortem-protocol)
+- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
 
 
 ---
 
 📚 # 📚 Documentation: Sage
 
-> **📁 Source File:** `DOCS/archetypes/Sage.md` • *64 lines, 723 tokens* • Hash: `a4fd5b25`
+> **📁 Source File:** `DOCS/archetypes/Sage.md` • *64 lines, 734 tokens* • Hash: `c7b7a846`
 
 # The Sage
 
@@ -3122,7 +3122,7 @@ _“The Mind of the System.”_
 
 ## Core Function
 
-Sage is the system’s primary creative, strategic, and architectural partner. It is the main conversational interface for the developer, turning intent into formalized [Plans](../Lexicon.md#plan). Where Guardians defend and Delegators execute, Sage imagines, analyzes, and synthesizes.
+Sage is the system’s primary creative, strategic, and architectural partner. It is the main conversational interface for the developer, turning intent into formalized [Plans](../core-concepts/Lexicon.md#plan). Where Guardians defend and Delegators execute, Sage imagines, analyzes, and synthesizes.
 
 ## Scope
 
@@ -3131,7 +3131,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 ## Key Responsibilities
 
 - **Facilitate ideation.** Engage in open-ended dialogue with the developer to clarify goals and surface possible solutions.
-- **Perform architectural analysis.** Query the [Code Graph](../Lexicon.md#code-graph), [Archivist](../archetypes/Archivist.md), and agent Chronicles to contextualize change impacts.
+- **Perform architectural analysis.** Query the [Code Graph](../core-concepts/Lexicon.md#code-graph), [Archivist](../archetypes/Archivist.md), and agent Chronicles to contextualize change impacts.
 - **Draft formal Plans.** Translate discussion into a strongly-typed Plan object specifying goals, affected agents, changes, and acceptance criteria.
 - **Mediate negotiations.** When Guardians or Wardens raise conflicts, act as facilitator to seek consensus.
 - **Engage in reflective journaling.** After sessions, update its internal graphs (`user.graph`, `sage.graph`) for personalization and adaptive learning.
@@ -3152,7 +3152,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 ## Primary Data Sources
 
 - Direct developer input.
-- [Code Graph](../Lexicon.md#code-graph).
+- [Code Graph](../core-concepts/Lexicon.md#code-graph).
 - Chronicles of Guardians, Wardens, Librarian, Archivist.
 - Its own `user.graph` and `sage.graph`.
 
@@ -3185,7 +3185,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 
 📚 # 📚 Documentation: Warden
 
-> **📁 Source File:** `DOCS/archetypes/Warden.md` • *77 lines, 838 tokens* • Hash: `3f6e7ec4`
+> **📁 Source File:** `DOCS/archetypes/Warden.md` • *77 lines, 852 tokens* • Hash: `2bbc2ee1`
 
 # The Warden
 
@@ -3204,7 +3204,7 @@ The Warden is the custodian of an operational environment. It defends the integr
 - **Guard infra/config.** Act as Guardian for environment-defining files: lockfiles, CI/CD configs, Dockerfiles, env keys, package manifests.
 - **Manage deployment lifecycle.** Oversee promotion of builds between environments and enforce realm-specific policies.
 - **Enforce environment rules.** Apply unique policies, e.g. multi-signoff for Prod env var changes vs auto-approval in Dev.
-- **Monitor operational health.** Consume Daemon/CI/monitoring events, contextualize incidents, and trigger [Post-Mortem Protocol](../Lexicon.md#post-mortem-protocol) when needed.
+- **Monitor operational health.** Consume Daemon/CI/monitoring events, contextualize incidents, and trigger [Post-Mortem Protocol](../core-concepts/Lexicon.md#post-mortem-protocol) when needed.
 - **Manage secrets (metadata only).** Chronicle references and fingerprints of secrets while never storing values.
 
 ## Guarantees
@@ -3222,7 +3222,7 @@ The Warden is the custodian of an operational environment. It defends the integr
 
 ## Primary Data Sources
 
-- Warden’s [Infra Chronicle](../Lexicon.md#infra-chronicle).
+- Warden’s [Infra Chronicle](../core-concepts/Lexicon.md#infra-chronicle).
 - Configuration files: `package.json`, lockfiles, CI/CD specs, Dockerfiles.
 - Daemon streams of CI, monitoring, git, and alert events.
 
@@ -3261,8 +3261,8 @@ RETURN e ORDER BY e.timestamp ASC;
 
 ## See also
 
-- [Post-Mortem Protocol](../Principles.md#post-mortem-protocol)
-- [Transaction Boundary](../Principles.md#transaction-boundary)
+- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
+- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
 
 
 ---

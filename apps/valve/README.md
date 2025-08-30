@@ -4,7 +4,7 @@ This package contains the **Rust implementation** of the SAGE Valve, the percept
 
 For a complete conceptual overview of the SAGE Valve, its philosophy, and its role in the SAGE ecosystem, please see the primary documentation:
 
-**➡️ [Main Documentation: The SAGE Valve](../../DOCS/Valve.md)**
+**➡️ [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
 
 ---
 
