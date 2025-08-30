@@ -1,31 +1,32 @@
 # 🌟 SAGE Documentation (QWEN Optimized)
 
-*Generated on 2025-08-30T04:52:13.706Z - Optimized for QWEN (28,542/32,000 tokens)*
+*Generated on 2025-08-30T06:54:18.896Z - Optimized for QWEN (28,758/32,000 tokens)*
 
 **SAGE** — *"A Codebase is a Living Society."*
 
 This document contains the highest-priority documentation files, optimized for QWEN's 32,000-token context limit.
 
-**Note**: 30 lower-priority files were omitted due to context limits.
+**Note**: 41 lower-priority files were omitted due to context limits.
 
 ## 📋 Table of Contents
 
 ### 🏠 Core
-- [🏠 Main Project README](#main-project-readme) *(653 tokens)*
+- [🏠 Main Project README](#main-project-readme) *(730 tokens)*
 
 ### 📚 Documentation
-- [📚 Documentation Hub](#documentation-hub) *(1874 tokens)*
-- [📚 Documentation: Archivist](#documentation-archivist) *(1220 tokens)*
-- [📚 Documentation: Delegator](#documentation-delegator) *(1018 tokens)*
-- [📚 Documentation: Guardian](#documentation-guardian) *(986 tokens)*
-- [📚 Documentation: Librarian](#documentation-librarian) *(847 tokens)*
+- [📚 Documentation Hub](#documentation-hub) *(2351 tokens)*
+- [📚 Documentation: Archivist](#documentation-archivist) *(1216 tokens)*
+- [📚 Documentation: Delegator](#documentation-delegator) *(1015 tokens)*
+- [📚 Documentation: Guardian](#documentation-guardian) *(1089 tokens)*
+- [📚 Documentation: Librarian](#documentation-librarian) *(843 tokens)*
 - [📚 Documentation: Sage](#documentation-sage) *(734 tokens)*
-- [📚 Documentation: Warden](#documentation-warden) *(852 tokens)*
-- [📚 Documentation: Contracts](#documentation-contracts) *(2027 tokens)*
+- [📚 Documentation: Warden](#documentation-warden) *(848 tokens)*
+- [📚 Documentation: Vault-Warden-Protocol](#documentation-vault-warden-protocol) *(1210 tokens)*
+- [📚 Documentation: Gnosis](#documentation-gnosis) *(72 tokens)*
 
 ### 🖥️ Applications
 - [🖥️ App: cli (README)](#app-cli-readme) *(583 tokens)*
-- [🖥️ App: valve (README)](#app-valve-readme) *(1618 tokens)*
+- [🖥️ App: valve (README)](#app-valve-readme) *(1588 tokens)*
 
 ### 📦 Packages
 - [📦 Package: agents (README)](#package-agents-readme) *(1277 tokens)*
@@ -35,7 +36,7 @@ This document contains the highest-priority documentation files, optimized for Q
   - [📦 Package: aql (examples/experiments/README)](#package-aql-examples-experiments-readme) *(1490 tokens)*
 - [📦 Package: chronicle (README)](#package-chronicle-readme) *(1141 tokens)*
 - [📦 Package: graph (README)](#package-graph-readme) *(1048 tokens)*
-- [📦 Package: llm (README)](#package-llm-readme) *(1043 tokens)*
+- [📦 Package: llm (README)](#package-llm-readme) *(1350 tokens)*
 - [📦 Package: mcp (README)](#package-mcp-readme) *(1140 tokens)*
 - [📦 Package: test-utils (README)](#package-test-utils-readme) *(1308 tokens)*
 - [📦 Package: tools (README)](#package-tools-readme) *(1370 tokens)*
@@ -49,7 +50,7 @@ This document contains the highest-priority documentation files, optimized for Q
 
 🏛️ # 📚 Documentation Hub
 
-> **📁 Source File:** `DOCS/README.md` • *157 lines, 1874 tokens* • Hash: `d5c20506`
+> **📁 Source File:** `DOCS/README.md` • *182 lines, 2351 tokens* • Hash: `8d8906a5`
 
 # 📚 SAGE Documentation Hub
 
@@ -84,8 +85,8 @@ This hub provides structured access to all SAGE documentation, organized for dif
 
 #### 🤖 As an Agent Developer  
 *"I want to create or customize SAGE agents."*
-1. [🏛️ Architecture Overview](#-architecture-overview) *(see diagram below)*
-2. [📋 Contracts](./architecture/Contracts.md) — The agent interface specifications
+1. [📋 Contracts](./architecture/Contracts.md) — The agent interface specifications
+2. [🏛️ Architecture Overview](#-architecture-overview) *(see diagram below)*
 3. [🎭 Archetypes](#-the-archetypes) — Available agent types
 4. [🛠️ Agent Development](../packages/agents/README.md) — Build custom agents
 
@@ -173,11 +174,36 @@ SAGE's society consists of six specialized consciousnesses, each with distinct r
 
 ---
 
+> **🚨 Bullet Wound Invariant**
+>
+> Enforcement of the [Principle of Integrity](./core-concepts/Principles.md#5-principle-of-integrity). If a [Guardian](./archetypes/Guardian.md) detects contradiction between its Chronicle and the [Code Graph](./core-concepts/Lexicon.md#code-graph), it must invoke `HALT_AND_REPORT`, freezing execution until reconciliation.
+>
+> **[➡️ See formal definition in Lexicon](./core-concepts/Lexicon.md#bullet-wound-invariant)**
+
+---
+
+---
+
 ## 🚀 Applications & Packages
 
 ### 🖥️ Applications
 - **[CLI](../apps/cli/README.md)** — *"The Bridge to the Society"* — Primary human interface
 - **[Valve](../apps/valve/README.md)** — *"The Perceptual Valve"* — Configurable awareness system
+
+### 📊 Status Matrix
+
+| Package | Status |
+|---------|--------|
+| **[agents](../packages/agents/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[aql](../packages/aql/README.md)** | ![Status: Prototype](https://img.shields.io/badge/Status-Prototype-orange) |
+| **[chronicle](../packages/chronicle/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[graph](../packages/graph/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[llm](../packages/llm/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[mcp](../packages/mcp/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[test-utils](../packages/test-utils/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[tools](../packages/tools/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[ui](../packages/ui/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[utils](../packages/utils/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
 
 ### 📦 Core Packages
 - **[agents](../packages/agents/README.md)** — *The Society of Minds* — Core archetype logic
@@ -213,7 +239,7 @@ Ready to join the society? Here's how:
 
 🚀 # 🏠 Main Project README
 
-> **📁 Source File:** `README.md` • *63 lines, 653 tokens* • Hash: `1dfa235a`
+> **📁 Source File:** `README.md` • *66 lines, 730 tokens* • Hash: `620a4aa4`
 
 # SAGE
 
@@ -226,11 +252,13 @@ SAGE transforms your codebase into a living ecosystem of specialized AI agents t
 SAGE is currently **under active development**. The vision is real, the architecture is sound, but we're still building the society.
 
 **What's Working:**
+
 - Core philosophy and architectural patterns
 - Graph-based code analysis foundation
 - Agent archetype designs
 
 **Coming Soon:**
+
 - Production-ready CLI installation
 - Full agent implementation
 - Live codebase interaction
@@ -250,6 +278,7 @@ Want to contribute or stay updated? Check out our [Contributing Guide](./DOCS/RE
 **📚 [Complete Documentation Hub](./DOCS/README.md)** — Start here for comprehensive guides
 
 **Quick Links:**
+
 - [📜 The Philosophy](./DOCS/core-concepts/Manifesto.md) — Why SAGE exists and what it solves
 - [🧠 Core Principles](./DOCS/core-concepts/Principles.md) — The rules that govern the society
 - [📖 Lexicon](./DOCS/core-concepts/Lexicon.md) — Learn the shared vocabulary
@@ -257,14 +286,14 @@ Want to contribute or stay updated? Check out our [Contributing Guide](./DOCS/RE
 
 ## 🏗️ Key Packages
 
-| Package | Purpose | Status |
-|---------|---------|---------|
-| **[agents](./packages/agents/README.md)** | The society of specialized AI minds | 🚀 Production |
-| **[graph](./packages/graph/README.md)** | Code knowledge representation | 🚀 Production |  
-| **[llm](./packages/llm/README.md)** | Multi-provider AI interface | 🚀 Production |
-| **[chronicle](./packages/chronicle/README.md)** | Immutable event history | 🚀 Production |
-| **[aql](./packages/aql/README.md)** | Agent query language | 🔄 Active Development |
-| **[mcp](./packages/mcp/README.md)** | Model Context Protocol | 🚀 Production |
+| Package                                         | Purpose                             | Status                |
+| ----------------------------------------------- | ----------------------------------- | --------------------- |
+| **[agents](./packages/agents/README.md)**       | The society of specialized AI minds | 🚀 Production         |
+| **[graph](./packages/graph/README.md)**         | Code knowledge representation       | 🚀 Production         |
+| **[llm](./packages/llm/README.md)**             | Multi-provider AI interface         | 🚀 Production         |
+| **[chronicle](./packages/chronicle/README.md)** | Immutable event history             | 🚀 Production         |
+| **[aql](./packages/aql/README.md)**             | Agent query language                | 🔄 Active Development |
+| **[mcp](./packages/mcp/README.md)**             | Model Context Protocol              | 🚀 Production         |
 
 ## 🤝 Contributing
 
@@ -276,7 +305,7 @@ MIT
 
 ---
 
-*SAGE • A Codebase is a Living Society*
+_SAGE • A Codebase is a Living Society_
 
 
 ---
@@ -327,19 +356,17 @@ It will manage the high-level workflows and protocols—like Plan/Approve/Delega
 
 🖥️ # 🖥️ App: valve (README)
 
-> **📁 Source File:** `apps/valve/README.md` • *193 lines, 1618 tokens* • Hash: `2c920b78`
+> **📁 Source File:** `apps/valve/README.md` • *191 lines, 1588 tokens* • Hash: `ef919d01`
 
 # SAGE Valve Implementation
 
-This package contains the **Rust implementation** of the SAGE Valve, the perceptual apparatus for the SAGE framework.
+This package contains the **Rust implementation** of the SAGE Valve.
 
-For a complete conceptual overview of the SAGE Valve, its philosophy, and its role in the SAGE ecosystem, please see the primary documentation:
-
-**➡️ [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
+**➡️ See canonical Valve specification for conceptual overview: [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
 
 ---
 
-## Development & Testing
+## Implementation Notes & Testing Guidance
 
 This document provides practical guidance for developers working on the Rust application.
 
@@ -1594,7 +1621,7 @@ See the [full contract specification](./CONTRACT.md) for detailed interface defi
 
 📦 # 📦 Package: llm (README)
 
-> **📁 Source File:** `packages/llm/README.md` • *148 lines, 1043 tokens* • Hash: `5c3c6efd`
+> **📁 Source File:** `packages/llm/README.md` • *182 lines, 1350 tokens* • Hash: `b870f145`
 
 # @sage/llm
 
@@ -1616,15 +1643,46 @@ pnpm add @sage/llm
 
 ## Quick Start
 
+### With OpenAI
+
 ```typescript
 import { createChatStream, setProvider } from '@sage/llm';
-import { OpenAIProvider } from '@sage/llm/adapters/openai'; // example adapter
+import { OpenAIAdapter } from '@sage/llm/adapters/openai';
 
-// Minimal, copy-pasteable example demonstrating primary use case
-setProvider(new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY! }));
+// Configure OpenAI provider
+const openaiAdapter = new OpenAIAdapter({ 
+  apiKey: process.env.OPENAI_API_KEY! 
+});
+
+setProvider(openaiAdapter);
 
 const stream = await createChatStream({
   model: "gpt-4.1",
+  messages: [
+    { role: "system", content: "You are a helpful agent." },
+    { role: "user", content: "List three risks of unsafe refactors." }
+  ]
+});
+
+for await (const ev of stream) {
+  if (ev.type === "text") process.stdout.write(ev.value);
+}
+```
+
+### With LM Studio
+
+```typescript
+import { createChatStream, setProvider } from '@sage/llm';
+import { createDefaultLMStudioAdapter } from '@sage/llm/adapters/lmstudio-factory';
+
+// Assuming you have LM Studio dependencies available
+// This is a simplified example - you'll need to provide actual LM Studio deps
+const lmStudioAdapter = createDefaultLMStudioAdapter(lmStudioDeps, 'llama3');
+
+setProvider(lmStudioAdapter);
+
+const stream = await createChatStream({
+  model: "local-model",
   messages: [
     { role: "system", content: "You are a helpful agent." },
     { role: "user", content: "List three risks of unsafe refactors." }
@@ -1643,43 +1701,43 @@ for await (const ev of stream) {
 The main functions for interacting with LLM providers:
 
 ```typescript
-// Key method signatures with examples
-class LLM {
-  /**
-   * Create a chat stream with the current provider, with optional caching
-   */
-  async createChatStream(
-    opts: ChatOptions,
-    streamOpts?: StreamOptions
-  ): Promise<AsyncIterable<StreamEvent>> {
-    // Create a chat stream
-  }
+import { createChatStream, setProvider, listModels } from '@sage/llm';
 
-  /**
-   * List available models from the current provider or a specific provider
-   */
-  async listModels(provider?: string): Promise<ModelInfo[]> {
-    // List available models
-  }
+// Set the current provider
+setProvider(provider);
 
-  /**
-   * Set the current provider
-   */
-  setProvider(provider: LLMProvider): void {
-    // Set the current provider
-  }
+// Create a chat stream with the current provider
+const stream = await createChatStream({
+  model: "gpt-4.1",
+  messages: [
+    { role: "user", content: "Hello, world!" }
+  ]
+});
 
-  /**
-   * Register a tool for use with LLM calls
-   */
-  registerTool(
-    name: string,
-    schema: ToolSchema,
-    executor: ToolExecutor
-  ): void {
-    // Register a tool
-  }
-}
+// List available models from the current provider
+const models = await listModels();
+```
+
+### Provider Adapters
+
+The package includes adapters for various LLM providers:
+
+```typescript
+// OpenAI adapter
+import { OpenAIAdapter } from '@sage/llm/adapters/openai';
+const openai = new OpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY! });
+
+// Anthropic adapter
+import { AnthropicAdapter } from '@sage/llm/adapters/anthropic';
+const anthropic = new AnthropicAdapter({ apiKey: process.env.ANTHROPIC_API_KEY! });
+
+// LM Studio adapter
+import { createDefaultLMStudioAdapter } from '@sage/llm/adapters/lmstudio-factory';
+const lmstudio = createDefaultLMStudioAdapter(lmStudioDeps, 'llama3');
+
+// Test adapter for deterministic testing
+import { TestProviderFactory } from '@sage/llm/adapters/test';
+const testProvider = TestProviderFactory.simple('Hello, test!');
 ```
 
 ## Role in the SAGE Ecosystem
@@ -1695,9 +1753,9 @@ class LLM {
 
 ## Development Status
 
-![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 
-The LLM package is currently in development with core features implemented and ready for production use. Some advanced features and provider adapters are still in progress.
+The LLM package is production-ready with comprehensive provider support and advanced features.
 
 **✅ Core Features Implemented:**
 - Unified chat API with tool-calling
@@ -1705,11 +1763,14 @@ The LLM package is currently in development with core features implemented and r
 - JSON Schema validation for tools
 - Prompt caching with multiple modes
 - Error handling and safety features
+- Comprehensive provider adapters (OpenAI, Anthropic, LM Studio, MCP, Test)
 
-**⚠️ In Progress:**
-- Provider adapter completion (OpenAI, Anthropic, LM Studio)
-- Production readiness and polish
-- @sage/mcp integration
+**✅ Advanced Features:**
+- Event normalization for consistent provider behavior
+- Security policies and tool validation
+- Detailed telemetry and monitoring
+- Configurable backpressure handling
+- Provider-agnostic API with consistent interfaces
 
 ## Development
 
@@ -2737,7 +2798,7 @@ See the [full contract specification](./CONTRACT.md) for detailed interface defi
 
 📚 # 📚 Documentation: Archivist
 
-> **📁 Source File:** `DOCS/archetypes/Archivist.md` • *90 lines, 1220 tokens* • Hash: `0618465e`
+> **📁 Source File:** `DOCS/archetypes/Archivist.md` • *90 lines, 1216 tokens* • Hash: `90e0a4cb`
 
 # The Archivist
 
@@ -2827,14 +2888,14 @@ RETURN p;
 
 - [Principle of Noticing](../core-concepts/Principles.md#1-principle-of-noticing)
 - [Principle of Integrity](../core-concepts/Principles.md#4-principle-of-integrity)
-- [Reconciliation](../core-concepts/Principles.md#reconciliation)
+- [Reconciliation](../protocols/Reconciliation.md)
 
 
 ---
 
 📚 # 📚 Documentation: Delegator
 
-> **📁 Source File:** `DOCS/archetypes/Delegator.md` • *92 lines, 1018 tokens* • Hash: `0a4f3b60`
+> **📁 Source File:** `DOCS/archetypes/Delegator.md` • *92 lines, 1015 tokens* • Hash: `ffca4c52`
 
 # The Delegator
 
@@ -2926,20 +2987,30 @@ export interface ExecutionReport {
 ## See also
 
 - [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
-- [Unsafe Protocol](../core-concepts/Principles.md#unsafe-protocol)
+- [Unsafe Protocol](../protocols/Unsafe-Protocol.md)
 
 
 ---
 
 📚 # 📚 Documentation: Guardian
 
-> **📁 Source File:** `DOCS/archetypes/Guardian.md` • *84 lines, 986 tokens* • Hash: `bb22ad1e`
+> **📁 Source File:** `DOCS/archetypes/Guardian.md` • *94 lines, 1089 tokens* • Hash: `bbdca5f2`
 
 # The Guardian
 
 _“The Soul of the Code.”_
 
 > _“No change without reason; no reason unremembered.”_
+
+---
+
+> **🚨 Bullet Wound Invariant**
+>
+> Enforcement of the [Principle of Integrity](../core-concepts/Principles.md#5-principle-of-integrity). If a Guardian detects contradiction between its Chronicle and the [Code Graph](../core-concepts/Lexicon.md#code-graph), it must invoke `HALT_AND_REPORT`, freezing execution until reconciliation.
+>
+> **[➡️ See formal definition in Lexicon](../core-concepts/Lexicon.md#bullet-wound-invariant)**
+
+---
 
 ## Core Function
 
@@ -3017,14 +3088,14 @@ If result is empty, trigger HALT_AND_REPORT.
 
 - [Bullet Wound Invariant](../core-concepts/Principles.md#bullet-wound-invariant)
 - [Reconciliation](../core-concepts/Principles.md#reconciliation)
-- [Principle of Gnosis](../core-concepts/Principles.md#3-principle-of-gnosis)
+- [Principle of Gnosis](../principles/Gnosis.md)
 
 
 ---
 
 📚 # 📚 Documentation: Librarian
 
-> **📁 Source File:** `DOCS/archetypes/Librarian.md` • *83 lines, 847 tokens* • Hash: `306f5982`
+> **📁 Source File:** `DOCS/archetypes/Librarian.md` • *83 lines, 843 tokens* • Hash: `a850bf34`
 
 # The Librarian
 
@@ -3107,7 +3178,7 @@ RETURN f, t;
 ## See also
 
 - [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
-- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
+- [Post-Mortem Protocol](../protocols/Post-Mortem-Protocol.md)
 
 
 ---
@@ -3185,7 +3256,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 
 📚 # 📚 Documentation: Warden
 
-> **📁 Source File:** `DOCS/archetypes/Warden.md` • *77 lines, 852 tokens* • Hash: `2bbc2ee1`
+> **📁 Source File:** `DOCS/archetypes/Warden.md` • *77 lines, 848 tokens* • Hash: `2aaeefe3`
 
 # The Warden
 
@@ -3262,169 +3333,108 @@ RETURN e ORDER BY e.timestamp ASC;
 ## See also
 
 - [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
-- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Transaction Boundary](../protocols/Transaction-Boundary.md)
 
 
 ---
 
-📚 # 📚 Documentation: Contracts
+📚 # 📚 Documentation: Vault-Warden-Protocol
 
-> **📁 Source File:** `DOCS/architecture/Contracts.md` • *154 lines, 2027 tokens* • Hash: `271f8d3e`
+> **📁 Source File:** `DOCS/architecture/Vault-Warden-Protocol.md` • *81 lines, 1210 tokens* • Hash: `c9663066`
 
-# 📋 SAGE Contracts & Standards
+# The Vault-Warden Protocol for Secrets
 
-**SAGE** embraces a **contract-first philosophy** — every agent, package, and interface is governed by explicit contracts that define behavior, responsibilities, and guarantees.
+This protocol addresses the critical challenge of secrets management within the SAGE ecosystem. It ensures that the system can operate on the *intent* to use a secret, while the actual secret value remains completely outside the scope of memory, planning, and reasoning.
 
-## 🎯 Philosophy
+## How It Works: The Lifecycle of a Secret
 
-Contracts are not just documentation; they are **living agreements** that:
-- **Define clear boundaries** between system components
-- **Establish behavioral guarantees** that other parts of the system can rely on
-- **Enable safe composition** of complex workflows
-- **Provide regression testing targets** for system reliability
-- **Document intended usage patterns** for developers and AI agents
+### 1. Declaration (The Warden)
 
-## 🏛️ System-Wide Contracts
+The **Warden** for a specific environment (e.g., `prod`) is the custodian of the list of available secret placeholders for that environment. Its Chronicle might state: "The `$ENV.GITHUB_API_KEY` and `$ENV.STRIPE_SECRET_KEY` are available for approved operations in the `prod` environment." The Warden never knows the actual values, only their names and policies for their use.
 
-### 📊 Core Graph Contract
-The foundational contract that defines how all code knowledge is represented:
-- **[Graph Schema](../packages/graph/README.md#schema)** — Node types, relationships, properties
-- **[Query Interface](../packages/aql/README.md)** — How to retrieve and manipulate graph data
-- **[Commit Addressability](../packages/graph/README.md#versioning)** — Immutable snapshots and versioning
+### 2. Planning (The Sage)
 
-### 📚 Chronicle Contract  
-The append-only event system that maintains system history:
-- **[Event Schema](../packages/chronicle/README.md#events)** — Standard event types and payloads
-- **[Persistence Guarantees](../packages/chronicle/README.md#persistence)** — Durability and ordering promises
-- **[Query Capabilities](../packages/chronicle/README.md#queries)** — Historical analysis and replay
+When a developer asks **Sage** to draft a plan that requires a sensitive value, Sage (or the developer) uses a placeholder syntax. This ensures no sensitive data is ever embedded directly into the Plan.
 
-### 🧠 LLM Interface Contract
-The unified interface to language model providers:
-- **[Provider Abstraction](../packages/llm/README.md#providers)** — Common interface across OpenAI, Anthropic, etc.
-- **[Tool Integration](../packages/llm/README.md#tools)** — Standardized function calling
-- **[Streaming Protocol](../packages/llm/README.md#streaming)** — Real-time response handling
+**Example Sage Plan Snippet:**
+```json
+{
+  "tool": "Bash",
+  "args": {
+    "command": "curl -H 'Authorization: Bearer $ENV.GITHUB_API_KEY' https://api.github.com/repos/my-org/my-repo"
+  }
+}
+```
+This plan is now safe to be reviewed, approved, and stored in a Chronicle because it contains no sensitive data.
 
-## 🎭 Archetype Contracts
+### 3. Approval (The Guardian/Warden)
 
-Each SAGE archetype implements a specific behavioral contract:
+The relevant **Guardians** and **Wardens** review the *intent* of the Plan. For instance, the `prod` Warden can see that the plan requests the use of a valid, known secret placeholder (`$ENV.GITHUB_API_KEY`) and can approve it based on established policy. The Guardian of the relevant file approves the change itself.
 
-### 🧙 [Sage Contract](../packages/agents/README.md#sage-contract)
-*The Mind of the System*
-- **Planning Capabilities:** Must generate executable AQL workflows
-- **Reasoning Interface:** Question decomposition and strategic thinking
-- **Orchestration Role:** Coordinate other archetypes for complex tasks
+### 4. Injection (The Tool Execution Layer)
 
-### 🛡️ [Guardian Contract](../packages/agents/README.md#guardian-contract)  
-*The Soul of the Code*
-- **Quality Gates:** Must evaluate code changes against project standards
-- **Consistency Enforcement:** Detect and flag deviations from patterns
-- **Protection Duties:** Prevent harmful modifications to critical code
+This is the core of the protocol. The **Delegator** passes the approved plan to the AQL engine, which in turn calls the `@sage/tools` runner. The tool runner's `execute` function receives the `ToolContext`.
 
-### 📚 [Librarian Contract](../packages/agents/README.md#librarian-contract)
-*The Custodian of Data*
-- **Search Interface:** Must provide semantic code search capabilities  
-- **Indexing Responsibilities:** Maintain up-to-date graph representations
-- **Retrieval Guarantees:** Return relevant context within token limits
+Before executing the tool (e.g., a Bash command), a **Secret Resolver middleware** intercepts the arguments:
 
-### ⚔️ [Warden Contract](../packages/agents/README.md#warden-contract)
-*The Shield of the Realm*
-- **Access Control:** Must enforce permission-based operation restrictions
-- **Security Validation:** Scan for potential security vulnerabilities
-- **Audit Trail:** Log all security-relevant actions
+-   It scans the arguments for the `$ENV.*` placeholder syntax.
+-   For each placeholder found, it calls a **SecretProvider** (configured for the current environment, e.g., `prod`) to fetch the actual secret value.
+-   It then replaces the placeholder in the command string with the real, live secret.
 
-### 👥 [Delegator Contract](../packages/agents/README.md#delegator-contract)
-*The Executor* 
-- **Task Execution:** Must reliably execute AQL workflows
-- **Error Handling:** Provide meaningful failure reports and recovery options
-- **Resource Management:** Respect system limits and timeouts
+### 5. Execution (The Sandboxed Tool)
 
-### 📝 [Archivist Contract](../packages/agents/README.md#archivist-contract)
-*The Memory*
-- **Event Capture:** Must record all significant system interactions
-- **History Preservation:** Maintain immutable event sequences
-- **Continuity Assurance:** Detect and alert on inconsistencies
+The tool's underlying execution function (e.g., `exec` for Bash) now receives the fully-formed command with the real secret value:
 
-## 📦 Package Contracts
-
-Each package maintains its own detailed contract specification:
-
-| Package | Contract Location | Key Responsibilities |
-|---------|-------------------|---------------------|
-| **[agents](../packages/agents/README.md#contract)** | `packages/agents/CONTRACT.md` | Archetype implementations, reasoning logic |
-| **[graph](../packages/graph/README.md#contract)** | `packages/graph/CONTRACT.md` | Code analysis, relationship extraction, querying |
-| **[chronicle](../packages/chronicle/README.md#contract)** | `packages/chronicle/CONTRACT.md` | Event logging, history management, persistence |
-| **[llm](../packages/llm/README.md#contract)** | `packages/llm/CONTRACT.md` | Multi-provider abstraction, tool integration |
-| **[aql](../packages/aql/README.md#contract)** | `packages/aql/CONTRACT.md` | Query language parsing, execution, optimization |
-| **[mcp](../packages/mcp/README.md#contract)** | `packages/mcp/CONTRACT.md` | Model Context Protocol implementation |
-| **[tools](../packages/tools/README.md#contract)** | `packages/tools/CONTRACT.md` | Sandboxed operations, safety guarantees |
-| **[ui](../packages/ui/README.md#contract)** | `packages/ui/CONTRACT.md` | Renderer-agnostic UI kit, platform-neutral primitives |
-| **[test-utils](../packages/test-utils/README.md#contract)** | `packages/test-utils/CONTRACT.md` | Testing infrastructure, mocks, harnesses |
-| **[utils](../packages/utils/README.md#contract)** | `packages/utils/CONTRACT.md` | Core utilities, type definitions, helpers |
-
-## 🧪 Contract Testing
-
-SAGE employs comprehensive contract testing to ensure all agreements are honored:
-
-### Automated Verification
-```typescript
-// Example: Testing the Sage archetype contract
-describe('Sage Contract', () => {
-  it('must generate valid AQL workflows', async () => {
-    const sage = new SageAgent(mockConfig);
-    const plan = await sage.createPlan('Refactor authentication system');
-    
-    expect(plan).toBeValidAQL();
-    expect(plan.steps).toHaveMinimumLength(1);
-    expect(plan.dependencies).toBeResolvable();
-  });
-});
+```bash
+curl -H 'Authorization: Bearer ghp_...real_token...' https://api.github.com/repos/my-org/my-repo
 ```
 
-### Integration Testing
-- **Cross-package compatibility** — Ensure packages work together as specified
-- **Archetype collaboration** — Verify agents can successfully coordinate
-- **End-to-end workflows** — Test complete user scenarios
+### 6. Redaction (The Result)
 
-### Contract Evolution
-- **Versioned contracts** — Changes are tracked and backward-compatible when possible
-- **Migration guides** — Clear instructions for updating to new contract versions
-- **Deprecation policies** — Graceful phase-out of obsolete contract features
+The Secret Resolver middleware is also responsible for scrubbing the secret value from any `stdout`, `stderr`, or results that get returned by the tool. This prevents the secret from accidentally leaking back into the logs or the next LLM prompt. The secret value can be replaced with a redacted placeholder like `[SECRET:GITHUB_API_KEY]`.
 
-## 🔄 Development Workflow
+## Architectural Components Needed
 
-### Adding New Contracts
-1. **Design Phase:** Define the contract's scope, guarantees, and interface
-2. **Documentation:** Create comprehensive contract specification
-3. **Implementation:** Build the functionality to satisfy the contract
-4. **Testing:** Write contract tests to verify compliance
-5. **Integration:** Ensure compatibility with existing system contracts
+This protocol fits beautifully with the existing SAGE structure, requiring the following additions:
 
-### Modifying Existing Contracts
-1. **Impact Analysis:** Identify all dependent components
-2. **Backward Compatibility:** Maintain existing guarantees when possible
-3. **Migration Strategy:** Plan transition for breaking changes
-4. **Testing Updates:** Update contract tests to reflect changes
-5. **Documentation:** Update all relevant documentation
+1.  **SecretProvider Interface** (in `@sage/utils`):
+    ```ts
+    interface SecretProvider {
+      get(key: string): Promise<string | undefined>;
+    }
+    ```
+    Implementations could be `DotEnvProvider`, `AWSSecretsManagerProvider`, `HashiCorpVaultProvider`, etc. This keeps the core system agnostic to the secret backend.
 
-## 🎯 Best Practices
+2.  **Update to ToolContext** (in `@sage/tools`):
+    ```ts
+    export interface ToolContext {
+      // ... other properties
+      secretProvider?: import("@sage/utils").SecretProvider; // Injected by the runtime
+    }
+    ```
 
-### Writing Good Contracts
-- **Be Specific:** Define exact inputs, outputs, and behaviors
-- **Include Examples:** Show concrete usage patterns
-- **Specify Error Conditions:** Document failure modes and error handling
-- **Define Performance Characteristics:** Include timing and resource constraints
-- **Plan for Evolution:** Design contracts that can grow gracefully
+3.  **Secret Resolver Middleware** (in `@sage/tools`):
+    A function that recursively walks an object (like tool arguments) and replaces any string matching the placeholder pattern.
 
-### Testing Contracts
-- **Test the Interface, Not Implementation:** Focus on external behavior
-- **Include Edge Cases:** Test boundary conditions and error scenarios  
-- **Use Property-Based Testing:** Verify contracts hold for all valid inputs
-- **Mock Dependencies:** Isolate contract testing from external dependencies
-- **Automate Verification:** Run contract tests in CI/CD pipeline
+## Why This is Such a Powerful Idea
+
+-   **Zero-Knowledge Agents & LLMs:** The most sensitive parts of your system—the reasoning engine (LLM) and the long-term memory (Chronicle)—never, ever see a real secret. This is a massive security win.
+-   **Safe, Auditable Plans:** You have a perfect audit trail of which secrets were intended to be used for what purpose, without ever exposing the values.
+-   **Environment-Specific Injection:** The `prod` environment's tool runner gets the `ProdSecretProvider`, and the `dev` environment gets the `DevSecretProvider`. The plans and agent logic remain identical across environments, which is the holy grail of DevOps.
+-   **Centralized Secret Management:** The Warden manages the policy, and the SecretProvider manages the values. This is a clean separation of concerns. Secrets can be rotated in your vault, and the SAGE system will automatically pick up the new values on the next run without any changes to plans or agent logic.
+
 
 ---
 
-*The strength of SAGE lies not in any single component, but in the reliability of the agreements between them. By making these contracts explicit and testable, we create a system that can evolve while maintaining its essential guarantees.*
+📚 # 📚 Documentation: Gnosis
+
+> **📁 Source File:** `DOCS/principles/Gnosis.md` • *5 lines, 72 tokens* • Hash: `fed17022`
+
+# Principle of Gnosis
+
+Belief must always be anchored to verifiable knowledge. Agents strive to validate assumptions against the [Code Graph](../core-concepts/Lexicon.md#code-graph).
+
+- **Enforced by:** Guardians’ self-inquiry, Sage’s architectural analysis, Delegator validation loops.
 
 ---
 

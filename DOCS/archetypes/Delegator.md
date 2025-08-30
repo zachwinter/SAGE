@@ -88,4 +88,4 @@ export interface ExecutionReport {
 ## See also
 
 - [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
-- [Unsafe Protocol](../core-concepts/Principles.md#unsafe-protocol)
+- [Unsafe Protocol](../protocols/Unsafe-Protocol.md)

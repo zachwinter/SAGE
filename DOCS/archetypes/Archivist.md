@@ -86,4 +86,4 @@ RETURN p;
 
 - [Principle of Noticing](../core-concepts/Principles.md#1-principle-of-noticing)
 - [Principle of Integrity](../core-concepts/Principles.md#4-principle-of-integrity)
-- [Reconciliation](../core-concepts/Principles.md#reconciliation)
+- [Reconciliation](../protocols/Reconciliation.md)

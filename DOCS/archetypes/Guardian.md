@@ -90,4 +90,4 @@ If result is empty, trigger HALT_AND_REPORT.
 
 - [Bullet Wound Invariant](../core-concepts/Principles.md#bullet-wound-invariant)
 - [Reconciliation](../core-concepts/Principles.md#reconciliation)
-- [Principle of Gnosis](../core-concepts/Principles.md#3-principle-of-gnosis)
+- [Principle of Gnosis](../principles/Gnosis.md)

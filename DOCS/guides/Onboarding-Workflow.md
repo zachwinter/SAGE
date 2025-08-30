@@ -16,7 +16,7 @@ This graph is the objective, verifiable reality of the code's structure.
 
 ## Phase 2: The Genesis Committee Protocol
 
-With the graph created, the system must now understand the *intent* behind the structure. This is achieved through the **Genesis Committee Protocol**, which enforces the **[Principle of Territorial Gnosis](./Principles.md#1-principle-of-territorial-gnosis)**.
+With the graph created, the system must now understand the *intent* behind the structure. This is achieved through the **Genesis Committee Protocol**, which enforces the **[Principle of Territorial Gnosis](../principles/Territorial-Gnosis.md)**.
 
 ### 1. Topographical Survey
 

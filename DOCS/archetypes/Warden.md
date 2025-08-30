@@ -73,4 +73,4 @@ RETURN e ORDER BY e.timestamp ASC;
 ## See also
 
 - [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
-- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Transaction Boundary](../protocols/Transaction-Boundary.md)

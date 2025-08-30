@@ -1,20 +1,20 @@
 # 🌟 Complete SAGE Documentation
 
-*Generated on 2025-08-30T04:52:13.706Z in 32ms*
+*Generated on 2025-08-30T06:54:18.896Z in 32ms*
 
 **SAGE** — *"A Codebase is a Living Society."*
 
-This comprehensive document contains all README and documentation files from the project, optimized for **Gemini Pro** (88,428 total tokens).
+This comprehensive document contains all README and documentation files from the project, optimized for **Gemini Pro** (89,716 total tokens).
 
 ## 📊 Document Statistics
 
 | Metric | Value |
 |--------|-------|
-| 📄 Total Files | 54 |
-| ✅ Healthy Files* | 15 |
-| 📏 Total Lines | 11,161 |
-| 🔤 Total Characters | 353,627 |
-| 🎯 Estimated Tokens | 88,428 |
+| 📄 Total Files | 66 |
+| ✅ Healthy Files* | 28 |
+| 📏 Total Lines | 11,239 |
+| 🔤 Total Characters | 358,769 |
+| 🎯 Estimated Tokens | 89,716 |
 | ⏱️ Build Time | 32ms |
 
 *Healthy files: Have proper headings, balanced code blocks, reasonable line lengths, and no encoding issues.
@@ -22,25 +22,37 @@ This comprehensive document contains all README and documentation files from the
 ## 📋 Table of Contents
 
 ### 🏠 Core
-- [🏠 Main Project README](#main-project-readme) *(653 tokens)*
+- [🏠 Main Project README](#main-project-readme) *(730 tokens)*
 
 ### 📚 Documentation
-- [📚 Documentation Hub](#documentation-hub) *(1874 tokens)*
-- [📚 Documentation: Archivist](#documentation-archivist) *(1220 tokens)*
-- [📚 Documentation: Delegator](#documentation-delegator) *(1018 tokens)*
-- [📚 Documentation: Guardian](#documentation-guardian) *(986 tokens)*
-- [📚 Documentation: Librarian](#documentation-librarian) *(847 tokens)*
+- [📚 Documentation Hub](#documentation-hub) *(2351 tokens)*
+- [📚 Documentation: Archivist](#documentation-archivist) *(1216 tokens)*
+- [📚 Documentation: Delegator](#documentation-delegator) *(1015 tokens)*
+- [📚 Documentation: Guardian](#documentation-guardian) *(1089 tokens)*
+- [📚 Documentation: Librarian](#documentation-librarian) *(843 tokens)*
 - [📚 Documentation: Sage](#documentation-sage) *(734 tokens)*
-- [📚 Documentation: Warden](#documentation-warden) *(852 tokens)*
+- [📚 Documentation: Warden](#documentation-warden) *(848 tokens)*
 - [📚 Documentation: Contracts](#documentation-contracts) *(2027 tokens)*
 - [📚 Documentation: Valve](#documentation-valve) *(1678 tokens)*
-- [📚 Documentation: Vault-Warden-Protocol](#documentation-vault-warden-protocol) *(1220 tokens)*
-- [📚 Documentation: Lexicon](#documentation-lexicon) *(2254 tokens)*
-- [📜 The SAGE Manifesto](#the-sage-manifesto) *(811 tokens)*
-- [📚 Documentation: Principles](#documentation-principles) *(1250 tokens)*
+- [📚 Documentation: Vault-Warden-Protocol](#documentation-vault-warden-protocol) *(1210 tokens)*
+- [📚 Documentation: Lexicon](#documentation-lexicon) *(2242 tokens)*
+- [📜 The SAGE Manifesto](#the-sage-manifesto) *(807 tokens)*
+- [📚 Documentation: Principles](#documentation-principles) *(662 tokens)*
 - [📚 Documentation: Instant-Recall](#documentation-instant-recall) *(911 tokens)*
-- [📚 Documentation: Onboarding-Workflow](#documentation-onboarding-workflow) *(1287 tokens)*
+- [📚 Documentation: Onboarding-Workflow](#documentation-onboarding-workflow) *(1284 tokens)*
 - [📚 Documentation: Relay](#documentation-relay) *(5970 tokens)*
+- [📚 Documentation: Gnosis](#documentation-gnosis) *(72 tokens)*
+- [📚 Documentation: Integrity](#documentation-integrity) *(48 tokens)*
+- [📚 Documentation: Noticing](#documentation-noticing) *(110 tokens)*
+- [📚 Documentation: Remembering](#documentation-remembering) *(58 tokens)*
+- [📚 Documentation: Secrets](#documentation-secrets) *(125 tokens)*
+- [📚 Documentation: Territorial-Gnosis](#documentation-territorial-gnosis) *(142 tokens)*
+- [📚 Documentation: Bullet-Wound-Invariant](#documentation-bullet-wound-invariant) *(80 tokens)*
+- [📚 Documentation: Committee-Formation](#documentation-committee-formation) *(73 tokens)*
+- [📚 Documentation: Post-Mortem-Protocol](#documentation-post-mortem-protocol) *(74 tokens)*
+- [📚 Documentation: Reconciliation](#documentation-reconciliation) *(71 tokens)*
+- [📚 Documentation: Transaction-Boundary](#documentation-transaction-boundary) *(57 tokens)*
+- [📚 Documentation: Unsafe-Protocol](#documentation-unsafe-protocol) *(76 tokens)*
 - [📚 Documentation: README_GENERATION_SUMMARY](#documentation-readme-generation-summary) *(1388 tokens)*
 - [📚 Documentation: AGENT_WORKFLOW](#documentation-agent-workflow) *(1547 tokens)*
 - [📚 Documentation: PACKAGE_DOCS](#documentation-package-docs) *(1888 tokens)*
@@ -55,7 +67,7 @@ This comprehensive document contains all README and documentation files from the
   - [🖥️ App: cli (PHASE-3-extract-ui-components)](#app-cli-phase-3-extract-ui-components) *(2221 tokens)*
   - [🖥️ App: cli (PHASE-4-implement-agents)](#app-cli-phase-4-implement-agents) *(3281 tokens)*
   - [🖥️ App: cli (PHASE-5-aql-integration)](#app-cli-phase-5-aql-integration) *(3341 tokens)*
-- [🖥️ App: valve (README)](#app-valve-readme) *(1618 tokens)*
+- [🖥️ App: valve (README)](#app-valve-readme) *(1588 tokens)*
 
 ### 📦 Packages
 - **agents** *(1994 tokens total)*
@@ -74,8 +86,8 @@ This comprehensive document contains all README and documentation files from the
 - **graph** *(3083 tokens total)*
   - [📦 Package: graph (README)](#package-graph-readme) *(1048 tokens)*
   - [📦 Package: graph (CONTRACT)](#package-graph-contract) *(2035 tokens)*
-- **llm** *(3360 tokens total)*
-  - [📦 Package: llm (README)](#package-llm-readme) *(1043 tokens)*
+- **llm** *(3667 tokens total)*
+  - [📦 Package: llm (README)](#package-llm-readme) *(1350 tokens)*
   - [📦 Package: llm (CONTRACT)](#package-llm-contract) *(2317 tokens)*
 - **mcp** *(3428 tokens total)*
   - [📦 Package: mcp (README)](#package-mcp-readme) *(1140 tokens)*
@@ -100,7 +112,7 @@ This comprehensive document contains all README and documentation files from the
 
 🏛️ # 📚 Documentation Hub
 
-> **📁 Source File:** `DOCS/README.md` • *157 lines, 1874 tokens* • Hash: `d5c20506`
+> **📁 Source File:** `DOCS/README.md` • *182 lines, 2351 tokens* • Hash: `8d8906a5`
 
 # 📚 SAGE Documentation Hub
 
@@ -135,8 +147,8 @@ This hub provides structured access to all SAGE documentation, organized for dif
 
 #### 🤖 As an Agent Developer  
 *"I want to create or customize SAGE agents."*
-1. [🏛️ Architecture Overview](#-architecture-overview) *(see diagram below)*
-2. [📋 Contracts](./architecture/Contracts.md) — The agent interface specifications
+1. [📋 Contracts](./architecture/Contracts.md) — The agent interface specifications
+2. [🏛️ Architecture Overview](#-architecture-overview) *(see diagram below)*
 3. [🎭 Archetypes](#-the-archetypes) — Available agent types
 4. [🛠️ Agent Development](../packages/agents/README.md) — Build custom agents
 
@@ -224,11 +236,36 @@ SAGE's society consists of six specialized consciousnesses, each with distinct r
 
 ---
 
+> **🚨 Bullet Wound Invariant**
+>
+> Enforcement of the [Principle of Integrity](./core-concepts/Principles.md#5-principle-of-integrity). If a [Guardian](./archetypes/Guardian.md) detects contradiction between its Chronicle and the [Code Graph](./core-concepts/Lexicon.md#code-graph), it must invoke `HALT_AND_REPORT`, freezing execution until reconciliation.
+>
+> **[➡️ See formal definition in Lexicon](./core-concepts/Lexicon.md#bullet-wound-invariant)**
+
+---
+
+---
+
 ## 🚀 Applications & Packages
 
 ### 🖥️ Applications
 - **[CLI](../apps/cli/README.md)** — *"The Bridge to the Society"* — Primary human interface
 - **[Valve](../apps/valve/README.md)** — *"The Perceptual Valve"* — Configurable awareness system
+
+### 📊 Status Matrix
+
+| Package | Status |
+|---------|--------|
+| **[agents](../packages/agents/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[aql](../packages/aql/README.md)** | ![Status: Prototype](https://img.shields.io/badge/Status-Prototype-orange) |
+| **[chronicle](../packages/chronicle/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[graph](../packages/graph/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[llm](../packages/llm/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[mcp](../packages/mcp/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[test-utils](../packages/test-utils/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[tools](../packages/tools/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[ui](../packages/ui/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[utils](../packages/utils/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
 
 ### 📦 Core Packages
 - **[agents](../packages/agents/README.md)** — *The Society of Minds* — Core archetype logic
@@ -264,7 +301,7 @@ Ready to join the society? Here's how:
 
 🚀 # 🏠 Main Project README
 
-> **📁 Source File:** `README.md` • *63 lines, 653 tokens* • Hash: `1dfa235a`
+> **📁 Source File:** `README.md` • *66 lines, 730 tokens* • Hash: `620a4aa4`
 
 # SAGE
 
@@ -277,11 +314,13 @@ SAGE transforms your codebase into a living ecosystem of specialized AI agents t
 SAGE is currently **under active development**. The vision is real, the architecture is sound, but we're still building the society.
 
 **What's Working:**
+
 - Core philosophy and architectural patterns
 - Graph-based code analysis foundation
 - Agent archetype designs
 
 **Coming Soon:**
+
 - Production-ready CLI installation
 - Full agent implementation
 - Live codebase interaction
@@ -301,6 +340,7 @@ Want to contribute or stay updated? Check out our [Contributing Guide](./DOCS/RE
 **📚 [Complete Documentation Hub](./DOCS/README.md)** — Start here for comprehensive guides
 
 **Quick Links:**
+
 - [📜 The Philosophy](./DOCS/core-concepts/Manifesto.md) — Why SAGE exists and what it solves
 - [🧠 Core Principles](./DOCS/core-concepts/Principles.md) — The rules that govern the society
 - [📖 Lexicon](./DOCS/core-concepts/Lexicon.md) — Learn the shared vocabulary
@@ -308,14 +348,14 @@ Want to contribute or stay updated? Check out our [Contributing Guide](./DOCS/RE
 
 ## 🏗️ Key Packages
 
-| Package | Purpose | Status |
-|---------|---------|---------|
-| **[agents](./packages/agents/README.md)** | The society of specialized AI minds | 🚀 Production |
-| **[graph](./packages/graph/README.md)** | Code knowledge representation | 🚀 Production |  
-| **[llm](./packages/llm/README.md)** | Multi-provider AI interface | 🚀 Production |
-| **[chronicle](./packages/chronicle/README.md)** | Immutable event history | 🚀 Production |
-| **[aql](./packages/aql/README.md)** | Agent query language | 🔄 Active Development |
-| **[mcp](./packages/mcp/README.md)** | Model Context Protocol | 🚀 Production |
+| Package                                         | Purpose                             | Status                |
+| ----------------------------------------------- | ----------------------------------- | --------------------- |
+| **[agents](./packages/agents/README.md)**       | The society of specialized AI minds | 🚀 Production         |
+| **[graph](./packages/graph/README.md)**         | Code knowledge representation       | 🚀 Production         |
+| **[llm](./packages/llm/README.md)**             | Multi-provider AI interface         | 🚀 Production         |
+| **[chronicle](./packages/chronicle/README.md)** | Immutable event history             | 🚀 Production         |
+| **[aql](./packages/aql/README.md)**             | Agent query language                | 🔄 Active Development |
+| **[mcp](./packages/mcp/README.md)**             | Model Context Protocol              | 🚀 Production         |
 
 ## 🤝 Contributing
 
@@ -327,7 +367,7 @@ MIT
 
 ---
 
-*SAGE • A Codebase is a Living Society*
+_SAGE • A Codebase is a Living Society_
 
 
 ---
@@ -378,19 +418,17 @@ It will manage the high-level workflows and protocols—like Plan/Approve/Delega
 
 🖥️ # 🖥️ App: valve (README)
 
-> **📁 Source File:** `apps/valve/README.md` • *193 lines, 1618 tokens* • Hash: `2c920b78`
+> **📁 Source File:** `apps/valve/README.md` • *191 lines, 1588 tokens* • Hash: `ef919d01`
 
 # SAGE Valve Implementation
 
-This package contains the **Rust implementation** of the SAGE Valve, the perceptual apparatus for the SAGE framework.
+This package contains the **Rust implementation** of the SAGE Valve.
 
-For a complete conceptual overview of the SAGE Valve, its philosophy, and its role in the SAGE ecosystem, please see the primary documentation:
-
-**➡️ [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
+**➡️ See canonical Valve specification for conceptual overview: [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
 
 ---
 
-## Development & Testing
+## Implementation Notes & Testing Guidance
 
 This document provides practical guidance for developers working on the Rust application.
 
@@ -1645,7 +1683,7 @@ See the [full contract specification](./CONTRACT.md) for detailed interface defi
 
 📦 # 📦 Package: llm (README)
 
-> **📁 Source File:** `packages/llm/README.md` • *148 lines, 1043 tokens* • Hash: `5c3c6efd`
+> **📁 Source File:** `packages/llm/README.md` • *182 lines, 1350 tokens* • Hash: `b870f145`
 
 # @sage/llm
 
@@ -1667,15 +1705,46 @@ pnpm add @sage/llm
 
 ## Quick Start
 
+### With OpenAI
+
 ```typescript
 import { createChatStream, setProvider } from '@sage/llm';
-import { OpenAIProvider } from '@sage/llm/adapters/openai'; // example adapter
+import { OpenAIAdapter } from '@sage/llm/adapters/openai';
 
-// Minimal, copy-pasteable example demonstrating primary use case
-setProvider(new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY! }));
+// Configure OpenAI provider
+const openaiAdapter = new OpenAIAdapter({ 
+  apiKey: process.env.OPENAI_API_KEY! 
+});
+
+setProvider(openaiAdapter);
 
 const stream = await createChatStream({
   model: "gpt-4.1",
+  messages: [
+    { role: "system", content: "You are a helpful agent." },
+    { role: "user", content: "List three risks of unsafe refactors." }
+  ]
+});
+
+for await (const ev of stream) {
+  if (ev.type === "text") process.stdout.write(ev.value);
+}
+```
+
+### With LM Studio
+
+```typescript
+import { createChatStream, setProvider } from '@sage/llm';
+import { createDefaultLMStudioAdapter } from '@sage/llm/adapters/lmstudio-factory';
+
+// Assuming you have LM Studio dependencies available
+// This is a simplified example - you'll need to provide actual LM Studio deps
+const lmStudioAdapter = createDefaultLMStudioAdapter(lmStudioDeps, 'llama3');
+
+setProvider(lmStudioAdapter);
+
+const stream = await createChatStream({
+  model: "local-model",
   messages: [
     { role: "system", content: "You are a helpful agent." },
     { role: "user", content: "List three risks of unsafe refactors." }
@@ -1694,43 +1763,43 @@ for await (const ev of stream) {
 The main functions for interacting with LLM providers:
 
 ```typescript
-// Key method signatures with examples
-class LLM {
-  /**
-   * Create a chat stream with the current provider, with optional caching
-   */
-  async createChatStream(
-    opts: ChatOptions,
-    streamOpts?: StreamOptions
-  ): Promise<AsyncIterable<StreamEvent>> {
-    // Create a chat stream
-  }
+import { createChatStream, setProvider, listModels } from '@sage/llm';
 
-  /**
-   * List available models from the current provider or a specific provider
-   */
-  async listModels(provider?: string): Promise<ModelInfo[]> {
-    // List available models
-  }
+// Set the current provider
+setProvider(provider);
 
-  /**
-   * Set the current provider
-   */
-  setProvider(provider: LLMProvider): void {
-    // Set the current provider
-  }
+// Create a chat stream with the current provider
+const stream = await createChatStream({
+  model: "gpt-4.1",
+  messages: [
+    { role: "user", content: "Hello, world!" }
+  ]
+});
 
-  /**
-   * Register a tool for use with LLM calls
-   */
-  registerTool(
-    name: string,
-    schema: ToolSchema,
-    executor: ToolExecutor
-  ): void {
-    // Register a tool
-  }
-}
+// List available models from the current provider
+const models = await listModels();
+```
+
+### Provider Adapters
+
+The package includes adapters for various LLM providers:
+
+```typescript
+// OpenAI adapter
+import { OpenAIAdapter } from '@sage/llm/adapters/openai';
+const openai = new OpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY! });
+
+// Anthropic adapter
+import { AnthropicAdapter } from '@sage/llm/adapters/anthropic';
+const anthropic = new AnthropicAdapter({ apiKey: process.env.ANTHROPIC_API_KEY! });
+
+// LM Studio adapter
+import { createDefaultLMStudioAdapter } from '@sage/llm/adapters/lmstudio-factory';
+const lmstudio = createDefaultLMStudioAdapter(lmStudioDeps, 'llama3');
+
+// Test adapter for deterministic testing
+import { TestProviderFactory } from '@sage/llm/adapters/test';
+const testProvider = TestProviderFactory.simple('Hello, test!');
 ```
 
 ## Role in the SAGE Ecosystem
@@ -1746,9 +1815,9 @@ class LLM {
 
 ## Development Status
 
-![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 
-The LLM package is currently in development with core features implemented and ready for production use. Some advanced features and provider adapters are still in progress.
+The LLM package is production-ready with comprehensive provider support and advanced features.
 
 **✅ Core Features Implemented:**
 - Unified chat API with tool-calling
@@ -1756,11 +1825,14 @@ The LLM package is currently in development with core features implemented and r
 - JSON Schema validation for tools
 - Prompt caching with multiple modes
 - Error handling and safety features
+- Comprehensive provider adapters (OpenAI, Anthropic, LM Studio, MCP, Test)
 
-**⚠️ In Progress:**
-- Provider adapter completion (OpenAI, Anthropic, LM Studio)
-- Production readiness and polish
-- @sage/mcp integration
+**✅ Advanced Features:**
+- Event normalization for consistent provider behavior
+- Security policies and tool validation
+- Detailed telemetry and monitoring
+- Configurable backpressure handling
+- Provider-agnostic API with consistent interfaces
 
 ## Development
 
@@ -2788,7 +2860,7 @@ See the [full contract specification](./CONTRACT.md) for detailed interface defi
 
 📚 # 📚 Documentation: Archivist
 
-> **📁 Source File:** `DOCS/archetypes/Archivist.md` • *90 lines, 1220 tokens* • Hash: `0618465e`
+> **📁 Source File:** `DOCS/archetypes/Archivist.md` • *90 lines, 1216 tokens* • Hash: `90e0a4cb`
 
 # The Archivist
 
@@ -2878,14 +2950,14 @@ RETURN p;
 
 - [Principle of Noticing](../core-concepts/Principles.md#1-principle-of-noticing)
 - [Principle of Integrity](../core-concepts/Principles.md#4-principle-of-integrity)
-- [Reconciliation](../core-concepts/Principles.md#reconciliation)
+- [Reconciliation](../protocols/Reconciliation.md)
 
 
 ---
 
 📚 # 📚 Documentation: Delegator
 
-> **📁 Source File:** `DOCS/archetypes/Delegator.md` • *92 lines, 1018 tokens* • Hash: `0a4f3b60`
+> **📁 Source File:** `DOCS/archetypes/Delegator.md` • *92 lines, 1015 tokens* • Hash: `ffca4c52`
 
 # The Delegator
 
@@ -2977,20 +3049,30 @@ export interface ExecutionReport {
 ## See also
 
 - [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
-- [Unsafe Protocol](../core-concepts/Principles.md#unsafe-protocol)
+- [Unsafe Protocol](../protocols/Unsafe-Protocol.md)
 
 
 ---
 
 📚 # 📚 Documentation: Guardian
 
-> **📁 Source File:** `DOCS/archetypes/Guardian.md` • *84 lines, 986 tokens* • Hash: `bb22ad1e`
+> **📁 Source File:** `DOCS/archetypes/Guardian.md` • *94 lines, 1089 tokens* • Hash: `bbdca5f2`
 
 # The Guardian
 
 _“The Soul of the Code.”_
 
 > _“No change without reason; no reason unremembered.”_
+
+---
+
+> **🚨 Bullet Wound Invariant**
+>
+> Enforcement of the [Principle of Integrity](../core-concepts/Principles.md#5-principle-of-integrity). If a Guardian detects contradiction between its Chronicle and the [Code Graph](../core-concepts/Lexicon.md#code-graph), it must invoke `HALT_AND_REPORT`, freezing execution until reconciliation.
+>
+> **[➡️ See formal definition in Lexicon](../core-concepts/Lexicon.md#bullet-wound-invariant)**
+
+---
 
 ## Core Function
 
@@ -3068,14 +3150,14 @@ If result is empty, trigger HALT_AND_REPORT.
 
 - [Bullet Wound Invariant](../core-concepts/Principles.md#bullet-wound-invariant)
 - [Reconciliation](../core-concepts/Principles.md#reconciliation)
-- [Principle of Gnosis](../core-concepts/Principles.md#3-principle-of-gnosis)
+- [Principle of Gnosis](../principles/Gnosis.md)
 
 
 ---
 
 📚 # 📚 Documentation: Librarian
 
-> **📁 Source File:** `DOCS/archetypes/Librarian.md` • *83 lines, 847 tokens* • Hash: `306f5982`
+> **📁 Source File:** `DOCS/archetypes/Librarian.md` • *83 lines, 843 tokens* • Hash: `a850bf34`
 
 # The Librarian
 
@@ -3158,7 +3240,7 @@ RETURN f, t;
 ## See also
 
 - [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
-- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
+- [Post-Mortem Protocol](../protocols/Post-Mortem-Protocol.md)
 
 
 ---
@@ -3236,7 +3318,7 @@ Sage is the system’s primary creative, strategic, and architectural partner. I
 
 📚 # 📚 Documentation: Warden
 
-> **📁 Source File:** `DOCS/archetypes/Warden.md` • *77 lines, 852 tokens* • Hash: `2bbc2ee1`
+> **📁 Source File:** `DOCS/archetypes/Warden.md` • *77 lines, 848 tokens* • Hash: `2aaeefe3`
 
 # The Warden
 
@@ -3313,7 +3395,7 @@ RETURN e ORDER BY e.timestamp ASC;
 ## See also
 
 - [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
-- [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
+- [Transaction Boundary](../protocols/Transaction-Boundary.md)
 
 
 ---
@@ -3658,11 +3740,11 @@ Every glob pattern becomes a potential mentor. Every code pattern becomes a teac
 
 📚 # 📚 Documentation: Vault-Warden-Protocol
 
-> **📁 Source File:** `DOCS/architecture/Vault-Warden-Protocol.md` • *81 lines, 1220 tokens* • Hash: `c529a40b`
+> **📁 Source File:** `DOCS/architecture/Vault-Warden-Protocol.md` • *81 lines, 1210 tokens* • Hash: `c9663066`
 
-# The Vault-Warden Protocol for Secure Value Injection
+# The Vault-Warden Protocol for Secrets
 
-This protocol addresses the critical challenge of managing sensitive values (secrets, API keys) within the SAGE ecosystem. It ensures that the system can operate on the *intent* to use a secret, while the actual secret value remains completely outside the scope of memory, planning, and reasoning.
+This protocol addresses the critical challenge of secrets management within the SAGE ecosystem. It ensures that the system can operate on the *intent* to use a secret, while the actual secret value remains completely outside the scope of memory, planning, and reasoning.
 
 ## How It Works: The Lifecycle of a Secret
 
@@ -3746,7 +3828,7 @@ This protocol fits beautifully with the existing SAGE structure, requiring the f
 
 📚 # 📚 Documentation: Lexicon
 
-> **📁 Source File:** `DOCS/core-concepts/Lexicon.md` • *142 lines, 2254 tokens* • Hash: `5886243e`
+> **📁 Source File:** `DOCS/core-concepts/Lexicon.md` • *142 lines, 2242 tokens* • Hash: `2e5d5fe6`
 
 # SAGE Lexicon
 
@@ -3877,7 +3959,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 ### V
 
 - **Vault-Warden Protocol**
-  A security protocol for Secure Value Injection. It ensures that sensitive values (secrets, API keys) are never stored in Chronicles, Plans, or LLM prompts. Instead, they are injected just-in-time at the tool execution layer and immediately redacted from any output. This allows the system to operate on the _intent_ to use a secret, not the secret itself. See [Principle of Secure Value Injection](./Principles.md#6-principle-of-secure-value-injection).
+  A security protocol for secrets management. It ensures that sensitive values (secrets, API keys) are never stored in Chronicles, Plans, or LLM prompts. Instead, they are injected just-in-time at the tool execution layer and immediately redacted from any output. This allows the system to operate on the _intent_ to use a secret, not the secret itself. See [Principle of Secrets](../principles/Secrets.md).
 
 ### W
 
@@ -3895,7 +3977,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 
 📜 # 📜 The SAGE Manifesto
 
-> **📁 Source File:** `DOCS/core-concepts/Manifesto.md` • *52 lines, 811 tokens* • Hash: `8ada51f6`
+> **📁 Source File:** `DOCS/core-concepts/Manifesto.md` • *52 lines, 807 tokens* • Hash: `e18701c1`
 
 # The SAGE Manifesto
 
@@ -3921,7 +4003,7 @@ SAGE's solution is to make that mental model explicit, durable, and queryable. I
 (:CodeEntity)-[:CONTAINS]->(:CodeEntity)
 ```
 
-This graph is more than just a database; it is the **Ground Truth**. It becomes the shared, verifiable reality—the [Gnosis](./Principles.md#3-principle-of-gnosis)—upon which the entire society of agents reasons.
+This graph is more than just a database; it is the **Ground Truth**. It becomes the shared, verifiable reality—the [Gnosis](../principles/Gnosis.md)—upon which the entire society of agents reasons.
 
 This is the key that unlocks the living codebase. The **Guardian** uses this map to defend its territory. The **Archivist** uses it to preserve history. The **Sage** uses it to chart new courses. By grounding both human and AI cognition in this single source of truth, SAGE transforms an opaque, complex system into a transparent, living ecology you can finally have a conversation with.
 
@@ -3954,7 +4036,7 @@ Ready to see the vision in action? Check the **[Project Status](../../README.md#
 
 📚 # 📚 Documentation: Principles
 
-> **📁 Source File:** `DOCS/core-concepts/Principles.md` • *111 lines, 1250 tokens* • Hash: `61c3d312`
+> **📁 Source File:** `DOCS/core-concepts/Principles.md` • *48 lines, 662 tokens* • Hash: `10f88ec7`
 
 # SAGE Principles & Protocols
 
@@ -3964,91 +4046,28 @@ This section unifies the constitutional doctrines of SAGE (Principles) with thei
 
 ## Principles
 
-### 1. Principle of Territorial Gnosis
+SAGE's foundational beliefs that guide its behavior and decision-making.
 
-> _Mantra: "The shape of the land reveals the mind of its people."_
+- **[Principle of Territorial Gnosis](../principles/Territorial-Gnosis.md)** — The filesystem hierarchy is a deliberate act of semantic organization.
+- **[Principle of Noticing](../principles/Noticing.md)** — The system must filter reality through a lens of purpose.
 
-**Doctrine:** The filesystem hierarchy is not arbitrary; it is a deliberate act of semantic organization. Sage must honor this structure as the primary testament to the codebase's intended architecture, delegating understanding to specialized agents responsible for its territories. This principle establishes that the first layer of Gnosis is topographical, preceding even the Code Graph.
-
-- **Enforced by:** The Genesis Committee Protocol during `sage ingest`.
-
-### 2. Principle of Noticing
-
-The system’s first duty is to notice, but not to notice everything. It must filter reality through a lens of purpose, preventing it from being overwhelmed and allowing it to focus on what matters. It is not about passive observation, but the active, configurable act of perception.
-
-- **Enforced by:** The [SAGE Valve](../../apps/valve/README.md) and its configured [Personas](./Lexicon.md#persona).
-
-### 3. Principle of Remembering
-
-Every noticed event must be immortalized. Chronicles ensure that no reason or change is ever lost to time.
-
-- **Enforced by:** Guardians, Librarian, Warden, Archivist maintaining immutable `.sage` files.
-
-### 4. Principle of Gnosis
-
-Belief must always be anchored to verifiable knowledge. Agents strive to validate assumptions against the [Code Graph](./Lexicon.md#code-graph).
-
-- **Enforced by:** Guardians’ self-inquiry, Sage’s architectural analysis, Delegator validation loops.
-
-### 5. Principle of Integrity
-
-The system’s ground truth is sacred. Any contradiction between memory and reality is an existential threat.
-
-- **Enforced by:** Bullet Wound Invariant (see below).
-
-### 6. Principle of Secure Value Injection
-
-> _Mantra: "Secrets are for machines, not for minds."_
-
-**Doctrine:** Sensitive values (secrets, API keys) must never enter the long-term memory (Chronicles), planning (Plans), or reasoning (LLM prompts) of the system. They are injected just-in-time at the point of execution and immediately redacted from any output. This ensures the system operates on the *intent* to use a secret, not the secret itself.
-
-- **Enforced by:** The Vault-Warden Protocol during tool execution.
+- **[Principle of Remembering](../principles/Remembering.md)** — Every noticed event must be immortalized.
+- **[Principle of Gnosis](../principles/Gnosis.md)** — Belief must always be anchored to verifiable knowledge.
+- **[Principle of Integrity](../principles/Integrity.md)** — The system’s ground truth is sacred.
+- **[Principle of Secrets](../principles/Secrets.md)** — Sensitive values are for machines, not for minds.
 
 ---
 
 ## Protocols & Invariants
 
-### Bullet Wound Invariant
+The operational rules by which agents enforce the Principles.
 
-If a [Guardian](../archetypes/Guardian.md) detects contradiction between its Chronicle and the Code Graph, it must immediately invoke `HALT_AND_REPORT`. Execution halts until reconciliation is achieved.
-
-- **Embodies:** Principle of Integrity.
-- **Guarantee:** Contradictions are never ignored.
-
-### Transaction Boundary
-
-Every [Plan](../lexicon.md#plan) must execute atomically. Changes are only committed if all validators pass.
-
-- **Embodies:** Principles of Integrity & Gnosis.
-- **Enforced by:** Delegator.
-
-### Unsafe Protocol
-
-The deliberate escape hatch. Allows execution of a Plan even if Guardians or Wardens deny it. Requires explicit user confirmation. Chronicles must be stamped with `PLAN_UNSAFE` forever.
-
-- **Embodies:** Principle of Remembering.
-- **Guarantee:** Breaches of consensus are never hidden.
-
-### Reconciliation
-
-Any external file modification must trigger dialogue with the responsible Guardian. The edit’s justification and diff are appended to the Chronicle.
-
-- **Embodies:** Principles of Remembering & Integrity.
-- **Guarantee:** External changes are formally accounted for.
-
-### Committee Formation
-
-When large-scale Plans affect many Guardians, Sage charters a temporary committee. A Committee Chair abstracts consensus into a unified response.
-
-- **Embodies:** Principles of Gnosis & Integrity.
-- **Guarantee:** Distributed negotiation does not devolve into chaos.
-
-### Post-Mortem Protocol
-
-Triggered by operational failures. SAGE traces error back to its originating Plan, analyzes flawed reasoning, and amends Chronicles and principles to prevent recurrence.
-
-- **Embodies:** Principles of Remembering & Gnosis.
-- **Guarantee:** The system learns from failure.
+- **[Bullet Wound Invariant](../protocols/Bullet-Wound-Invariant.md)** — Contradictions between Chronicle and Code Graph halt execution.
+- **[Transaction Boundary](../protocols/Transaction-Boundary.md)** — Plans execute atomically; changes are committed only if all validators pass.
+- **[Unsafe Protocol](../protocols/Unsafe-Protocol.md)** — Allows execution of denied Plans with explicit user override.
+- **[Reconciliation](../protocols/Reconciliation.md)** — External file modifications trigger dialogue with the responsible Guardian.
+- **[Committee Formation](../protocols/Committee-Formation.md)** — Manages large-scale Plans affecting many Guardians.
+- **[Post-Mortem Protocol](../protocols/Post-Mortem-Protocol.md)** — The system learns from operational failures.
 
 ---
 
@@ -4062,7 +4081,7 @@ Triggered by operational failures. SAGE traces error back to its originating Pla
 
 With the constitutional principles understood, continue your journey:
 
-1. **[Lexicon](./Lexicon.md)** — Learn the specialized vocabulary used throughout SAGE
+1. **[Lexicon](../core-concepts/Lexicon.md)** — Learn the specialized vocabulary used throughout SAGE
 2. **[Archetype Gallery](../archetypes/)** — Meet the six specialized agents and their roles
 3. **[Architecture Deep Dive](../architecture/Contracts.md)** — Understand the technical contracts that make it all work
 
@@ -4137,7 +4156,7 @@ This is the technical foundation for the "living codebase." Sage can adopt the p
 
 📚 # 📚 Documentation: Onboarding-Workflow
 
-> **📁 Source File:** `DOCS/guides/Onboarding-Workflow.md` • *81 lines, 1287 tokens* • Hash: `e1cc10e8`
+> **📁 Source File:** `DOCS/guides/Onboarding-Workflow.md` • *81 lines, 1284 tokens* • Hash: `a0dc28f7`
 
 # Onboarding: The Genesis of a Living Codebase
 
@@ -4157,7 +4176,7 @@ This graph is the objective, verifiable reality of the code's structure.
 
 ## Phase 2: The Genesis Committee Protocol
 
-With the graph created, the system must now understand the *intent* behind the structure. This is achieved through the **Genesis Committee Protocol**, which enforces the **[Principle of Territorial Gnosis](./Principles.md#1-principle-of-territorial-gnosis)**.
+With the graph created, the system must now understand the *intent* behind the structure. This is achieved through the **Genesis Committee Protocol**, which enforces the **[Principle of Territorial Gnosis](../principles/Territorial-Gnosis.md)**.
 
 ### 1. Topographical Survey
 
@@ -4897,6 +4916,161 @@ jobs:
 3. Neither team sees the other. Relay runs T1 with A(real)+B(fake) then A(fake)+B(real).
 4. Rotate packages across teams week‑over‑week; green relay = contract holds.
 
+
+---
+
+📚 # 📚 Documentation: Gnosis
+
+> **📁 Source File:** `DOCS/principles/Gnosis.md` • *5 lines, 72 tokens* • Hash: `fed17022`
+
+# Principle of Gnosis
+
+Belief must always be anchored to verifiable knowledge. Agents strive to validate assumptions against the [Code Graph](../core-concepts/Lexicon.md#code-graph).
+
+- **Enforced by:** Guardians’ self-inquiry, Sage’s architectural analysis, Delegator validation loops.
+
+---
+
+📚 # 📚 Documentation: Integrity
+
+> **📁 Source File:** `DOCS/principles/Integrity.md` • *5 lines, 48 tokens* • Hash: `f303e8d7`
+
+# Principle of Integrity
+
+The system’s ground truth is sacred. Any contradiction between memory and reality is an existential threat.
+
+- **Enforced by:** Bullet Wound Invariant (see below).
+
+---
+
+📚 # 📚 Documentation: Noticing
+
+> **📁 Source File:** `DOCS/principles/Noticing.md` • *5 lines, 110 tokens* • Hash: `a86a8d57`
+
+# Principle of Noticing
+
+The system’s first duty is to notice, but not to notice everything. It must filter reality through a lens of purpose, preventing it from being overwhelmed and allowing it to focus on what matters. It is not about passive observation, but the active, configurable act of perception.
+
+- **Enforced by:** The [SAGE Valve](../../apps/valve/README.md) and its configured [Personas](../core-concepts/Lexicon.md#persona).
+
+---
+
+📚 # 📚 Documentation: Remembering
+
+> **📁 Source File:** `DOCS/principles/Remembering.md` • *5 lines, 58 tokens* • Hash: `77d04168`
+
+# Principle of Remembering
+
+Every noticed event must be immortalized. Chronicles ensure that no reason or change is ever lost to time.
+
+- **Enforced by:** Guardians, Librarian, Warden, Archivist maintaining immutable `.sage` files.
+
+---
+
+📚 # 📚 Documentation: Secrets
+
+> **📁 Source File:** `DOCS/principles/Secrets.md` • *7 lines, 125 tokens* • Hash: `3c25a553`
+
+# Principle of Secrets
+
+> _Mantra: "Secrets are for machines, not for minds."_
+
+**Doctrine:** Sensitive values (secrets, API keys) must never enter the long-term memory (Chronicles), planning (Plans), or reasoning (LLM prompts) of the system. They are injected just-in-time at the point of execution and immediately redacted from any output. This ensures the system operates on the *intent* to use a secret, not the secret itself.
+
+- **Enforced by:** The Vault-Warden Protocol during tool execution.
+
+---
+
+📚 # 📚 Documentation: Territorial-Gnosis
+
+> **📁 Source File:** `DOCS/principles/Territorial-Gnosis.md` • *7 lines, 142 tokens* • Hash: `18fb1e33`
+
+# Principle of Territorial Gnosis
+
+> _Mantra: "The shape of the land reveals the mind of its people."_
+
+**Doctrine:** The filesystem hierarchy is not arbitrary; it is a deliberate act of semantic organization. Sage must honor this structure as the primary testament to the codebase's intended architecture, delegating understanding to specialized agents responsible for its territories. This principle establishes that the first layer of Gnosis is topographical, preceding even the Code Graph.
+
+- **Enforced by:** The Genesis Committee Protocol during `sage ingest`.
+
+---
+
+📚 # 📚 Documentation: Bullet-Wound-Invariant
+
+> **📁 Source File:** `DOCS/protocols/Bullet-Wound-Invariant.md` • *6 lines, 80 tokens* • Hash: `7c3b4f66`
+
+# Bullet Wound Invariant
+
+If a [Guardian](../archetypes/Guardian.md) detects contradiction between its Chronicle and the Code Graph, it must immediately invoke `HALT_AND_REPORT`. Execution halts until reconciliation is achieved.
+
+- **Embodies:** Principle of Integrity.
+- **Guarantee:** Contradictions are never ignored.
+
+---
+
+📚 # 📚 Documentation: Committee-Formation
+
+> **📁 Source File:** `DOCS/protocols/Committee-Formation.md` • *6 lines, 73 tokens* • Hash: `42d3839c`
+
+# Committee Formation
+
+When large-scale Plans affect many Guardians, Sage charters a temporary committee. A Committee Chair abstracts consensus into a unified response.
+
+- **Embodies:** Principles of Gnosis & Integrity.
+- **Guarantee:** Distributed negotiation does not devolve into chaos.
+
+---
+
+📚 # 📚 Documentation: Post-Mortem-Protocol
+
+> **📁 Source File:** `DOCS/protocols/Post-Mortem-Protocol.md` • *7 lines, 74 tokens* • Hash: `78749346`
+
+# Post-Mortem Protocol
+
+Triggered by operational failures. SAGE traces error back to its originating Plan, analyzes flawed reasoning, and amends Chronicles and principles to prevent recurrence.
+
+- **Embodies:** Principles of Remembering & Gnosis.
+
+- **Guarantee:** The system learns from failure.
+
+---
+
+📚 # 📚 Documentation: Reconciliation
+
+> **📁 Source File:** `DOCS/protocols/Reconciliation.md` • *6 lines, 71 tokens* • Hash: `1892ec23`
+
+# Reconciliation
+
+Any external file modification must trigger dialogue with the responsible Guardian. The edit’s justification and diff are appended to the Chronicle.
+
+- **Embodies:** Principles of Remembering & Integrity.
+- **Guarantee:** External changes are formally accounted for.
+
+---
+
+📚 # 📚 Documentation: Transaction-Boundary
+
+> **📁 Source File:** `DOCS/protocols/Transaction-Boundary.md` • *6 lines, 57 tokens* • Hash: `d377d8d6`
+
+# Transaction Boundary
+
+Every [Plan](../core-concepts/Lexicon.md#plan) must execute atomically. Changes are only committed if all validators pass.
+
+- **Embodies:** Principles of Integrity & Gnosis.
+- **Enforced by:** Delegator.
+
+---
+
+📚 # 📚 Documentation: Unsafe-Protocol
+
+> **📁 Source File:** `DOCS/protocols/Unsafe-Protocol.md` • *6 lines, 76 tokens* • Hash: `97c56565`
+
+# Unsafe Protocol
+
+The deliberate escape hatch. Allows execution of a Plan even if Guardians or Wardens deny it. Requires explicit user confirmation. Chronicles must be stamped with `PLAN_UNSAFE` forever.
+
+- **Embodies:** Principle of Remembering.
+- **Guarantee:** Breaches of consensus are never hidden.
 
 ---
 

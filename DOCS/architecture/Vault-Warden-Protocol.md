@@ -1,6 +1,6 @@
-# The Vault-Warden Protocol for Secure Value Injection
+# The Vault-Warden Protocol for Secrets
 
-This protocol addresses the critical challenge of managing sensitive values (secrets, API keys) within the SAGE ecosystem. It ensures that the system can operate on the *intent* to use a secret, while the actual secret value remains completely outside the scope of memory, planning, and reasoning.
+This protocol addresses the critical challenge of secrets management within the SAGE ecosystem. It ensures that the system can operate on the *intent* to use a secret, while the actual secret value remains completely outside the scope of memory, planning, and reasoning.
 
 ## How It Works: The Lifecycle of a Secret
 

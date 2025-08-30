@@ -79,4 +79,4 @@ RETURN f, t;
 ## See also
 
 - [Transaction Boundary](../core-concepts/Principles.md#transaction-boundary)
-- [Post-Mortem Protocol](../core-concepts/Principles.md#post-mortem-protocol)
+- [Post-Mortem Protocol](../protocols/Post-Mortem-Protocol.md)

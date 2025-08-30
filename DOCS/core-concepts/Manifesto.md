@@ -22,7 +22,7 @@ SAGE's solution is to make that mental model explicit, durable, and queryable. I
 (:CodeEntity)-[:CONTAINS]->(:CodeEntity)
 ```
 
-This graph is more than just a database; it is the **Ground Truth**. It becomes the shared, verifiable reality—the [Gnosis](./Principles.md#3-principle-of-gnosis)—upon which the entire society of agents reasons.
+This graph is more than just a database; it is the **Ground Truth**. It becomes the shared, verifiable reality—the [Gnosis](../principles/Gnosis.md)—upon which the entire society of agents reasons.
 
 This is the key that unlocks the living codebase. The **Guardian** uses this map to defend its territory. The **Archivist** uses it to preserve history. The **Sage** uses it to chart new courses. By grounding both human and AI cognition in this single source of truth, SAGE transforms an opaque, complex system into a transparent, living ecology you can finally have a conversation with.
 
