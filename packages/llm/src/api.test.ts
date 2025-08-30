@@ -26,7 +26,7 @@ describe("api", () => {
         yield { type: "text", value: "Hello, world!" };
         yield { type: "end" };
       },
-      models: async () => [{ name: "test-model" }]
+      models: async () => [{ id: "test-model", name: "test-model" }]
     };
 
     setProvider(mockProvider);
@@ -55,10 +55,11 @@ describe("api", () => {
     // Mock provider that returns a non-streaming response
     const mockProvider: LLMProvider = {
       name: "test-provider",
-      chat: async (opts: ChatOptions) => {
-        return { text: "Hello, world!" };
+      chat: async function* (opts: ChatOptions): AsyncIterable<StreamEvent> {
+        yield { type: "text", value: "Hello, world!" };
+        yield { type: "end" };
       },
-      models: async () => [{ name: "test-model" }]
+      models: async () => [{ id: "test-model", name: "test-model" }]
     };
 
     setProvider(mockProvider);

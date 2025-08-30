@@ -115,8 +115,24 @@ export interface StreamEventWithContext {
   context: EventContext;
 }
 
+// Model information
+export interface ModelInfo {
+  id: string;
+  name?: string;
+  description?: string;
+  contextWindow?: number;
+  maxTokens?: number;
+  supportsStreaming?: boolean;
+  supportsToolCalls?: boolean;
+  supportsImageInput?: boolean;
+  pricing?: {
+    inputTokens?: number;  // Cost per 1M input tokens
+    outputTokens?: number; // Cost per 1M output tokens
+  };
+}
+
 export interface LLMProvider {
   name: string;
-  chat(opts: ChatOptions): AsyncIterable<StreamEvent> | Promise<{ text: string }>;
-  models(): Promise<{ name: string }[]>;
+  chat(opts: ChatOptions): AsyncIterable<StreamEvent>;
+  models(): Promise<ModelInfo[]>;
 }

@@ -24,19 +24,9 @@
   "dependencies": {
     "@sage/utils": "workspace:*",
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
-  },
-  "peerDependencies": {
+    "ajv-formats": "^3.0.1",
     "openai": "^5.0.0",
     "@anthropic-ai/sdk": "^0.30.0"
-  },
-  "peerDependenciesMeta": {
-    "openai": {
-      "optional": true
-    },
-    "@anthropic-ai/sdk": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "typescript": "^5.9.2",

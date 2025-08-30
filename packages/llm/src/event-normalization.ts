@@ -112,13 +112,8 @@ export function withEventNormalization(provider: LLMProvider): LLMProvider {
     name: provider.name,
     models: provider.models.bind(provider),
     
-    async chat(opts: ChatOptions) {
+    async *chat(opts: ChatOptions): AsyncIterable<StreamEvent> {
       const result = await provider.chat(opts);
-      
-      // If the result is not a stream, return as-is
-      if (!isAsyncIterable(result)) {
-        return result;
-      }
       
       // Create normalization context
       const context: NormalizationContext = {
@@ -129,8 +124,10 @@ export function withEventNormalization(provider: LLMProvider): LLMProvider {
         callIdMap: new Map()
       };
       
-      // Return normalized stream
-      return normalizeEventStream(result, context);
+      // Yield normalized events
+      for await (const event of normalizeEventStream(result, context)) {
+        yield event;
+      }
     }
   };
 }

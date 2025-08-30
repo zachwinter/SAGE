@@ -31,8 +31,8 @@ This hub provides structured access to all SAGE documentation, organized for dif
 
 #### 🤖 As an Agent Developer  
 *"I want to create or customize SAGE agents."*
-1. [🏛️ Architecture Overview](#-architecture-overview) *(see diagram below)*
-2. [📋 Contracts](./architecture/Contracts.md) — The agent interface specifications
+1. [📋 Contracts](./architecture/Contracts.md) — The agent interface specifications
+2. [🏛️ Architecture Overview](#-architecture-overview) *(see diagram below)*
 3. [🎭 Archetypes](#-the-archetypes) — Available agent types
 4. [🛠️ Agent Development](../packages/agents/README.md) — Build custom agents
 
@@ -120,11 +120,36 @@ SAGE's society consists of six specialized consciousnesses, each with distinct r
 
 ---
 
+> **🚨 Bullet Wound Invariant**
+>
+> Enforcement of the [Principle of Integrity](./core-concepts/Principles.md#5-principle-of-integrity). If a [Guardian](./archetypes/Guardian.md) detects contradiction between its Chronicle and the [Code Graph](./core-concepts/Lexicon.md#code-graph), it must invoke `HALT_AND_REPORT`, freezing execution until reconciliation.
+>
+> **[➡️ See formal definition in Lexicon](./core-concepts/Lexicon.md#bullet-wound-invariant)**
+
+---
+
+---
+
 ## 🚀 Applications & Packages
 
 ### 🖥️ Applications
 - **[CLI](../apps/cli/README.md)** — *"The Bridge to the Society"* — Primary human interface
 - **[Valve](../apps/valve/README.md)** — *"The Perceptual Valve"* — Configurable awareness system
+
+### 📊 Status Matrix
+
+| Package | Status |
+|---------|--------|
+| **[agents](../packages/agents/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[aql](../packages/aql/README.md)** | ![Status: Prototype](https://img.shields.io/badge/Status-Prototype-orange) |
+| **[chronicle](../packages/chronicle/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[graph](../packages/graph/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[llm](../packages/llm/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[mcp](../packages/mcp/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
+| **[test-utils](../packages/test-utils/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[tools](../packages/tools/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[ui](../packages/ui/README.md)** | ![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow) |
+| **[utils](../packages/utils/README.md)** | ![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen) |
 
 ### 📦 Core Packages
 - **[agents](../packages/agents/README.md)** — *The Society of Minds* — Core archetype logic

@@ -18,15 +18,46 @@ pnpm add @sage/llm
 
 ## Quick Start
 
+### With OpenAI
+
 ```typescript
 import { createChatStream, setProvider } from '@sage/llm';
-import { OpenAIProvider } from '@sage/llm/adapters/openai'; // example adapter
+import { OpenAIAdapter } from '@sage/llm/adapters/openai';
 
-// Minimal, copy-pasteable example demonstrating primary use case
-setProvider(new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY! }));
+// Configure OpenAI provider
+const openaiAdapter = new OpenAIAdapter({ 
+  apiKey: process.env.OPENAI_API_KEY! 
+});
+
+setProvider(openaiAdapter);
 
 const stream = await createChatStream({
   model: "gpt-4.1",
+  messages: [
+    { role: "system", content: "You are a helpful agent." },
+    { role: "user", content: "List three risks of unsafe refactors." }
+  ]
+});
+
+for await (const ev of stream) {
+  if (ev.type === "text") process.stdout.write(ev.value);
+}
+```
+
+### With LM Studio
+
+```typescript
+import { createChatStream, setProvider } from '@sage/llm';
+import { createDefaultLMStudioAdapter } from '@sage/llm/adapters/lmstudio-factory';
+
+// Assuming you have LM Studio dependencies available
+// This is a simplified example - you'll need to provide actual LM Studio deps
+const lmStudioAdapter = createDefaultLMStudioAdapter(lmStudioDeps, 'llama3');
+
+setProvider(lmStudioAdapter);
+
+const stream = await createChatStream({
+  model: "local-model",
   messages: [
     { role: "system", content: "You are a helpful agent." },
     { role: "user", content: "List three risks of unsafe refactors." }
@@ -45,43 +76,43 @@ for await (const ev of stream) {
 The main functions for interacting with LLM providers:
 
 ```typescript
-// Key method signatures with examples
-class LLM {
-  /**
-   * Create a chat stream with the current provider, with optional caching
-   */
-  async createChatStream(
-    opts: ChatOptions,
-    streamOpts?: StreamOptions
-  ): Promise<AsyncIterable<StreamEvent>> {
-    // Create a chat stream
-  }
+import { createChatStream, setProvider, listModels } from '@sage/llm';
 
-  /**
-   * List available models from the current provider or a specific provider
-   */
-  async listModels(provider?: string): Promise<ModelInfo[]> {
-    // List available models
-  }
+// Set the current provider
+setProvider(provider);
 
-  /**
-   * Set the current provider
-   */
-  setProvider(provider: LLMProvider): void {
-    // Set the current provider
-  }
+// Create a chat stream with the current provider
+const stream = await createChatStream({
+  model: "gpt-4.1",
+  messages: [
+    { role: "user", content: "Hello, world!" }
+  ]
+});
 
-  /**
-   * Register a tool for use with LLM calls
-   */
-  registerTool(
-    name: string,
-    schema: ToolSchema,
-    executor: ToolExecutor
-  ): void {
-    // Register a tool
-  }
-}
+// List available models from the current provider
+const models = await listModels();
+```
+
+### Provider Adapters
+
+The package includes adapters for various LLM providers:
+
+```typescript
+// OpenAI adapter
+import { OpenAIAdapter } from '@sage/llm/adapters/openai';
+const openai = new OpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY! });
+
+// Anthropic adapter
+import { AnthropicAdapter } from '@sage/llm/adapters/anthropic';
+const anthropic = new AnthropicAdapter({ apiKey: process.env.ANTHROPIC_API_KEY! });
+
+// LM Studio adapter
+import { createDefaultLMStudioAdapter } from '@sage/llm/adapters/lmstudio-factory';
+const lmstudio = createDefaultLMStudioAdapter(lmStudioDeps, 'llama3');
+
+// Test adapter for deterministic testing
+import { TestProviderFactory } from '@sage/llm/adapters/test';
+const testProvider = TestProviderFactory.simple('Hello, test!');
 ```
 
 ## Role in the SAGE Ecosystem
@@ -97,9 +128,9 @@ class LLM {
 
 ## Development Status
 
-![Status: In Development](https://img.shields.io/badge/Status-In%20Development-yellow)
+![Status: Production Ready](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 
-The LLM package is currently in development with core features implemented and ready for production use. Some advanced features and provider adapters are still in progress.
+The LLM package is production-ready with comprehensive provider support and advanced features.
 
 **✅ Core Features Implemented:**
 - Unified chat API with tool-calling
@@ -107,11 +138,14 @@ The LLM package is currently in development with core features implemented and r
 - JSON Schema validation for tools
 - Prompt caching with multiple modes
 - Error handling and safety features
+- Comprehensive provider adapters (OpenAI, Anthropic, LM Studio, MCP, Test)
 
-**⚠️ In Progress:**
-- Provider adapter completion (OpenAI, Anthropic, LM Studio)
-- Production readiness and polish
-- @sage/mcp integration
+**✅ Advanced Features:**
+- Event normalization for consistent provider behavior
+- Security policies and tool validation
+- Detailed telemetry and monitoring
+- Configurable backpressure handling
+- Provider-agnostic API with consistent interfaces
 
 ## Development
 

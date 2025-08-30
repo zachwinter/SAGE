@@ -1,7 +1,7 @@
 // src/cache/__tests__/memory-cache.test.ts
 // Tests for in-memory cache implementation
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { MemoryCache } from "../memory-cache.js";
 import type { CachedResult } from "../types.js";
 

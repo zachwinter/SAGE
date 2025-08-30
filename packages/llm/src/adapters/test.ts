@@ -1,14 +1,14 @@
 // src/adapters/test.ts
 // Test/Fake provider for deterministic testing
 
-import type { ChatOptions, StreamEvent, ChatMessage, ToolSchema } from '../types.js';
-import { BaseAdapter, type ProviderConfig, type ModelInfo } from './base.js';
+import type { ChatOptions, StreamEvent, ChatMessage, ToolSchema, ModelInfo } from '../types.js';
+import { BaseAdapter, type ProviderConfig } from './base.js';
 import { AsyncQueue } from '../stream-utils.js';
 
 /**
  * Test provider configuration
  */
-export interface TestProviderConfig extends ProviderConfig {
+export interface TestProviderConfig extends Omit<ProviderConfig, 'availableModels'> {
   // Predefined responses
   responses?: TestResponse[];
   
@@ -88,7 +88,12 @@ export class TestProvider extends BaseAdapter {
   private tokenUsage = { prompt: 0, completion: 0 };
 
   constructor(config: TestProviderConfig = {}) {
-    super('test', config);
+    // Extract the base config properties
+    const { responses, defaultResponse, responseDelay, chunkDelay, shouldError, 
+            errorMessage, errorAfterChunks, simulateToolCalls, toolCallResponses, 
+            availableModels, trackUsage, ...baseConfig } = config;
+    
+    super('test', baseConfig);
     
     this.responses = config.responses || [];
     this.defaultResponse = config.defaultResponse || 'Test response';

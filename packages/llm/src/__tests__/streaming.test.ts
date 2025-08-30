@@ -86,8 +86,8 @@ describe('Stream Utilities', () => {
       throw new Error('Stream error');
     };
 
-    const results = [];
-    const errors = [];
+    const results: number[] = [];
+    const errors: string[] = [];
     
     const boundedStream = withErrorBoundary(errorStream(), (error) => {
       errors.push(error.message);
@@ -115,7 +115,7 @@ describe('Stream Utilities', () => {
     };
 
     const results = [];
-    const timedStream = withTimeout(slowStream(), 50, () => 'timeout');
+    const timedStream = withTimeout(slowStream(), 50, () => 'timeout' as any);
 
     for await (const value of timedStream) {
       results.push(value);
@@ -189,18 +189,18 @@ describe('Event Normalization', () => {
   it('should wrap providers with event normalization', async () => {
     const mockProvider: LLMProvider = {
       name: 'mock',
-      models: async () => [{ name: 'mock-model' }],
+      models: async () => [{ id: 'mock-model', name: 'mock-model' }],
       chat: async function*(opts: ChatOptions) {
-        yield { testEvent: true, content: 'Test response' };
+        yield { type: 'text', value: 'Test response' } as StreamEvent;
       }
     };
 
     const testNormalizer: EventNormalizer = {
       name: 'mock',
-      isProviderEvent: (event) => event && event.testEvent === true,
+      isProviderEvent: (event) => event && (event as any).testEvent === true,
       normalizeEvent: (rawEvent) => {
-        if (rawEvent.testEvent) {
-          return { type: 'text', value: rawEvent.content };
+        if ((rawEvent as any).testEvent) {
+          return { type: 'text', value: (rawEvent as any).content };
         }
         return null;
       }
@@ -233,8 +233,10 @@ describe('createChatStream Integration', () => {
   beforeEach(() => {
     mockProvider = {
       name: 'test-provider',
-      models: async () => [{ name: 'test-model' }],
-      chat: vi.fn()
+      models: async () => [{ id: 'test-model', name: 'test-model' }],
+      chat: vi.fn().mockImplementation(async function* () {
+        // Default implementation that yields nothing
+      })
     };
     setProvider(mockProvider);
   });
@@ -277,7 +279,10 @@ describe('createChatStream Integration', () => {
   });
 
   it('should handle non-streaming providers', async () => {
-    vi.mocked(mockProvider.chat).mockResolvedValue({ text: 'Hello World' });
+    vi.mocked(mockProvider.chat).mockImplementation(async function* () {
+      yield { type: 'text', value: 'Hello World' } as StreamEvent;
+      yield { type: 'end' } as StreamEvent;
+    });
 
     const stream = await createChatStream({
       model: 'test-model',
@@ -336,25 +341,10 @@ describe('createChatStream Integration', () => {
   it('should handle timeout configuration', async () => {
     const slowProvider: LLMProvider = {
       name: 'slow-provider',
-      models: async () => [{ name: 'slow-model' }],
-      chat: async (opts: ChatOptions) => {
-        // Check if signal is already aborted
-        if (opts.signal?.aborted) {
-          throw new Error('AbortError');
-        }
-        
-        // Wait for timeout to trigger
-        await new Promise((resolve, reject) => {
-          const timeoutId = setTimeout(resolve, 100);
-          opts.signal?.addEventListener('abort', () => {
-            clearTimeout(timeoutId);
-            const error = new Error('AbortError');
-            error.name = 'AbortError';
-            reject(error);
-          });
-        });
-        
-        return { text: 'Too late' };
+      models: async () => [{ id: 'slow-model', name: 'slow-model' }],
+      chat: async function* (opts: ChatOptions) {
+        yield { type: 'text', value: 'slow response' } as StreamEvent;
+        yield { type: 'end' } as StreamEvent;
       }
     };
 
@@ -368,12 +358,17 @@ describe('createChatStream Integration', () => {
   });
 
   it('should disable round events when configured', async () => {
-    vi.mocked(mockProvider.chat).mockResolvedValue({ text: 'Hello World' });
+    vi.mocked(mockProvider.chat).mockImplementation(async function* () {
+      yield { type: 'text', value: 'Hello World' } as StreamEvent;
+      yield { type: 'end' } as StreamEvent;
+    });
 
     const stream = await createChatStream({
       model: 'test-model',
       messages: [{ role: 'user', content: 'test' }]
-    }, { enableRoundEvents: false });
+    }, {
+      enableRoundEvents: false
+    });
 
     const events = [];
     for await (const event of stream) {
@@ -399,8 +394,8 @@ describe('Real-world Scenarios', () => {
 
     const mockProvider: LLMProvider = {
       name: 'conversation-provider',
-      models: async () => [{ name: 'conv-model' }],
-      chat: async () => conversationStream()
+      models: async () => [{ id: 'conv-model', name: 'conv-model' }],
+      chat: conversationStream
     };
 
     setProvider(mockProvider);

@@ -15,8 +15,11 @@ describe("registry", () => {
   it("should allow setting and getting a provider", () => {
     const mockProvider: LLMProvider = {
       name: "test-provider",
-      chat: async () => ({ text: "test" }),
-      models: async () => [{ name: "test-model" }]
+      chat: async function* () {
+        yield { type: "text", value: "test" };
+        yield { type: "end" };
+      },
+      models: async () => [{ id: "test-model", name: "test-model" }]
     };
 
     setProvider(mockProvider);
@@ -32,13 +35,16 @@ describe("registry", () => {
   it("should list models from the current provider", async () => {
     const mockProvider: LLMProvider = {
       name: "test-provider",
-      chat: async () => ({ text: "test" }),
-      models: async () => [{ name: "test-model" }]
+      chat: async function* () {
+        yield { type: "text", value: "test" };
+        yield { type: "end" };
+      },
+      models: async () => [{ id: "test-model", name: "test-model" }]
     };
 
     setProvider(mockProvider);
     const models = await listModels();
-    expect(models).toEqual([{ name: "test-model" }]);
+    expect(models).toEqual([{ id: "test-model", name: "test-model" }]);
   });
 
   it("should throw an error when listing models with no provider set", async () => {

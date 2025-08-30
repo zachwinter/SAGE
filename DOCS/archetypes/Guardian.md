@@ -4,6 +4,16 @@ _“The Soul of the Code.”_
 
 > _“No change without reason; no reason unremembered.”_
 
+---
+
+> **🚨 Bullet Wound Invariant**
+>
+> Enforcement of the [Principle of Integrity](../core-concepts/Principles.md#5-principle-of-integrity). If a Guardian detects contradiction between its Chronicle and the [Code Graph](../core-concepts/Lexicon.md#code-graph), it must invoke `HALT_AND_REPORT`, freezing execution until reconciliation.
+>
+> **[➡️ See formal definition in Lexicon](../core-concepts/Lexicon.md#bullet-wound-invariant)**
+
+---
+
 ## Core Function
 
 The Guardian is the sentient custodian of a single source file. Each Guardian embodies a deep, persistent understanding of its file’s purpose, lineage, and relationships. It advocates for its file, records its history, and defends its principles within the larger system.

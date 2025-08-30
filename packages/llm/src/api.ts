@@ -114,44 +114,14 @@ async function callProviderWithTimeout(
       clearTimeout(timeoutId);
     }
     
-    // Handle both streaming and non-streaming providers
-    if (isAsyncIterable(result)) {
-      // Wrap streaming result with error boundaries and resource management
-      return withErrorBoundary(
-        enhanceStreamWithRounds(result, normalizedStreamOpts),
-        (error) => {
-          console.error(`Stream error from provider ${provider.name}:`, error);
-          return { type: "error", error: error.message, recoverable: false } as StreamEvent;
-        }
-      );
-    } else {
-      // For non-streaming providers, wrap the result in a stream with text and end events
-      const textResult = result.text;
-      
-      // Use AsyncQueue for proper backpressure handling
-      const queue = new AsyncQueue<StreamEvent>(normalizedStreamOpts.maxBufferSize);
-      
-      // Emit round start if enabled
-      if (normalizedStreamOpts.enableRoundEvents) {
-        queue.push({ type: "round_start", index: 0 });
+    // Wrap streaming result with error boundaries and resource management
+    return withErrorBoundary(
+      enhanceStreamWithRounds(result, normalizedStreamOpts),
+      (error) => {
+        console.error(`Stream error from provider ${provider.name}:`, error);
+        return { type: "error", error: error.message, recoverable: false } as StreamEvent;
       }
-      
-      // Emit text event
-      queue.push({ type: "text", value: textResult });
-      
-      // Emit round end if enabled
-      if (normalizedStreamOpts.enableRoundEvents) {
-        queue.push({ type: "round_end", index: 0 });
-      }
-      
-      // Emit end event
-      queue.push({ type: "end" });
-      
-      // Finish the queue
-      queue.finish();
-      
-      return queue;
-    }
+    );
   } catch (error) {
     // Check if it's an abort error
     if (error instanceof Error && error.name === 'AbortError') {

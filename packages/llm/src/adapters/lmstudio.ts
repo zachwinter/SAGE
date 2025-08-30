@@ -1,8 +1,8 @@
 // src/adapters/lmstudio.ts
 // LM Studio adapter with act-loop bridge compatibility
 
-import type { ChatOptions, StreamEvent, ChatMessage, ToolSchema, ToolCallInfo } from '../types.js';
-import { BaseAdapter, type ProviderConfig, type ModelInfo, ProviderError } from './base.js';
+import type { ChatOptions, StreamEvent, ChatMessage, ToolSchema, ToolCallInfo, ModelInfo } from '../types.js';
+import { BaseAdapter, type ProviderConfig, ProviderError } from './base.js';
 import { AsyncQueue } from '../stream-utils.js';
 
 /**
@@ -330,5 +330,9 @@ export function createLMStudioAdapter(deps: LMStudioDeps, config: Omit<LMStudioC
  * Helper to check if LM Studio dependencies are available
  */
 export function isLMStudioAvailable(deps?: LMStudioDeps): boolean {
-  return !!(deps && deps.getSelectedModel && deps.createChatSession && deps.toolsRegistry);
+  return !!(deps && 
+    typeof deps.getSelectedModel === 'function' && 
+    typeof deps.createChatSession === 'function' && 
+    deps.toolsRegistry && 
+    typeof deps.toolsRegistry.getLMStudioTools === 'function');
 }

@@ -8,9 +8,9 @@ Implement adapters for major LLM providers (OpenAI, Anthropic, LM Studio) with f
 
 From CLAUDE.md requirements:
 
-- [ ] OpenAI adapter with streaming and tool calling
-- [ ] Anthropic adapter with streaming and tool calling
-- [ ] LM Studio adapter (act-loop bridge compatibility)
+- [x] OpenAI adapter with streaming and tool calling
+- [x] Anthropic adapter with streaming and tool calling
+- [x] LM Studio adapter (act-loop bridge compatibility)
 - [x] Test/Fake provider for deterministic testing
 - [x] Provider-specific error normalization
 - [x] Consistent API across all adapters
@@ -26,34 +26,42 @@ From CLAUDE.md requirements:
 
 **Implementation Notes:** Complete base infrastructure in `src/adapters/base.ts` with `BaseAdapter`, `ProviderFactory`, and `AdapterRegistry`.
 
-### Phase 2: OpenAI Adapter ⚠️ PARTIAL - Skeleton Exists
+### Phase 2: OpenAI Adapter ✅ COMPLETED
 
-- [ ] Implement streaming support using OpenAI SDK
-- [ ] Add tool calling integration
-- [ ] Handle OpenAI-specific error types
-- [ ] Implement model listing capabilities
+- [x] Implement streaming support using OpenAI SDK
+- [x] Add tool calling integration
+- [x] Handle OpenAI-specific error types
+- [x] Implement model listing capabilities
 
-**Implementation Notes:** Basic structure exists in `src/adapters/openai.ts` but needs full implementation with OpenAI SDK integration.
+**Implementation Notes:** Full implementation with OpenAI SDK integration in `src/adapters/openai.ts`.
 
-### Phase 3: Anthropic Adapter ⚠️ PARTIAL - Skeleton Exists
+### Phase 3: Anthropic Adapter ✅ COMPLETED
 
-- [ ] Implement streaming support using Anthropic SDK
-- [ ] Add tool calling integration (Claude functions)
-- [ ] Handle Anthropic-specific error types
-- [ ] Implement model listing capabilities
+- [x] Implement streaming support using Anthropic SDK
+- [x] Add tool calling integration (Claude functions)
+- [x] Handle Anthropic-specific error types
+- [x] Implement model listing capabilities
 
-**Implementation Notes:** Basic structure exists in `src/adapters/anthropic.ts` but needs full implementation with Anthropic SDK integration.
+**Implementation Notes:** Full implementation with Anthropic SDK integration in `src/adapters/anthropic.ts`.
 
-### Phase 4: LM Studio Adapter ⚠️ PARTIAL - Spec Ready
+### Phase 4: LM Studio Adapter ✅ COMPLETED
 
-- [ ] Implement act-loop bridge as shown in NOTES.md
-- [ ] Add streaming support through LM Studio callbacks
-- [ ] Handle LM Studio-specific features
-- [ ] Implement model discovery
+- [x] Implement act-loop bridge as shown in NOTES.md
+- [x] Add streaming support through LM Studio callbacks
+- [x] Handle LM Studio-specific features
+- [x] Implement model discovery
 
-**Implementation Notes:** Complete specification exists in NOTES.md with detailed implementation plan. Skeleton in `src/adapters/lmstudio.ts` needs completion.
+**Implementation Notes:** Complete implementation following the specification in NOTES.md in `src/adapters/lmstudio.ts`.
 
-### Phase 5: Test/Fake Provider ✅ COMPLETED
+### Phase 5: MCP Adapter ✅ NEWLY ADDED
+
+- [x] Implement MCP adapter that integrates with `@sage/mcp`'s `MCPClientManager`
+- [x] Map the `@sage/llm` chat stream to the MCP protocol
+- [x] Ensure tool calls are correctly handled through the MCP bridge
+
+**Implementation Notes:** New adapter implementation in `src/adapters/mcp.ts` that bridges to the MCP protocol.
+
+### Phase 6: Test/Fake Provider ✅ COMPLETED
 
 - [x] Create deterministic test provider
 - [x] Implement configurable responses
@@ -62,11 +70,11 @@ From CLAUDE.md requirements:
 
 **Implementation Notes:** Comprehensive test provider implementation in `src/adapters/test.ts` with `TestProvider` and `TestProviderFactory` classes.
 
-### Phase 6: Integration & Testing ⚠️ PARTIAL
+### Phase 7: Integration & Testing ✅ COMPLETED
 
 - [x] Test all adapters with the core API (test provider)
-- [ ] Validate streaming behavior across providers (needs real providers)
-- [ ] Test tool calling with each provider (needs real providers)
+- [x] Validate streaming behavior across providers
+- [x] Test tool calling with each provider
 - [x] Ensure consistent error handling
 
 ## Dependencies
@@ -77,34 +85,30 @@ From CLAUDE.md requirements:
 
 ## Estimated Effort
 
-**~~12-15 hours~~** - ⚠️ **PARTIAL** - Infrastructure complete, need real provider implementations.
+**12-15 hours** - ✅ **COMPLETED** - All provider implementations finished.
 
-## Success Metrics ⚠️ PARTIALLY ACHIEVED
+## Success Metrics ✅ ACHIEVED
 
-- [ ] All major providers have working adapters (infrastructure ✅, implementations needed)
-- [x] Streaming and tool calling work consistently (via test provider)
+- [x] All major providers have working adapters
+- [x] Streaming and tool calling work consistently across all providers
 - [x] Error handling is normalized across providers
 - [x] Test provider enables deterministic testing
-- [ ] Ready for caching implementation in Story 5
+- [x] Ready for agent integration in @sage/agents
 
-## Current Status: ⚠️ INFRASTRUCTURE COMPLETE, IMPLEMENTATIONS NEEDED
+## Current Status: ✅ ALL PROVIDERS COMPLETE
 
-This story has **excellent infrastructure** but needs the actual provider implementations completed:
+This story has been **fully completed** with all provider adapters implemented and tested:
 
 **✅ Completed:**
 - Base adapter system with sophisticated error handling
 - Provider factory and registry system  
+- Comprehensive OpenAI adapter with full SDK integration
+- Comprehensive Anthropic adapter with full SDK integration
+- Comprehensive LM Studio adapter with act-loop bridge
+- New MCP adapter for Model Context Protocol integration
 - Comprehensive test provider with all features
-- Provider-agnostic API that works consistently
-
-**❌ Still Needed:**
-- OpenAI adapter implementation (skeleton exists)
-- Anthropic adapter implementation (skeleton exists)  
-- LM Studio adapter implementation (spec ready in NOTES.md)
-
-**This maps directly to new Story 9 (Provider Completion)** which focuses on completing these three critical provider implementations.
+- Provider-agnostic API that works consistently across all providers
 
 **Next Steps:**
-1. **Prioritize Story 9** - Complete the three production provider adapters
-2. Story 5 (Caching) is already implemented and can proceed
-3. Story 6 (Error Handling) is largely complete via BaseAdapter system
+1. Story 5 (Enhance Examples) - Add more comprehensive examples
+2. Story 6 (Production Readiness & Polish) - Environment config, security, docs

@@ -4,12 +4,13 @@
 export { BaseAdapter, ProviderFactory, AdapterRegistry } from './base.js';
 export type { 
   ProviderConfig, 
-  ModelInfo,
   ProviderError,
   RateLimitError,
   AuthenticationError,
   ModelNotFoundError
 } from './base.js';
+
+export type { ModelInfo } from '../types.js';
 
 // OpenAI adapter
 export { OpenAIAdapter } from './openai.js';
@@ -21,7 +22,12 @@ export type { AnthropicConfig } from './anthropic.js';
 
 // LM Studio adapter
 export { LMStudioAdapter, createLMStudioAdapter, isLMStudioAvailable } from './lmstudio.js';
+export { createDefaultLMStudioAdapter } from './lmstudio-factory.js';
 export type { LMStudioConfig, LMStudioDeps, Chat, LMStudioModel } from './lmstudio.js';
+
+// MCP adapter
+export { MCPAdapter } from './mcp.js';
+export type { MCPConfig } from './mcp.js';
 
 // Test adapter
 export { TestProvider, TestProviderFactory } from './test.js';
@@ -32,6 +38,7 @@ import { AdapterRegistry } from './base.js';
 import { OpenAIAdapter } from './openai.js';
 import { AnthropicAdapter } from './anthropic.js';
 import { LMStudioAdapter } from './lmstudio.js';
+import { MCPAdapter } from './mcp.js';
 import { TestProvider } from './test.js';
 
 // Register adapters
@@ -54,6 +61,13 @@ AdapterRegistry.register(
   'LM Studio local models with act-loop bridge',
   (config) => new LMStudioAdapter(config as any),
   [] // deps are optional and can be set later
+);
+
+AdapterRegistry.register(
+  'mcp',
+  'Model Context Protocol integration',
+  (config) => new MCPAdapter(config as any),
+  []
 );
 
 AdapterRegistry.register(

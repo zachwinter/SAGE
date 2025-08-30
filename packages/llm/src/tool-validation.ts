@@ -148,7 +148,7 @@ export class ToolValidator {
     }
 
     // Convert AJV errors to our format
-    const errors = this.convertAjvErrors(validator.errors || []);
+    const errors = this.convertAjvErrors((validator as any).errors || []);
     
     return {
       valid: false,
@@ -206,8 +206,10 @@ export class ToolValidator {
       type: ['object', 'array'],
       schemaType: 'number',
       compile: (schemaVal: number) => {
-        return function validate(data: unknown): boolean {
-          return this.getDepth(data) <= schemaVal;
+        return function validate(this: any, data: unknown): boolean {
+          // We need to access the validator instance to get the getDepth method
+          // This is a workaround for the type issue
+          return (this as any).getDepth(data) <= schemaVal;
         };
       }
     });
@@ -380,7 +382,7 @@ export const CommonToolSchemas = {
     properties: Record<keyof T, JSONSchemaType<T[keyof T]>>, 
     required: (keyof T)[], 
     description?: string
-  ): JSONSchemaType<T> => ({
+  ): any => ({
     type: 'object',
     properties,
     required,

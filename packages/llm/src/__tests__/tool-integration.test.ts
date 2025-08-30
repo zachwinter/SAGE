@@ -329,8 +329,10 @@ describe('Tool Validation System', () => {
     beforeEach(() => {
       mockProvider = {
         name: 'test-provider',
-        models: async () => [{ name: 'test-model' }],
-        chat: vi.fn()
+        models: async () => [{ id: 'test-model', name: 'test-model' }],
+        chat: vi.fn().mockImplementation(async function* () {
+          // Default implementation that yields nothing
+        })
       };
       setProvider(mockProvider);
 

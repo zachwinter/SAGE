@@ -144,7 +144,7 @@ export class SecurityPolicyManager {
     const policyContext: PolicyContext = {
       userId: context.userId,
       sessionId: context.sessionId || 'default',
-      toolName: callInfo.name,
+      toolName: callInfo.name as string,
       arguments: callInfo.args,
       round: callInfo.round,
       requestId: context.requestId,
@@ -158,11 +158,12 @@ export class SecurityPolicyManager {
     const violations: PolicyViolation[] = [];
     
     // Check denylist first (highest priority)
-    if (this.denylist.has(callInfo.name)) {
+    const toolName: string = callInfo.name;
+    if (toolName && this.denylist.has(toolName)) {
       violations.push({
         policy: 'denylist',
         severity: 'critical',
-        message: `Tool '${callInfo.name}' is in the denylist`
+        message: `Tool '${toolName}' is in the denylist`
       });
       
       return {
@@ -172,8 +173,8 @@ export class SecurityPolicyManager {
     }
 
     // Check allowlist (skip most other policies)
-    if (this.allowlist.has(callInfo.name)) {
-      this.recordToolCall(policyContext.sessionId, callInfo);
+    if (callInfo.name && this.allowlist.has(callInfo.name)) {
+      this.recordToolCall(policyContext.sessionId as string, callInfo as ToolCallInfo);
       return {
         result: 'approved',
         metadata: { allowlisted: true }
@@ -214,7 +215,9 @@ export class SecurityPolicyManager {
     }
 
     // Record successful tool call
-    this.recordToolCall(policyContext.sessionId, callInfo);
+    if (callInfo.name) {
+      this.recordToolCall(policyContext.sessionId as string, callInfo as ToolCallInfo);
+    }
 
     return {
       result: 'approved',
@@ -250,7 +253,8 @@ export class SecurityPolicyManager {
 
     // Update rate limiting
     const now = Date.now();
-    const rateKey = `${sessionId}:${callInfo.name}`;
+    const toolName: string = callInfo.name;
+    const rateKey = `${sessionId}:${toolName}`;
     const current = this.rateLimit.get(rateKey);
     
     if (current && current.resetTime > now) {
@@ -342,7 +346,7 @@ export class SecurityPolicyManager {
 
     // Tool name validation policy
     this.registerPolicy('tool_name_validation', (callInfo, _schema) => {
-      const toolName = callInfo.name;
+      const toolName = callInfo.name as string;
       
       // Tool name must be alphanumeric with underscores/hyphens
       if (!/^[a-zA-Z0-9_-]+$/.test(toolName)) {

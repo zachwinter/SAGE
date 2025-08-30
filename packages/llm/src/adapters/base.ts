@@ -1,7 +1,7 @@
 // src/adapters/base.ts
 // Base adapter infrastructure for provider implementations
 
-import type { LLMProvider, ChatOptions, StreamEvent, ToolSchema } from '../types.js';
+import type { LLMProvider, ChatOptions, StreamEvent, ToolSchema, ModelInfo } from '../types.js';
 import { AsyncQueue } from '../stream-utils.js';
 import { withEventNormalization, type NormalizationContext } from '../event-normalization.js';
 
@@ -37,24 +37,6 @@ export interface ProviderConfig {
   // Retry configuration
   maxRetries?: number;
   retryDelay?: number;
-}
-
-/**
- * Model information
- */
-export interface ModelInfo {
-  id: string;
-  name?: string;
-  description?: string;
-  contextWindow?: number;
-  maxTokens?: number;
-  supportsStreaming?: boolean;
-  supportsToolCalls?: boolean;
-  supportsImageInput?: boolean;
-  pricing?: {
-    inputTokens?: number;  // Cost per 1M input tokens
-    outputTokens?: number; // Cost per 1M output tokens
-  };
 }
 
 /**
@@ -133,7 +115,7 @@ export abstract class BaseAdapter implements LLMProvider {
   /**
    * Abstract method to implement chat functionality
    */
-  abstract chat(opts: ChatOptions): AsyncIterable<StreamEvent> | Promise<{ text: string }>;
+  abstract chat(opts: ChatOptions): AsyncIterable<StreamEvent>;
 
   /**
    * Abstract method to get available models

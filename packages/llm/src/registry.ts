@@ -1,7 +1,7 @@
 // src/registry.ts
 // Provider registry and management for @sage/llm
 
-import type { LLMProvider } from "./types.js";
+import type { LLMProvider, ModelInfo } from "./types.js";
 
 // Global provider registry
 let currentProvider: LLMProvider | null = null;
@@ -44,7 +44,7 @@ export function getProvider(): LLMProvider | null {
  * @param providerName Optional provider name to list models from
  * @returns Promise resolving to array of model info
  */
-export async function listModels(providerName?: string): Promise<{ name: string }[]> {
+export async function listModels(providerName?: string): Promise<ModelInfo[]> {
   // If provider name is specified, we would look it up from a registry
   // For now, we'll just use the current provider
   if (!currentProvider) {

@@ -1,14 +1,12 @@
 # SAGE Valve Implementation
 
-This package contains the **Rust implementation** of the SAGE Valve, the perceptual apparatus for the SAGE framework.
+This package contains the **Rust implementation** of the SAGE Valve.
 
-For a complete conceptual overview of the SAGE Valve, its philosophy, and its role in the SAGE ecosystem, please see the primary documentation:
-
-**➡️ [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
+**➡️ See canonical Valve specification for conceptual overview: [Main Documentation: The SAGE Valve](../DOCS/architecture/Valve.md)**
 
 ---
 
-## Development & Testing
+## Implementation Notes & Testing Guidance
 
 This document provides practical guidance for developers working on the Rust application.
 
