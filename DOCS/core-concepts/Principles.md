@@ -18,7 +18,7 @@ This section unifies the constitutional doctrines of SAGE (Principles) with thei
 
 The system’s first duty is to notice, but not to notice everything. It must filter reality through a lens of purpose, preventing it from being overwhelmed and allowing it to focus on what matters. It is not about passive observation, but the active, configurable act of perception.
 
-- **Enforced by:** The [SAGE Valve](../apps/valve/README.md) and its configured [Personas](../Lexicon.md#persona).
+- **Enforced by:** The [SAGE Valve](../../apps/valve/README.md) and its configured [Personas](./Lexicon.md#persona).
 
 ### 3. Principle of Remembering
 
@@ -28,7 +28,7 @@ Every noticed event must be immortalized. Chronicles ensure that no reason or ch
 
 ### 4. Principle of Gnosis
 
-Belief must always be anchored to verifiable knowledge. Agents strive to validate assumptions against the [Code Graph](../lexicon.md#code-graph).
+Belief must always be anchored to verifiable knowledge. Agents strive to validate assumptions against the [Code Graph](./Lexicon.md#code-graph).
 
 - **Enforced by:** Guardians’ self-inquiry, Sage’s architectural analysis, Delegator validation loops.
 
