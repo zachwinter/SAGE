@@ -1,10 +1,10 @@
 # 🌟 Complete SAGE Documentation
 
-*Generated on 2025-08-30T01:58:05.112Z in 54ms*
+*Generated on 2025-08-30T01:58:52.304Z in 59ms*
 
 **SAGE** — *"A Codebase is a Living Society."*
 
-This comprehensive document contains all README and documentation files from the project, optimized for **Gemini Pro** (88,432 total tokens).
+This comprehensive document contains all README and documentation files from the project, optimized for **Gemini Pro** (88,429 total tokens).
 
 ## 📊 Document Statistics
 
@@ -13,9 +13,9 @@ This comprehensive document contains all README and documentation files from the
 | 📄 Total Files | 54 |
 | ✅ Healthy Files* | 15 |
 | 📏 Total Lines | 11,161 |
-| 🔤 Total Characters | 353,643 |
-| 🎯 Estimated Tokens | 88,432 |
-| ⏱️ Build Time | 54ms |
+| 🔤 Total Characters | 353,633 |
+| 🎯 Estimated Tokens | 88,429 |
+| ⏱️ Build Time | 59ms |
 
 *Healthy files: Have proper headings, balanced code blocks, reasonable line lengths, and no encoding issues.
 
@@ -35,7 +35,7 @@ This comprehensive document contains all README and documentation files from the
 - [📚 Documentation: Contracts](#documentation-contracts) *(2027 tokens)*
 - [📚 Documentation: Valve](#documentation-valve) *(1678 tokens)*
 - [📚 Documentation: Vault-Warden-Protocol](#documentation-vault-warden-protocol) *(1220 tokens)*
-- [📚 Documentation: Lexicon](#documentation-lexicon) *(2258 tokens)*
+- [📚 Documentation: Lexicon](#documentation-lexicon) *(2255 tokens)*
 - [📜 The SAGE Manifesto](#the-sage-manifesto) *(811 tokens)*
 - [📚 Documentation: Principles](#documentation-principles) *(1250 tokens)*
 - [📚 Documentation: Instant-Recall](#documentation-instant-recall) *(911 tokens)*
@@ -3746,9 +3746,9 @@ This protocol fits beautifully with the existing SAGE structure, requiring the f
 
 📚 # 📚 Documentation: Lexicon
 
-> **📁 Source File:** `DOCS/core-concepts/Lexicon.md` • *142 lines, 2258 tokens* • Hash: `3629e90f`
+> **📁 Source File:** `DOCS/core-concepts/Lexicon.md` • *142 lines, 2255 tokens* • Hash: `ab020d3d`
 
-# SAGE Lexicon (Refined)
+# SAGE Lexicon
 
 The official glossary of the SAGE Framework. It defines the core concepts, agents, and protocols that form the shared language of the SAGE ecology.
 
@@ -3877,7 +3877,7 @@ The official glossary of the SAGE Framework. It defines the core concepts, agent
 ### V
 
 - **Vault-Warden Protocol**
-  A security protocol for Secure Value Injection. It ensures that sensitive values (secrets, API keys) are never stored in Chronicles, Plans, or LLM prompts. Instead, they are injected just-in-time at the tool execution layer and immediately redacted from any output. This allows the system to operate on the *intent* to use a secret, not the secret itself. See [Principle of Secure Value Injection](./Principles.md#6-principle-of-secure-value-injection).
+  A security protocol for Secure Value Injection. It ensures that sensitive values (secrets, API keys) are never stored in Chronicles, Plans, or LLM prompts. Instead, they are injected just-in-time at the tool execution layer and immediately redacted from any output. This allows the system to operate on the _intent_ to use a secret, not the secret itself. See [Principle of Secure Value Injection](./Principles.md#6-principle-of-secure-value-injection).
 
 ### W
 
