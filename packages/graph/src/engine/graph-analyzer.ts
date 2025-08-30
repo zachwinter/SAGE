@@ -3,7 +3,8 @@ import { dirname, extname, relative, resolve } from "path";
 import {
   createFirstClassEntity,
   createSourceFileId,
-  isRelationshipAllowed
+  isRelationshipAllowed,
+  getEntityKind
 } from "../index.js";
 import type {
   AnalysisData,
@@ -187,13 +188,20 @@ export function analyzeToGraph(
 
     // Convert call expressions to CALLS relationships
     for (const callExpr of fileResult.callExpressions || []) {
-      if (!callExpr.containingFunction) continue;
-
       // Use cached entities for faster lookups
       const cachedFileEntities = entityCache.get(relativePath) || [];
-      const fromEntity = cachedFileEntities.find(
-        e => e.name === callExpr.containingFunction
-      );
+      
+      // Determine the "from" entity - either a function or the source file itself
+      let fromEntity: GraphEntity | undefined;
+      if (callExpr.containingFunction) {
+        // Call within a function/method
+        fromEntity = cachedFileEntities.find(
+          e => e.name === callExpr.containingFunction
+        );
+      } else {
+        // Top-level call - from SourceFile
+        fromEntity = fileEntities.get(relativePath);
+      }
 
       // Try to find callee in same file first
       let toEntity = cachedFileEntities.find(e => e.name === callExpr.callee);
@@ -231,108 +239,103 @@ export function analyzeToGraph(
       }
     }
 
-    // Handle exports - create EXPORTS relationships
-    for (const entity of fileResult.entities) {
-      // Case 1: Separate export entities (export default, export { named })
-      if (entity.type === "export") {
-        const cachedFileEntities = entityCache.get(relativePath) || [];
-        const exportEntity = cachedFileEntities.find(
-          e => e.name === entity.name && e.kind === "export"
-        );
-
-        if (exportEntity && !("isReExport" in entity && entity.isReExport)) {
+    // Handle exports - create EXPORTS relationships (SourceFile -> exported entities)
+    let sourceFileEntity = fileEntities.get(relativePath);
+    if (sourceFileEntity) {
+      if (debug && relativePath.includes('index.ts')) {
+        console.log(`DEBUG EXPORTS: Processing exports for ${relativePath}`);
+        console.log(`DEBUG EXPORTS: SourceFile entity:`, sourceFileEntity.id, sourceFileEntity.name);
+      }
+      for (const entity of fileResult.entities) {
+        // Check if entity is exported (either inline export or via export statement)
+        let isExported = false;
+        let exportType = "named";
+        
+        if ("isExported" in entity && entity.isExported) {
+          // Case 1: Inline exports (export function foo, export class Bar)
+          isExported = true;
+          exportType = "named";
+        } else if (entity.type === "export" && !("isReExport" in entity && entity.isReExport)) {
+          // Case 2: Separate export entities (export default, export { named })
+          // For these, we want to find the original entity being exported
           let exportedName = entity.name;
-
+          
           // Handle "default (functionName)" format
           if (exportedName.startsWith("default (") && exportedName.endsWith(")")) {
             exportedName = exportedName.slice(9, -1);
+            exportType = "default";
           } else if (exportedName === "default") {
             continue; // Skip pure default exports for now
           }
-
-          const exportedEntity = cachedFileEntities.find(
+          
+          // Find the original entity being exported
+          const cachedFileEntities = entityCache.get(relativePath) || [];
+          const originalEntity = cachedFileEntities.find(
             e =>
-              e.name === exportedName && e.kind !== "export" && e.kind !== "import"
+              e.name === exportedName && 
+              e.kind !== getEntityKind("export") && 
+              e.kind !== getEntityKind("import")
           );
-
-          if (exportedEntity) {
-            // Validate EXPORTS relationship schema
-            if (
-              isRelationshipAllowed(
-                "EXPORTS",
-                exportedEntity.kind,
-                exportEntity.kind
-              )
-            ) {
-              relationships.push({
-                from: exportedEntity.id,
-                to: exportEntity.id,
-                fromKind: exportedEntity.kind,
-                toKind: exportEntity.kind,
+          
+          if (originalEntity) {
+            // Create SourceFile -> original entity EXPORTS relationship
+            if (isRelationshipAllowed("EXPORTS", sourceFileEntity.kind, originalEntity.kind)) {
+              const exportsRel = {
+                from: sourceFileEntity.id,
+                to: originalEntity.id,
+                fromKind: sourceFileEntity.kind,
+                toKind: originalEntity.kind,
                 type: "EXPORTS",
-                evidence: `${exportedEntity.name} is exported via separate export statement`,
-                confidence: "high",
+                evidence: `File ${relativePath} exports ${originalEntity.name} via export statement`,
+                confidence: "high" as const,
                 metadata: {
-                  exportType:
-                    ("exportType" in entity ? entity.exportType : "unknown") ||
-                    "unknown",
-                  isDefault:
-                    ("isDefault" in entity ? entity.isDefault : false) || false
+                  exportType: exportType,
+                  isDefault: exportType === "default",
+                  exportedName: entity.name
                 }
-              });
+              };
+              relationships.push(exportsRel);
+              
+              if (debug && relativePath.includes('index.ts')) {
+                console.log(`DEBUG EXPORTS: Created relationship:`, exportsRel);
+              }
             } else if (debug) {
-              const key = `EXPORTS:${exportedEntity.kind}->${exportEntity.kind}`;
-              skippedRelationships.set(
-                key,
-                (skippedRelationships.get(key) || 0) + 1
-              );
+              const key = `EXPORTS:${sourceFileEntity.kind}->${originalEntity.kind}`;
+              skippedRelationships.set(key, (skippedRelationships.get(key) || 0) + 1);
             }
           }
+          continue; // Skip further processing for export entities
         }
-      }
+        
+        if (isExported) {
+          // Create SourceFile -> exported entity relationship for inline exports
+          const cachedFileEntities = entityCache.get(relativePath) || [];
+          const exportedEntity = cachedFileEntities.find(
+            e => e.name === entity.name && e.kind === getEntityKind(entity.type)
+          );
 
-      // Case 2: Inline exports (export function foo, export class Bar)
-      else if ("isExported" in entity && entity.isExported) {
-        const cachedFileEntities = entityCache.get(relativePath) || [];
-        const exportedEntity = cachedFileEntities.find(
-          e => e.name === entity.name && e.kind === entity.type
-        );
-
-        if (exportedEntity) {
-          // Create a virtual export node for inline exports
-          const virtualExportId = `export_${exportedEntity.id}`;
-          const virtualExport: GraphEntity = {
-            id: virtualExportId,
-            kind: "ExportAlias",
-            name: `export:${entity.name}`,
-            text: `export ${entity.type} ${entity.name}`,
-            filePath: relativePath,
-            line: entity.line,
-            column_num: 0,
-            pos: 0,
-            end: 0,
-            flags: 0
-          };
-          entities.push(virtualExport);
-
-          // Validate EXPORTS relationship schema
-          if (isRelationshipAllowed("EXPORTS", exportedEntity.kind, "ExportAlias")) {
-            relationships.push({
-              from: exportedEntity.id,
-              to: virtualExportId,
-              fromKind: exportedEntity.kind,
-              toKind: "ExportAlias",
+          if (exportedEntity && isRelationshipAllowed("EXPORTS", sourceFileEntity.kind, exportedEntity.kind)) {
+            const inlineExportsRel = {
+              from: sourceFileEntity.id,
+              to: exportedEntity.id,
+              fromKind: sourceFileEntity.kind,
+              toKind: exportedEntity.kind,
               type: "EXPORTS",
-              evidence: `${entity.name} is exported inline`,
-              confidence: "high",
+              evidence: `File ${relativePath} exports ${entity.name} inline`,
+              confidence: "high" as const,
               metadata: {
-                exportType: "named",
+                exportType: exportType,
                 isDefault: false,
                 isInline: true
               }
-            });
-          } else if (debug) {
-            const key = `EXPORTS:${exportedEntity.kind}->ExportAlias`;
+            };
+            relationships.push(inlineExportsRel);
+            
+            if (debug && relativePath.includes('index.ts')) {
+              console.log(`DEBUG EXPORTS: Created inline relationship:`, inlineExportsRel);
+            }
+          } else if (debug && exportedEntity) {
+            const key = `EXPORTS:${sourceFileEntity.kind}->${exportedEntity.kind}`;
             skippedRelationships.set(key, (skippedRelationships.get(key) || 0) + 1);
           }
         }
@@ -350,7 +353,7 @@ export function analyzeToGraph(
         const childEntity = cachedFileEntities.find(
           e =>
             e.name === entity.name &&
-            e.kind === entity.type &&
+            e.kind === getEntityKind(entity.type) &&
             e.line === entity.line
         );
 
@@ -382,8 +385,13 @@ export function analyzeToGraph(
     }
 
     // Create file-level CONTAINS relationships (SourceFile -> CodeEntity for top-level entities)
-    const sourceFileEntity = fileEntities.get(relativePath);
+    // sourceFileEntity already declared above
     if (sourceFileEntity) {
+      if (debug && relativePath.includes('errors.ts')) {
+        console.log(`DEBUG: Processing file ${relativePath}, sourceFile entity:`, sourceFileEntity.name);
+        console.log(`DEBUG: File has ${fileResult.entities.length} entities`);
+      }
+      
       for (const entity of fileResult.entities) {
         // Only create CONTAINS for top-level entities (those without parentScopeId)
         if (!entity.parentScopeId) {
@@ -391,9 +399,16 @@ export function analyzeToGraph(
           const codeEntity = cachedFileEntities.find(
             e =>
               e.name === entity.name &&
-              e.kind === entity.type &&
+              e.kind === getEntityKind(entity.type) &&
               e.line === entity.line
           );
+
+          if (debug && relativePath.includes('errors.ts')) {
+            console.log(`DEBUG: Top-level entity ${entity.name} (${entity.type}), found codeEntity:`, !!codeEntity);
+            if (codeEntity) {
+              console.log(`DEBUG: Would create CONTAINS: ${sourceFileEntity.kind} -> ${codeEntity.kind}`);
+            }
+          }
 
           if (codeEntity) {
             // Validate SourceFile CONTAINS relationship schema
@@ -411,19 +426,26 @@ export function analyzeToGraph(
                 toKind: codeEntity.kind,
                 type: "CONTAINS",
                 evidence: `File ${relativePath} contains top-level ${entity.type} ${entity.name}`,
-                confidence: "high",
+                confidence: "high" as const,
                 metadata: {
                   scopeType: "file",
                   containedType: entity.type,
                   isTopLevel: true
                 }
               });
+              
+              if (debug && relativePath.includes('errors.ts')) {
+                console.log(`DEBUG: Created CONTAINS relationship for ${entity.name}`);
+              }
             } else if (debug) {
               const key = `CONTAINS:${sourceFileEntity.kind}->${codeEntity.kind}`;
               skippedRelationships.set(
                 key,
                 (skippedRelationships.get(key) || 0) + 1
               );
+              if (relativePath.includes('errors.ts')) {
+                console.log(`DEBUG: CONTAINS relationship rejected: ${sourceFileEntity.kind} -> ${codeEntity.kind}`);
+              }
             }
           }
         }
@@ -469,7 +491,7 @@ export function analyzeToGraph(
                   toKind: toEntity.kind,
                   type: "IMPORTS",
                   evidence: `Local import statement: ${moduleSpecifier}`,
-                  confidence: "high",
+                  confidence: "high" as const,
                   metadata: {
                     module: moduleSpecifier,
                     importType: "local",

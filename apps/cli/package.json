@@ -17,7 +17,6 @@
     "@modelcontextprotocol/sdk": "^1.17.4",
     "@rollup/plugin-alias": "^5.1.1",
     "@sage/graph": "workspace:*",
-    "@sage/mcp": "workspace:*",
     "@sage/tools": "workspace:*",
     "@sage/utils": "workspace:*",
     "cli-highlight": "^2.1.11",

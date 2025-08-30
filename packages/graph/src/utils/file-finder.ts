@@ -2,14 +2,15 @@ import { glob } from "glob";
 import { join } from "path";
 
 export function getTypescriptFiles(dirPath: string) {
-  const pattern = join(dirPath, "**/*.{ts,tsx,js,jsx,mts,cts}");
+  const pattern = join(dirPath, "**/*.{ts,tsx,mts,cts}");
   return glob.sync(pattern, {
     ignore: [
       "**/node_modules/**",
       "**/dist/**",
       "**/build/**",
       "**/.git/**",
-      "**/coverage/**"
+      "**/coverage/**",
+      "**/*.d.ts"  // Exclude TypeScript declaration files
     ]
   });
 }
@@ -23,7 +24,8 @@ export function getRustFiles(dirPath: string) {
 
 export function getCodeFiles(dirPath: string) {
   // Use pattern without join() which can cause issues on some systems
-  const tsPattern = `${dirPath}/**/*.{js,jsx,ts,tsx,mts,cts}`;
+  // Only include source files, exclude compiled JS and declaration files
+  const tsPattern = `${dirPath}/**/*.{ts,tsx,mts,cts}`;
   const rustPattern = `${dirPath}/**/*.rs`;
 
   const tsFiles = glob.sync(tsPattern, {
@@ -32,7 +34,11 @@ export function getCodeFiles(dirPath: string) {
       "**/dist/**",
       "**/build/**",
       "**/.git/**",
-      "**/coverage/**"
+      "**/coverage/**",
+      "**/*.d.ts",      // Exclude TypeScript declaration files
+      "**/*.js",        // Exclude compiled JavaScript files
+      "**/*.js.map",    // Exclude source maps
+      "**/*.d.ts.map"   // Exclude declaration source maps
     ]
   });
 

@@ -37,10 +37,10 @@ export function createEntityId(entity: any, filePath: string): string {
 
 /**
  * Create a unique SourceFile ID
+ * SourceFile uses path as PRIMARY KEY in Rust schema, so return path directly
  */
 export function createSourceFileId(filePath: string): string {
-  const input = `SourceFile:${filePath}`;
-  return createHash("sha256").update(input).digest("hex").substring(0, 16);
+  return filePath;
 }
 
 /**
@@ -193,41 +193,48 @@ export function createFirstClassEntity(entity: any, filePath: string): GraphEnti
       };
 
     case "import":
+      const importPath = entity.module || extractImportPath(entity.signature);
+      // Create JSON metadata for Rust ingester
+      const importMetadata = {
+        localName: entity.name,
+        originalName: extractOriginalImportName(entity.name, entity.signature),
+        importPath: importPath,
+        signature: entity.signature
+      };
       return {
         id: baseId,
         kind: "ImportAlias",
         name: entity.name,
-        text: entity.signature,
+        text: JSON.stringify(importMetadata),
         filePath,
         line: entity.line,
         column_num: 0,
         pos: 0,
         end: 0,
         flags: 0,
-        parentScopeId: entity.parentScopeId,
-        localName: entity.name,
-        originalName: extractOriginalImportName(entity.name, entity.signature),
-        importPath: entity.module || extractImportPath(entity.signature),
-        signature: entity.signature
+        parentScopeId: entity.parentScopeId
       };
 
     case "export":
-      return {
-        id: baseId,
-        kind: "ExportAlias",
-        name: entity.name,
-        text: entity.signature,
-        filePath,
-        line: entity.line,
-        column_num: 0,
-        pos: 0,
-        end: 0,
-        flags: 0,
-        parentScopeId: entity.parentScopeId,
+      // Create JSON metadata for Rust ingester
+      const exportMetadata = {
         localName: entity.name,
         originalName: extractOriginalExportName(entity.name, entity.signature),
         exportType: entity.isDefault ? "default" : (entity.exportType || "named"),
         signature: entity.signature
+      };
+      return {
+        id: baseId,
+        kind: "ExportAlias",
+        name: entity.name,
+        text: JSON.stringify(exportMetadata),
+        filePath,
+        line: entity.line,
+        column_num: 0,
+        pos: 0,
+        end: 0,
+        flags: 0,
+        parentScopeId: entity.parentScopeId
       };
 
     default:

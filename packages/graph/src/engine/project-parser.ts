@@ -59,6 +59,11 @@ export function parseProjectInfo(projectRoot: string): ProjectInfo | null {
     let workspaces =
       packageJson.workspaces || packageJson.workspaces?.packages || [];
 
+    // Also check for pnpm workspaces configuration
+    if ((!Array.isArray(workspaces) || workspaces.length === 0) && packageJson.pnpm?.workspaces) {
+      workspaces = packageJson.pnpm.workspaces;
+    }
+
     // Also check for pnpm-workspace.yaml
     if (!Array.isArray(workspaces) || workspaces.length === 0) {
       const pnpmWorkspacePath = join(projectRoot, "pnpm-workspace.yaml");

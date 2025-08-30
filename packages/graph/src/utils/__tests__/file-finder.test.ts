@@ -25,14 +25,15 @@ describe("file-finder", () => {
 
       expect(result).toEqual(mockFiles);
       expect(vi.mocked(glob.sync)).toHaveBeenCalledWith(
-        "/test/**/*.{ts,tsx,js,jsx,mts,cts}",
+        "/test/**/*.{ts,tsx,mts,cts}",
         {
           ignore: [
             "**/node_modules/**",
             "**/dist/**",
             "**/build/**",
             "**/.git/**",
-            "**/coverage/**"
+            "**/coverage/**",
+            "**/*.d.ts"
           ]
         }
       );

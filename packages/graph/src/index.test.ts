@@ -50,7 +50,7 @@ console.log(greet(admin.getName()));
     const status = await getDatabaseStatus(workspace.root);
 
     expect(status.exists).toBe(false);
-    expect(status.path).toContain(".sage/code.kuzu");
+    expect(status.path).toContain("kuzu_db");
   });
 
   // Note: Actual ingestion test requires the kuzu-rust binary and analysis pipeline

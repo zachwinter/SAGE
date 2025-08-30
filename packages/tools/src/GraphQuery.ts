@@ -7,104 +7,31 @@ import { z } from "zod";
 const SCHEMA = `
 ## 🧠 Agent Onboarding Guide: Code Graph Database
 
-### 🏗️ Graph Schema Overview
+### 🏗️ Current Graph Schema (Based on Live Database Analysis)
 
-**Node Types (First-Class Entities):**
+**Node Types Currently Available:**
 
 **🎯 Code Entities** - Semantic, strongly-typed nodes:
-- **Function** - Standalone functions
-- **Method** - Class methods
-- **Class** - Class definitions
-- **Property** - Class properties
-- **Variable** - Scoped variables (parameters, locals, module-level)
-- **Interface** - TypeScript interfaces
-- **Enum** - Enumerations
-- **TypeAlias** - Type aliases
-- **ImportAlias** - Import statements and bindings
-- **ExportAlias** - Export declarations
+- **Function** - Properties: id, name, isAsync, isExported, returnType, parameters, filePath, line, columnNum, startPos, endPos, signature
+- **Class** - Properties: id, name, isAbstract, isExported, superClass, interfaces, filePath, line, columnNum, startPos, endPos, signature
+- **Interface** - Properties: id, name, isExported, extends, properties, filePath, line, columnNum, startPos, endPos, signature
+- **Variable** - Properties: id, name, type, isConst, isExported, scope, defaultValue, filePath, line, columnNum, startPos, endPos, signature
+- **TypeAlias** - Properties: id, name, isExported, definition, typeParameters, filePath, line, columnNum, startPos, endPos, signature
+- **ImportAlias** - Properties: id, localName, originalName, importPath, filePath, line, columnNum, startPos, endPos, signature
+- **ExportAlias** - Properties: id, localName, originalName, exportType, isDefault, filePath, line, columnNum, startPos, endPos, signature
 
 **📁 Organizational Entities:**
-- **SourceFile** - Files (dual-role: storage + execution context)
-- **Package** - Monorepo packages
-- **Project** - Root project
-- **Application** - Applications within projects
-- **Dependency** - External dependencies
-- **ExternalModule** - External modules
+- **SourceFile** - Properties: path, extension, isModule, size, totalLines, entityCount, relationshipCount
+- **Project** - Properties: id, name, path, version, packageManager, totalFiles, totalEntities, totalPackages, totalApplications
 
-### 🔗 Relationship Types:
+### 🔗 Relationship Types Currently Available:
 
-**Key Relationships:**
-1. **CALLS** - Function/method invocation
-   - Function → Function
-   - Method → Function
-   - Method → Method
-   - SourceFile → Function
-   - SourceFile → Method
-   - Function → ImportAlias
-   - Method → ImportAlias
-   - SourceFile → ImportAlias
+**Active Relationships:**
+1. **CALLS** - Function/method invocation patterns
+2. **CONTAINS** - Hierarchical containment (most common)
+3. **EXPORTS** - Export declarations
 
-2. **REFERENCES** - Variable/property access
-   - Function → Variable
-   - Method → Variable
-   - Method → Property
-   - SourceFile → Variable
-   - SourceFile → Property
-   - Function → ImportAlias
-   - Method → ImportAlias
-   - SourceFile → ImportAlias
-
-3. **CONTAINS** - Hierarchical containment (direct children only)
-   - SourceFile → Function (top-level functions)
-   - SourceFile → Class (top-level classes)
-   - SourceFile → Interface (top-level interfaces)
-   - SourceFile → Variable (module-scoped variables)
-   - SourceFile → Enum (top-level enums)
-   - SourceFile → TypeAlias (top-level type aliases)
-   - SourceFile → ImportAlias (import statements)
-   - Class → Method (class methods)
-   - Class → Property (class properties)
-   - Function → Variable (local variables)
-   - Method → Variable (local variables)
-
-4. **EXPORTS** - Export declarations
-   - SourceFile → Function
-   - SourceFile → Class
-   - SourceFile → Interface
-   - SourceFile → Variable
-   - SourceFile → Enum
-   - SourceFile → TypeAlias
-
-5. **RESOLVES_TO** - Import resolution
-   - ImportAlias → Function
-   - ImportAlias → Class
-   - ImportAlias → Interface
-   - ImportAlias → Variable
-   - ImportAlias → TypeAlias
-   - ImportAlias → Enum
-
-6. **INSTANCE_OF** - Class instantiation
-   - Variable → Class
-   - Property → Class
-
-7. **Project Hierarchy**
-   - Project → Application (HAS_APPLICATION)
-   - Project → Package (HAS_PACKAGE)
-   - Application → SourceFile (HAS_ENTRYPOINT)
-
-8. **Dependency Relationships**
-   - Package → Dependency (DEPENDS_ON)
-   - ImportAlias → Dependency (USES_DEPENDENCY)
-   - ImportAlias → ExternalModule (IMPORTS_EXTERNAL)
-
-9. **Type System**
-   - Class → Class (EXTENDS)
-   - Interface → Interface (EXTENDS)
-   - Class → Interface (IMPLEMENTS)
-   - Variable → TypeAlias (TYPE_OF)
-   - Variable → Interface (TYPE_OF)
-   - Property → TypeAlias (TYPE_OF)
-   - Property → Interface (TYPE_OF)
+**Note:** The current schema is more limited than the theoretical design. Missing relationship types like REFERENCES, RESOLVES_TO, INSTANCE_OF, and project hierarchy relationships indicate they may not be implemented yet or require additional ingestion logic.
 
 ### 🚀 Agent Quick Start Queries:
 

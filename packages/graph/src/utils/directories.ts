@@ -1,8 +1,8 @@
 import path from "path";
-import { DirectoryManager } from "@sage/utils";
+import { createDirectoryManager, type DirectoryManager } from "@sage/utils";
 
 /**
- * Directory utilities for the analysis package
+ * Directory utilities for the graph package
  * Uses dependency injection for better testability
  */
 

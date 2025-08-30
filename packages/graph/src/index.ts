@@ -11,11 +11,12 @@ import { analyzeToGraph } from './engine/graph-analyzer.js';
 export type { IngestOptions, QueryOptions, QueryResult, DatabaseConfig } from './types.js';
 
 // Re-export utility functions
-export { createFirstClassEntity, createSourceFileId } from './entity-utils.js';
+export { createFirstClassEntity, createSourceFileId, getEntityKind } from './entity-utils.js';
 export { isRelationshipAllowed } from './relationship-validator.js';
 export { getCodeFiles } from './utils/file-finder.js';
 export { analyzeToGraph } from './engine/graph-analyzer.js';
 export { RustKuzuIngestor } from './rust-ingestor.js';
+export { RustKuzuClient } from './rust-client.js';
 
 // Default database path
 const DEFAULT_DB_PATH = 'kuzu_db';

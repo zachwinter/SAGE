@@ -9,7 +9,6 @@ export { Spinner } from "./common/Spinner.js";
 export { Code } from "./content/Code.js";
 export { Command } from "./content/Command.js";
 export { Error } from "./content/Error.js";
-export { MCPServerListItem } from "./content/MCPServerListItem.js";
 export { Search } from "./content/Search.js";
 export { SearchableMultiSelect } from "./content/SearchableMultiSelect.js";
 export { SearchableSelect } from "./content/SearchableSelect.js";

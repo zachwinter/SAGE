@@ -3,7 +3,6 @@ import { View, type KeyBinding } from "../components/layout/View";
 import * as models from "../models";
 import {
   Home,
-  MCPMenu,
   SelectModel,
   SelectProvider,
   setView,
@@ -30,11 +29,6 @@ export const Menu = () => {
       key: "t",
       label: `Threads ${threadCount}`,
       action: () => setView(Threads)
-    },
-    {
-      key: "m",
-      action: () => setView(MCPMenu),
-      label: "MCP Servers"
     },
     {
       key: "escape",

@@ -416,7 +416,7 @@ export class RustKuzuIngestor {
 
   async ingestStream(
     analysisData: AnalysisData,
-    batchSize: number = 10000,
+    batchSize: number = 2500,
     progressCallback?: (message: string) => void
   ): Promise<IngestStats> {
     return new Promise((resolve, reject) => {

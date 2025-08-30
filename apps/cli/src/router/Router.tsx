@@ -19,14 +19,6 @@ export const Router: FC = () => {
         return <Views.SelectModel />;
       case app.SelectProvider:
         return <Views.SelectProvider />;
-      case app.MCPMenu:
-        return <Views.MCPMenu />;
-      case app.DiscoverMCP:
-        return <Views.DiscoverMCP />;
-      case app.ManageMCP:
-        return <Views.ManageMCP />;
-      case app.MCPTools:
-        return <Views.MCPTools />;
       default:
         return <Text>`{view}` doesn't exist. How did you even get here?</Text>;
     }
