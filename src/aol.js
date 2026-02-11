@@ -11,7 +11,7 @@ import process from 'process';
  */
 export class AOL {
   constructor() {
-    const logPath = process.cwd() + '/.sage/events.json'
+    const logPath = process.cwd() + '/.sage/events.jsonl'
     mkdirSync(path.dirname(logPath), { recursive: true });
     this.events = [];
     this.logPath = logPath;
